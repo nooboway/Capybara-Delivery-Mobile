@@ -1,1 +1,1 @@
-- [Capybara game scope and assets](capybara-game.md) — user-authorized rebuild targets mobile; keep the full media pack outside Git.
+- [Capybara game scope](capybara-game.md) — user-authorized rebuild should support mobile while preserving desktop.
