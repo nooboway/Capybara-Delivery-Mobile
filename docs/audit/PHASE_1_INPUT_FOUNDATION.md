@@ -1,5 +1,7 @@
 # Phase 1 — Input Foundation Implementation Report
 
+> **Superseded in part by Phase 1C.** This report describes the original Phase 1 checkpoint (`bda3cf7`). The Phase 1C corrective pass (`docs/audit/PHASE_1C_CORRECTIVE_INTEGRATION.md`) fixed the touch/event/lifecycle defects below and supersedes the following claims: the "15/15" suite proved core *mapping only* (not touch lifecycle — replaced by a 31-check layered suite); the engine itself can add `controls-ready` (native mobile controls are not solely a product of the removed bridge); and centralized `manager.reset()` alone was insufficient for source reset safety (a source-aware reset contract was added).
+
 > Implementation report for the authorized Phase 1 (canonical engine restoration + normalized input foundation). Phases 0A/0B reports remain authoritative for the runtime-surface and bundle-integrity findings.
 
 ## 1. Starting repository state
@@ -115,7 +117,7 @@ Full delivery loop was **not** manually driven in this phase (headless driving m
 
 - **Branding (inventory only, not fixed):** restoring the canonical engine reintroduces "Capybaras Delivering Food" / "Vibe Jam Winner" / vibejam portal links inside the engine, while the HTML shell still says "Okada". These are **ENGINE-EMBEDDED** and will be re-applied via a deterministic transform in a later phase (the correct SVG data URL must be quoted).
 - **Local dev modal removed** (was leaking a tunnel password + local IP); no production impact.
-- **Native `#btn-touch-*` binary controls** are no longer surfaced by the shell (the `controls-ready` class was only added by the removed bridge); the Phase-1 `okada-*` controls replace them for validation.
+- **Native `#btn-touch-*` binary controls** — the engine itself can add `controls-ready` (e.g., during tutorial progression), so these may still appear. Phase 1C suppresses them while the Okada layer owns input; Phase 2 owns the final control set.
 
 ## 22. Remaining risks
 

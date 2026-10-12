@@ -108,13 +108,19 @@ This preserves desktop keyboard play exactly.
 
 ## 9. Release / reset
 
-`OkadaInputManager.reset()` forces every axis neutral. It is invoked centrally on: pointer `up`/`cancel`/`lostpointercapture`, window `blur`, and `visibilitychange` (hidden). Touch controls use `setPointerCapture` and track `pointerId`, so simultaneous controls do not steal one another.
+`OkadaInputManager.reset()` clears all source contributions and neutralizes the resolved state. The coordinator `handle.reset(reason)` additionally resets each **source** (`touch.reset()` / `gamepad.reset()`), so a source cannot resurrect a stale action on its next event. It is invoked centrally on: pointer `up`/`cancel`/`lostpointercapture`, window `blur`, `visibilitychange` (hidden), mode transitions, source disposal, and teardown.
+
+**Pointer ownership policy (Phase 1C):** digital buttons use a multi-owner `Set<pointerId>` (active while any pointer is down); analog controls (steer, walk) use an exclusive `owner: pointerId`. Only the owner may move/release an analog control.
+
+**Engine input lock (Phase 1C):** the engine's input getters are gated by `Ft`, which is surfaced non-invasively as the `body.tutorial-locked` DOM class. The adapter suppresses normalized input whenever that class is present, so Okada input cannot bypass the engine's input lock.
 
 ## 10. Known limitations
 
 - Throttle/brake/reverse/drift/interact/wheelie are **binary** at the engine boundary (the engine only exposes booleans there). The normalized model uses 0..1 scalars for future-proofing; the adapter thresholds them.
-- Steering is the only channel where a **fractional** value demonstrably flows into the engine's analog smoothing.
+- Steering is the only channel where a **fractional** value demonstrably flows into the engine's analog smoothing; live `currentSteer` observation in mission driving mode remains unverified headlessly (see Phase 1C report).
 - The `phone` action is not yet wired to the engine (game-owned UI; Phase 3).
+- Gamepad is **architecture-ready, not implemented** (stub).
+- Control visibility is driven by the engine's `body.in-store-mode` class (walking in store mode; driving controls otherwise).
 
 ## 11. Invariants (do not break)
 

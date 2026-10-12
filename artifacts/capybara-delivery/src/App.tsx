@@ -15,12 +15,20 @@ import {
 
 const queryClient = new QueryClient();
 
-// Single input handle for the embedded game; disposed when the shell unmounts.
+// Input handle + abort controller bound to the current iframe generation.
 let inputHandle: OkadaInputHandle | null = null;
+let inputAbort: AbortController | null = null;
 
 function prepareGameFrame(frame: HTMLIFrameElement) {
   const frameDocument = frame.contentDocument;
   if (!frameDocument || !frame.contentWindow) return;
+
+  // Dispose the previous generation (iframe reload) before initializing the new one.
+  inputAbort?.abort();
+  inputHandle?.dispose();
+  inputHandle = null;
+  inputAbort = new AbortController();
+  const signal = inputAbort.signal;
 
   const shellStyles = frameDocument.createElement('style');
   shellStyles.id = 'capybara-mobile-shell-overrides';
@@ -45,11 +53,13 @@ function prepareGameFrame(frame: HTMLIFrameElement) {
   frameDocument.head.append(shellStyles);
 
   // Initialize the normalized input system (replaces the synthetic-keyboard bridge).
-  if (!inputHandle) {
-    void initOkadaInput(frame.contentWindow, frameDocument).then((handle) => {
-      inputHandle = handle;
-    });
-  }
+  void initOkadaInput(frame.contentWindow, frameDocument, { signal }).then((handle) => {
+    if (signal.aborted) {
+      handle?.dispose();
+      return;
+    }
+    inputHandle = handle;
+  });
 
   const isTouchDevice =
     window.matchMedia('(pointer: coarse)').matches ||
@@ -110,8 +120,10 @@ function Home() {
 
   useEffect(() => {
     return () => {
+      inputAbort?.abort();
       inputHandle?.dispose();
       inputHandle = null;
+      inputAbort = null;
     };
   }, []);
 

@@ -4,6 +4,12 @@
  * runtime from an exposed game reference, then overrides its getters to inject
  * normalized values, falling back to the engine's native keyboard/touch path
  * when no normalized source is active.
+ *
+ * Phase 1C additions:
+ *  - preserves the engine's input lock (`Ft`, surfaced as the
+ *    `body.tutorial-locked` DOM class) so normalized input is suppressed
+ *    whenever the engine suppresses native input;
+ *  - records and can restore the original property descriptors on dispose.
  */
 import type { OkadaInputManager } from "./input-manager";
 
@@ -20,10 +26,13 @@ const INPUT_GETTERS = [
 ] as const;
 
 type EngineInput = Record<string, unknown>;
+type DescriptorEntry = { key: string; desc: PropertyDescriptor };
 
 export class OkadaEngineAdapter {
   private rC: EngineInput | null = null;
+  private doc: Document | null = null;
   private originals = new Map<string, () => unknown>();
+  private originalDescriptors: DescriptorEntry[] = [];
   private overridden = false;
   private manager: OkadaInputManager | null = null;
 
@@ -34,18 +43,16 @@ export class OkadaEngineAdapter {
    */
   resolve(win: Window): boolean {
     if (this.rC) return true;
+    this.doc = win.document;
     const g = (win as unknown as { __capyGame?: Record<string, unknown> }).__capyGame;
     const world = g?.["world"] as Record<string, unknown> | undefined;
-    const candidates = [
+    const destructibles = (world?.["rapierContacts"] as Record<string, unknown> | undefined)?.[
+      "destructibles"
+    ] as Record<string, unknown> | undefined;
+    const candidates: unknown[] = [
       world?.["_lastInput"],
-      (world?.["rapierContacts"] as Record<string, unknown> | undefined)?.["destructibles"] as
-        | Record<string, unknown>
-        | undefined,
+      destructibles?.["_lastInput"],
     ];
-    // the second candidate is the destructibles object; its `_lastInput` holds the input ref
-    const destructibles = candidates[1] as Record<string, unknown> | undefined;
-    if (destructibles && destructibles["_lastInput"]) candidates.push(destructibles["_lastInput"] as EngineInput);
-
     for (const c of candidates) {
       if (c && this.hasInputShape(c as EngineInput)) {
         this.rC = c as EngineInput;
@@ -71,6 +78,15 @@ export class OkadaEngineAdapter {
     });
   }
 
+  /** Whether the engine is currently suppressing input (tutorial lock). */
+  private isLocked(): boolean {
+    try {
+      return !!this.doc?.body?.classList?.contains("tutorial-locked");
+    } catch {
+      return false;
+    }
+  }
+
   /** Override the input getters to inject normalized values (idempotent). */
   override(manager: OkadaInputManager): void {
     if (!this.rC || this.overridden) return;
@@ -80,6 +96,7 @@ export class OkadaEngineAdapter {
       if (!d || typeof d.get !== "function") continue;
       const original = d.get.bind(this.rC);
       this.originals.set(key, original);
+      this.originalDescriptors.push({ key, desc: d });
       Object.defineProperty(this.rC, key, {
         configurable: true,
         enumerable: d.enumerable,
@@ -89,6 +106,22 @@ export class OkadaEngineAdapter {
     this.overridden = true;
   }
 
+  /** Restore original getter descriptors (dispose). Idempotent. */
+  restore(): void {
+    if (!this.rC || !this.overridden) return;
+    for (const { key, desc } of this.originalDescriptors) {
+      try {
+        Object.defineProperty(this.rC, key, desc);
+      } catch {
+        // Ignore: the object may already be detached; nothing to restore into.
+      }
+    }
+    this.originals.clear();
+    this.originalDescriptors = [];
+    this.overridden = false;
+    this.manager = null;
+  }
+
   private original(key: string): unknown {
     const fn = this.originals.get(key);
     return fn ? fn() : null;
@@ -96,6 +129,8 @@ export class OkadaEngineAdapter {
 
   private compute(key: string): unknown {
     const state = this.manager?.getState();
+    // Preserve the engine input lock: when locked, never inject normalized values.
+    if (this.isLocked()) return this.original(key);
     if (!state) return this.original(key);
     switch (key) {
       case "steerDir":

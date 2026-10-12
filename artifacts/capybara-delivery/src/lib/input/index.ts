@@ -8,8 +8,13 @@
  * The engine's native keyboard path is left intact and used as the adapter's
  * fallback whenever no normalized source is active.
  *
- * This module is framework-agnostic (no React dependency); it takes a Window and
- * Document reference (the game iframe's) and returns a handle + cleanup.
+ * Phase 1C additions:
+ *  - centralized `reset(reason)` that resets every source AND the manager;
+ *  - AbortSignal support so stale async initialization cannot win an
+ *    iframe/document generation;
+ *  - dispose() restores the engine adapter's original getter descriptors.
+ *
+ * This module is framework-agnostic (no React dependency).
  */
 import { OkadaInputManager } from "./input-manager";
 import { OkadaEngineAdapter } from "./engine-adapter";
@@ -21,15 +26,19 @@ export interface OkadaInputHandle {
   adapter: OkadaEngineAdapter;
   touch: TouchInputSource;
   gamepad: GamepadInputSource;
-  /** Remove all injected DOM and release all input. */
+  /** Reset every source and the manager to neutral (blur/visibility/teardown). */
+  reset(reason?: string): void;
+  /** Remove all injected DOM, restore the adapter, and release all input. */
   dispose(): void;
 }
 
 export interface OkadaInputOptions {
-  /** Attach minimal Phase-1 touch controls (default true). */
+  /** Attach Phase-1 touch controls (default true). */
   touchControls?: boolean;
   /** Start gamepad polling (stub in Phase 1). */
   gamepad?: boolean;
+  /** Abort signal to cancel delayed initialization (iframe lifecycle). */
+  signal?: AbortSignal;
 }
 
 const RESOLVE_TIMEOUT_MS = 60000;
@@ -37,7 +46,7 @@ const RESOLVE_POLL_MS = 250;
 
 /**
  * Initialize the Okada input system against a game iframe.
- * Returns null if the engine input object could not be resolved within the timeout.
+ * Returns null if the engine input object could not be resolved (or was aborted).
  */
 export async function initOkadaInput(
   win: Window,
@@ -49,7 +58,7 @@ export async function initOkadaInput(
   const touch = new TouchInputSource(doc, manager);
   const gamepad = new GamepadInputSource(manager);
 
-  const resolved = await waitForInput(win, adapter, RESOLVE_TIMEOUT_MS);
+  const resolved = await waitForInput(win, adapter, RESOLVE_TIMEOUT_MS, options.signal);
   if (!resolved) {
     // eslint-disable-next-line no-console
     console.error("[okada] engine input object not resolved; normalized input unavailable");
@@ -65,10 +74,18 @@ export async function initOkadaInput(
     gamepad.start();
   }
 
+  let disposed = false;
+  const resetAll = (reason?: string) => {
+    if (disposed) return;
+    touch.reset(reason);
+    gamepad.reset(reason);
+    manager.reset();
+  };
+
   // Centralized release safety.
-  const onBlur = () => manager.reset();
+  const onBlur = () => resetAll("blur");
   const onVisibility = () => {
-    if (doc.hidden) manager.reset();
+    if (doc.hidden) resetAll("visibility");
   };
   win.addEventListener("blur", onBlur);
   doc.addEventListener("visibilitychange", onVisibility);
@@ -87,10 +104,14 @@ export async function initOkadaInput(
     adapter,
     touch,
     gamepad,
+    reset: resetAll,
     dispose() {
+      if (disposed) return;
+      disposed = true;
       touch.detach();
       gamepad.stop();
       manager.reset();
+      adapter.restore();
       win.removeEventListener("blur", onBlur);
       doc.removeEventListener("visibilitychange", onVisibility);
       delete (win as unknown as Record<string, unknown>)["__okadaInput"];
@@ -102,10 +123,15 @@ async function waitForInput(
   win: Window,
   adapter: OkadaEngineAdapter,
   timeoutMs: number,
+  signal?: AbortSignal,
 ): Promise<boolean> {
   const start = Date.now();
   return new Promise((resolve) => {
     const tick = () => {
+      if (signal?.aborted) {
+        resolve(false);
+        return;
+      }
       if (adapter.resolve(win)) {
         resolve(true);
         return;

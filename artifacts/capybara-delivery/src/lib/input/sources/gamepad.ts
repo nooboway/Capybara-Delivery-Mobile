@@ -1,5 +1,5 @@
 /**
- * Gamepad input source (Phase 1 stub — no production gamepad UX yet).
+ * Gamepad input source (Phase 1/1C stub — no production gamepad UX yet).
  *
  * The engine has no Gamepad API usage; gamepads will be polled here and mapped
  * into the same normalized state as touch, so gameplay code never changes.
@@ -19,6 +19,11 @@ export class GamepadInputSource {
 
   stop(): void {
     this.running = false;
+    this.reset("stop");
+  }
+
+  /** Release gamepad-owned input (reset contract). */
+  reset(_reason?: string): void {
     this.manager.release("gamepad");
   }
 

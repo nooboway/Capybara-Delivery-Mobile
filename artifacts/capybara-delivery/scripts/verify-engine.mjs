@@ -1,8 +1,11 @@
-// Automated Phase-1 verification.
-// 1) canonical hash, 2) parse, 3) boot, 4) input API, 5) steering/brake/reverse/walk/release.
-// Bundles the REAL src/lib/input modules with esbuild and runs them inside the game iframe.
+// Automated Phase-1C verification.
+// Layers:
+//   A — canonical engine integrity (hash, size, parse)
+//   B — manager/adapter mapping + keyboard fallback + interlock + descriptor restore
+//   C — touch source event tests (root, ownership, multitouch, reset, mode visibility, analog walk)
+//   D — lifecycle (abort/dispose/restore idempotency)
+// Bundles the REAL src/lib/input modules with esbuild and runs them in a headless browser.
 import { createRequire } from "node:module";
-import { execFileSync } from "node:child_process";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
@@ -19,23 +22,29 @@ const CANONICAL_SIZE = 6588195;
 const acorn = require(path.join(REPO, "node_modules/.pnpm/acorn@8.18.0/node_modules/acorn"));
 const esbuild = require(path.join(REPO, "node_modules/.pnpm/esbuild@0.18.20/node_modules/esbuild"));
 const pw = require("C:/Users/dev/AppData/Roaming/npm/node_modules/rea-agents/node_modules/playwright-core");
+const http = require("node:http");
 
 const results = [];
 function check(name, ok, detail = "") {
   results.push({ name, ok, detail });
-  console.log(`${ok ? "PASS" : "FAIL"}  ${name}${detail ? "  (" + detail + ")" : ""}`);
+  console.log(`${ok ? "PASS" : "FAIL"}  [${currentLayer}] ${name}${detail ? "  (" + detail + ")" : ""}`);
+}
+let currentLayer = "A";
+
+function withTimeout(promise, ms, label) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error("TIMEOUT: " + label)), ms)),
+  ]);
 }
 
-function sha256(buf) {
-  return crypto.createHash("sha256").update(buf).digest("hex").toUpperCase();
-}
+function sha256(buf) { return crypto.createHash("sha256").update(buf).digest("hex").toUpperCase(); }
 
-// 1. canonical hash + size
+// ============ LAYER A ============
+currentLayer = "A";
 const raw = fs.readFileSync(BUNDLE);
 check("canonical SHA-256", sha256(raw) === CANONICAL_SHA, sha256(raw));
 check("canonical size", raw.length === CANONICAL_SIZE, String(raw.length));
-
-// 2. parse (acorn + esbuild)
 try { acorn.parse(raw.toString("utf8"), { ecmaVersion: "latest", sourceType: "module" }); check("parse acorn", true); }
 catch (e) { check("parse acorn", false, e.message); }
 try { esbuild.transformSync(raw.toString("utf8"), { loader: "js", format: "esm", logLevel: "silent" }); check("parse esbuild", true); }
@@ -57,18 +66,28 @@ const inputJs = fs.readFileSync(out, "utf8");
 check("bundle input modules", inputJs.length > 0, inputJs.length + " bytes");
 
 const MIME = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg", ".woff2": "font/woff2", ".bin": "application/octet-stream" };
-function serve(port) { return new Promise((res) => { const s = require("node:http").createServer((req, r) => { let u = decodeURIComponent((req.url || "/").split("?")[0]); if (u === "/") u = "/capybara-game/index.html"; const fp = path.resolve(path.join(PKG, "public"), "." + u); if (!fp.startsWith(path.resolve(path.join(PKG, "public")) + path.sep)) { r.writeHead(403); r.end(); return; } fs.readFile(fp, (e, d) => { if (e) { r.writeHead(404); r.end(); return; } r.writeHead(200, { "Content-Type": MIME[path.extname(fp).toLowerCase()] || "application/octet-stream" }); r.end(d); }); }); s.listen(port, "127.0.0.1", () => res(s)); }); }
+function serve(port) { return new Promise((res) => { const s = http.createServer((req, r) => { let u = decodeURIComponent((req.url || "/").split("?")[0]); if (u === "/") u = "/capybara-game/index.html"; const root = path.resolve(path.join(PKG, "public")); const fp = path.resolve(root, "." + u); if (!fp.startsWith(root + path.sep)) { r.writeHead(403); r.end(); return; } fs.readFile(fp, (e, d) => { if (e) { r.writeHead(404); r.end(); return; } r.writeHead(200, { "Content-Type": MIME[path.extname(fp).toLowerCase()] || "application/octet-stream" }); r.end(d); }); }); s.listen(port, "127.0.0.1", () => res(s)); }); }
+
+const pageEval = `(${(() => {
+  function dispatch(el, type, init) {
+    el.dispatchEvent(new PointerEvent(type, Object.assign({ bubbles: true, cancelable: true, pointerId: 1, pointerType: "touch", isPrimary: true, clientX: 0, clientY: 0 }, init)));
+  }
+  return { dispatch };
+}).toString()})()`;
 
 async function main() {
-  await serve(4201);
+  await serve(4203);
   const browser = await pw.chromium.launch({ headless: true, executablePath: "C:/Program Files/Google/Chrome/Application/chrome.exe", args: ["--no-sandbox", "--disable-gpu"] });
   const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
-  await page.goto("http://127.0.0.1:4201/capybara-game/index.html", { waitUntil: "domcontentloaded", timeout: 60000 }).catch(() => {});
+  page.on("pageerror", (e) => console.log("[pageerror]", String(e)));
+  await page.goto("http://127.0.0.1:4203/capybara-game/index.html", { waitUntil: "domcontentloaded", timeout: 60000 }).catch(() => {});
   await page.waitForFunction(() => typeof window.__capyGame !== "undefined", { timeout: 120000, polling: 500 }).catch(() => {});
-  await page.evaluate(() => window.__capyGame.start()).catch(() => {});
-  await page.waitForTimeout(2000);
+  // Fire-and-forget the full boot (it can take 60s+ under software WebGL); we only
+  // need the input seam (world._lastInput), which becomes available once the loop runs.
+  await page.evaluate(() => { void window.__capyGame.start(); });
+  await page.waitForFunction(() => window.__capyGame && window.__capyGame.world && window.__capyGame.world._lastInput, { timeout: 120000, polling: 500 }).catch(() => {});
 
-  // boot globals
+  currentLayer = "A";
   const boot = await page.evaluate(() => ({
     capyGame: typeof window.__capyGame !== "undefined",
     capyAudio: typeof window.__capyAudio !== "undefined",
@@ -78,80 +97,186 @@ async function main() {
   check("boot __capyAudio", boot.capyAudio);
   check("boot __THREE__", boot.three);
 
-  // inject the real bundled input system into the game document (loaded as the main frame here)
   const frame = page.mainFrame();
   await frame.addScriptTag({ content: inputJs });
 
-  const handle = await frame.evaluate(async () => {
-    const OkadaInput = window.OkadaInput;
-    if (!OkadaInput) return { error: "no OkadaInput global" };
-    const h = await OkadaInput.initOkadaInput(window, document, { touchControls: false, gamepad: false });
-    return { resolved: !!h, hasState: !!h?.manager?.getState };
-  });
-  check("initOkadaInput resolved", handle.resolved === true, JSON.stringify(handle));
-
-  // steering readback through the engine input object
-  const steering = await frame.evaluate(async () => {
-    const m = window.__okadaInput.manager;
-    const adapter = window.__okadaInput.adapter;
-    const rC = adapter.getEngineInput();
-    const vals = [-1, -0.5, -0.1, 0, 0.1, 0.35, 0.5, 1];
+  // ============ LAYER B: manager/adapter mapping ============
+  currentLayer = "B";
+  const b = await frame.evaluate(async () => {
+    const h = await window.OkadaInput.initOkadaInput(window, document, { touchControls: false, gamepad: false });
+    const rC = h.adapter.getEngineInput();
+    const m = h.manager;
     const out = {};
-    for (const v of vals) {
-      m.apply("touch", { steer: v });
-      out[String(v)] = rC.steerDir;
-    }
-    m.apply("touch", { steer: 0 });
+    // steering fractional
+    const vals = [-1, -0.5, 0, 0.35, 1];
+    out.steer = {};
+    for (const v of vals) { m.apply("touch", { steer: v }); out.steer[String(v)] = rC.steerDir; }
+    m.reset();
+    // brake/reverse/throttle
+    m.apply("touch", { brake: 1 }); out.brake = { brake: rC.brake, backward: rC.backward, forward: rC.forward };
+    m.apply("touch", { reverse: 1 }); out.reverse = { brake: rC.brake, backward: rC.backward };
+    m.apply("touch", { throttle: 1 }); out.throttle = { forward: rC.forward };
+    m.reset();
+    // walk vector
+    m.apply("touch", { walkX: 0.42, walkY: -0.71 }); out.walk = rC.walkVec;
+    m.reset();
+    // keyboard fallback: no normalized -> original getter (reads native keyboard)
+    out.fallbackNeutral = rC.steerDir;
+    return { out, rC, m, h };
+  });
+  const steerOk = Object.entries(b.out.steer).every(([k, v]) => Math.abs(Number(k) - Number(v)) < 1e-9);
+  check("steering fractional readback", steerOk, JSON.stringify(b.out.steer));
+  check("brake independent", b.out.brake.brake === true && b.out.brake.backward === false && b.out.brake.forward === false, JSON.stringify(b.out.brake));
+  check("reverse distinct", b.out.reverse.backward === true && b.out.reverse.brake === false, JSON.stringify(b.out.reverse));
+  check("throttle forward", b.out.throttle.forward === true, JSON.stringify(b.out.throttle));
+  check("walk non-cardinal vector", b.out.walk && b.out.walk.active && Math.abs(b.out.walk.x - 0.42) < 1e-9 && Math.abs(b.out.walk.z - 0.71) < 1e-9, JSON.stringify(b.out.walk));
+
+  // interlock: tutorial-locked suppresses normalized input
+  const interlock = await frame.evaluate(() => {
+    const h = window.__okadaInput;
+    const rC = h.adapter.getEngineInput();
+    document.body.classList.add("tutorial-locked");
+    h.manager.apply("touch", { steer: 0.35, throttle: 1 });
+    const locked = { steer: rC.steerDir, forward: rC.forward };
+    document.body.classList.remove("tutorial-locked");
+    const unlocked = { steer: rC.steerDir, forward: rC.forward };
+    h.manager.reset();
+    return { locked, unlocked };
+  });
+  check("interlock suppresses steer when locked", interlock.locked.steer === 0 && interlock.locked.forward === false, JSON.stringify(interlock.locked));
+  check("interlock resumes after unlock", interlock.unlocked.steer === 0.35 && interlock.unlocked.forward === true, JSON.stringify(interlock.unlocked));
+
+  // descriptor restore on dispose
+  const restore = await frame.evaluate(async () => {
+    const h = await window.OkadaInput.initOkadaInput(window, document, { touchControls: false });
+    const rC = h.adapter.getEngineInput();
+    h.manager.apply("touch", { steer: 0.35 });
+    const before = rC.steerDir;
+    h.dispose();
+    const after = rC.steerDir;
+    return { before, after };
+  });
+  check("descriptor restored on dispose (override removed)", restore.before === 0.35 && restore.after === 0, JSON.stringify(restore));
+
+  // ============ LAYER C: touch source events ============
+  currentLayer = "C";
+  const c = await withTimeout(frame.evaluate(async () => {
+    try {
+    console.log("[C] start");
+    const h = await window.OkadaInput.initOkadaInput(window, document, { touchControls: true });
+    console.log("[C] init done h=" + !!h);
+    const out = {};
+    // F1: style in head, root DIV in body
+    const style = document.getElementById("okada-phase1-controls-style");
+    const root = document.getElementById("okada-phase1-controls-root");
+    out.f1 = {
+      styleInHead: style && style.tagName === "STYLE" && style.parentNode === document.head,
+      rootIsDivInBody: root && root.tagName === "DIV" && root.parentNode === document.body,
+      gasIsChild: root && document.getElementById("okada-btn-throttle")?.parentNode === root,
+      steerIsChild: root && document.getElementById("okada-steer")?.parentNode === root,
+    };
+    const gas = document.getElementById("okada-btn-throttle");
+    const steer = document.getElementById("okada-steer");
+    const brk = document.getElementById("okada-btn-brake");
+
+    // GAS down/up
+    gas.dispatchEvent(new PointerEvent("pointerdown", { pointerId: 1, bubbles: true, cancelable: true }));
+    out.gasDown = h.manager.getState().throttle === 1;
+    gas.dispatchEvent(new PointerEvent("pointerup", { pointerId: 1, bubbles: true }));
+    out.gasUp = h.manager.getState().throttle === 0;
+
+    // multitouch: pointer1 + pointer2 GAS, pointer1 up -> still active (Policy A)
+    gas.dispatchEvent(new PointerEvent("pointerdown", { pointerId: 1, bubbles: true, cancelable: true }));
+    gas.dispatchEvent(new PointerEvent("pointerdown", { pointerId: 2, bubbles: true, cancelable: true }));
+    gas.dispatchEvent(new PointerEvent("pointerup", { pointerId: 1, bubbles: true }));
+    out.multiOwnerStillActive = h.manager.getState().throttle === 1;
+    gas.dispatchEvent(new PointerEvent("pointerup", { pointerId: 2, bubbles: true }));
+    out.multiOwnerReleased = h.manager.getState().throttle === 0;
+
+    // simultaneous steer + GAS, then release GAS (steer must remain)
+    steer.dispatchEvent(new PointerEvent("pointerdown", { pointerId: 10, bubbles: true, cancelable: true, clientX: 100 }));
+    steer.dispatchEvent(new PointerEvent("pointermove", { pointerId: 10, bubbles: true, clientX: 130 }));
+    gas.dispatchEvent(new PointerEvent("pointerdown", { pointerId: 20, bubbles: true, cancelable: true }));
+    const sim = h.manager.getState();
+    out.simSteer = sim.steer;
+    out.simThrottle = sim.throttle;
+    gas.dispatchEvent(new PointerEvent("pointerup", { pointerId: 20, bubbles: true }));
+    out.steerStillOwnedAfterGasUp = h.manager.getState().steer !== 0 && h.manager.getState().throttle === 0;
+    steer.dispatchEvent(new PointerEvent("pointerup", { pointerId: 10, bubbles: true }));
+    out.steerReleased = h.manager.getState().steer === 0;
+
+    // pointer cancel neutralizes
+    gas.dispatchEvent(new PointerEvent("pointerdown", { pointerId: 1, bubbles: true, cancelable: true }));
+    gas.dispatchEvent(new PointerEvent("pointercancel", { pointerId: 1, bubbles: true }));
+    out.cancelNeutral = h.manager.getState().throttle === 0;
+
+    // F2: blur reset + no resurrection
+    gas.dispatchEvent(new PointerEvent("pointerdown", { pointerId: 1, bubbles: true, cancelable: true }));
+    out.throttleBeforeBlur = h.manager.getState().throttle;
+    window.dispatchEvent(new Event("blur"));
+    out.throttleAfterBlur = h.manager.getState().throttle;
+    brk.dispatchEvent(new PointerEvent("pointerdown", { pointerId: 3, bubbles: true, cancelable: true }));
+    out.throttleAfterBrk = h.manager.getState().throttle; // must still be 0
+    out.brakeAfterBrk = h.manager.getState().brake;
+    brk.dispatchEvent(new PointerEvent("pointerup", { pointerId: 3, bubbles: true }));
+
+    // F4: mode visibility + analog walk
+    out.walkHiddenInitially = getComputedStyle(document.getElementById("okada-walk")).display === "none";
+    document.body.classList.add("in-store-mode");
+    await new Promise((r) => setTimeout(r, 50)); // let MutationObserver fire
+    out.walkVisibleInStore = getComputedStyle(document.getElementById("okada-walk")).display !== "none";
+    out.drivingHiddenInStore = getComputedStyle(document.getElementById("okada-steer")).display === "none";
+    const walk = document.getElementById("okada-walk");
+    const wr = walk.getBoundingClientRect();
+    walk.dispatchEvent(new PointerEvent("pointerdown", { pointerId: 5, bubbles: true, cancelable: true, clientX: wr.left + wr.width * 0.8, clientY: wr.top + wr.height * 0.2 }));
+    const walkVec = h.manager.getState();
+    out.walkX = walkVec.walkX;
+    out.walkY = walkVec.walkY;
+    out.walkNonCardinal = walkVec.walkX !== 0 && walkVec.walkY !== 0;
+    document.body.classList.remove("in-store-mode");
+    await new Promise((r) => setTimeout(r, 50));
+    out.walkResetAfterModeExit = h.manager.getState().walkX === 0 && h.manager.getState().walkY === 0;
+
+    h.dispose();
+    return out;
+    } catch (e) { return { error: String(e && e.stack || e) }; }
+  }), 45000, "layer C");
+
+  check("F1 style in head, root DIV in body", c.f1.styleInHead && c.f1.rootIsDivInBody, JSON.stringify(c.f1));
+  check("F1 controls are children of root", c.f1.gasIsChild && c.f1.steerIsChild);
+  check("GAS down/up", c.gasDown && c.gasUp, JSON.stringify({ gasDown: c.gasDown, gasUp: c.gasUp }));
+  check("F3 multi-owner (p1+p2 down, p1 up -> still active)", c.multiOwnerStillActive && c.multiOwnerReleased, JSON.stringify({ still: c.multiOwnerStillActive, released: c.multiOwnerReleased }));
+  check("F3 simultaneous steer + GAS", c.simSteer !== 0 && c.simThrottle === 1, JSON.stringify({ steer: c.simSteer, throttle: c.simThrottle }));
+  check("F3 GAS up does not reset steer", c.steerStillOwnedAfterGasUp && c.steerReleased);
+  check("pointer cancel neutralizes", c.cancelNeutral);
+  check("F2 blur resets throttle", c.throttleBeforeBlur === 1 && c.throttleAfterBlur === 0, JSON.stringify({ before: c.throttleBeforeBlur, after: c.throttleAfterBlur }));
+  check("F2 no stale resurrection (BRK does not restore throttle)", c.throttleAfterBrk === 0 && c.brakeAfterBrk === 1, JSON.stringify({ throttle: c.throttleAfterBrk, brake: c.brakeAfterBrk }));
+  check("F4 walk hidden in driving", c.walkHiddenInitially);
+  check("F4 walk visible in store, driving hidden", c.walkVisibleInStore && c.drivingHiddenInStore, JSON.stringify({ walkVisible: c.walkVisibleInStore, drivingHidden: c.drivingHiddenInStore }));
+  check("F4 analog non-cardinal walk via pointer", c.walkNonCardinal, JSON.stringify({ x: c.walkX, y: c.walkY }));
+  check("F4 mode exit resets walk", c.walkResetAfterModeExit);
+
+  // ============ LAYER D: lifecycle ============
+  currentLayer = "D";
+  const d = await frame.evaluate(async () => {
+    const out = {};
+    // aborted signal -> no handle installed
+    const ac = new AbortController();
+    ac.abort();
+    const aborted = await window.OkadaInput.initOkadaInput(window, document, { touchControls: false, signal: ac.signal });
+    out.abortedReturnsNull = aborted === null;
+    out.noGlobalAfterAbort = !window.__okadaInput;
+    // dispose idempotent
+    const h = await window.OkadaInput.initOkadaInput(window, document, { touchControls: false });
+    h.dispose();
+    h.dispose();
+    out.disposeIdempotent = true;
     return out;
   });
-  const steerOk = Object.entries(steering).every(([k, v]) => Math.abs(Number(k) - Number(v)) < 1e-9);
-  check("steering fractional readback (-1..1)", steerOk, JSON.stringify(steering));
-
-  // brake vs reverse independence
-  const brakeRev = await frame.evaluate(() => {
-    const m = window.__okadaInput.manager;
-    const rC = window.__okadaInput.adapter.getEngineInput();
-    m.apply("touch", { brake: 1 });
-    const brake = { brake: rC.brake, backward: rC.backward, forward: rC.forward };
-    m.apply("touch", { reverse: 1 });
-    const rev = { brake: rC.brake, backward: rC.backward, forward: rC.forward };
-    m.apply("touch", { throttle: 1 });
-    const thr = { brake: rC.brake, backward: rC.backward, forward: rC.forward };
-    m.reset();
-    return { brake, rev, thr };
-  });
-  check("brake independent (brake true, backward false)", brakeRev.brake.brake === true && brakeRev.brake.backward === false, JSON.stringify(brakeRev.brake));
-  check("reverse distinct (backward true, brake false)", brakeRev.rev.backward === true && brakeRev.rev.brake === false, JSON.stringify(brakeRev.rev));
-  check("throttle forward (forward true)", brakeRev.thr.forward === true, JSON.stringify(brakeRev.thr));
-
-  // walking non-cardinal vector
-  const walk = await frame.evaluate(() => {
-    const m = window.__okadaInput.manager;
-    const rC = window.__okadaInput.adapter.getEngineInput();
-    m.apply("touch", { walkX: 0.42, walkY: -0.71 });
-    const v = rC.walkVec;
-    m.reset();
-    return v;
-  });
-  check("walk non-cardinal vector (x=0.42, z=0.71)", !!walk && walk.active && Math.abs(walk.x - 0.42) < 1e-9 && Math.abs(walk.z - 0.71) < 1e-9, JSON.stringify(walk));
-
-  // release/reset safety: everything neutral after reset
-  const release = await frame.evaluate(() => {
-    const m = window.__okadaInput.manager;
-    const rC = window.__okadaInput.adapter.getEngineInput();
-    m.apply("touch", { steer: 0.8, throttle: 1, brake: 1, reverse: 1, drift: true, interact: true, walkX: 0.5, walkY: 0.5 });
-    m.reset();
-    const s = m.getState();
-    const neutral = s.steer === 0 && s.throttle === 0 && s.brake === 0 && s.reverse === 0 && !s.drift && !s.interact && s.walkX === 0 && s.walkY === 0;
-    return { neutral, steerReadback: rC.steerDir };
-  });
-  check("release/reset neutralizes all inputs", release.neutral === true, JSON.stringify(release));
+  check("aborted signal -> null handle", d.abortedReturnsNull && d.noGlobalAfterAbort, JSON.stringify(d));
+  check("dispose idempotent", d.disposeIdempotent);
 
   await browser.close();
-  summary();
-}
-
-function summary() {
   const pass = results.filter((r) => r.ok).length;
   const fail = results.filter((r) => !r.ok).length;
   console.log(`\n===== VERIFY SUMMARY: ${pass} pass, ${fail} fail =====`);
