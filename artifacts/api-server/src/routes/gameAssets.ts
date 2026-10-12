@@ -43,6 +43,34 @@ router.get("/sponsor/img/:id", (req, res) => {
   return proxySponsorRequest(req, res);
 });
 
+async function fetchUpstreamAsset(file: string, res: Response) {
+  try {
+    const upstream = await fetch(`${GAME_ORIGIN}/p/${file}`);
+    if (!upstream.ok) {
+      res.sendStatus(upstream.status);
+      return;
+    }
+
+    const body = Buffer.from(await upstream.arrayBuffer());
+    res
+      .status(200)
+      .type(upstream.headers.get("content-type") ?? "application/octet-stream")
+      .set(
+        "Cache-Control",
+        file === "m.bin"
+          ? "public, max-age=60"
+          : "public, max-age=31536000, immutable",
+      )
+      .send(body);
+  } catch (error) {
+    logger.error(
+      { err: error, file },
+      "Could not reach upstream game asset",
+    );
+    res.status(502).json({ error: "Game asset is temporarily unavailable." });
+  }
+}
+
 router.get("/game-assets/:file", async (req, res) => {
   const file = req.params["file"];
   if (!/^(?:m|[a-f0-9]{10})\.bin$/i.test(file)) {
@@ -51,12 +79,12 @@ router.get("/game-assets/:file", async (req, res) => {
   }
 
   try {
-    const storedFile = await objectStorageService.searchPublicObject(
-      `capybara-game/p/${file}`,
-    );
+    const storedFile = await objectStorageService
+      .searchPublicObject(`capybara-game/p/${file}`)
+      .catch(() => null);
     if (!storedFile) {
-      logger.error({ file }, "Game asset is missing from App Storage");
-      res.status(503).json({ error: "The stored game assets are unavailable." });
+      logger.info({ file }, "Game asset not in App Storage; using upstream proxy");
+      await fetchUpstreamAsset(file, res);
       return;
     }
 
@@ -73,18 +101,18 @@ router.get("/game-assets/:file", async (req, res) => {
       .set("Content-Length", String(metadata.size ?? 0));
 
     const stream = storedFile.createReadStream();
-    stream.on("error", (error) => {
-      logger.error({ err: error, file }, "Could not read game asset from App Storage");
+    stream.on("error", async (error) => {
+      logger.error({ err: error, file }, "Could not read game asset from App Storage; falling back to upstream");
       if (!res.headersSent) {
-        res.status(503).json({ error: "The stored game assets are unavailable." });
+        await fetchUpstreamAsset(file, res);
       } else {
         res.destroy(error);
       }
     });
     stream.pipe(res);
   } catch (error) {
-    logger.error({ err: error, file }, "Could not reach App Storage for game asset");
-    res.status(503).json({ error: "The stored game assets are unavailable." });
+    logger.warn({ err: error, file }, "App Storage lookup failed; falling back to upstream");
+    await fetchUpstreamAsset(file, res);
   }
 });
 

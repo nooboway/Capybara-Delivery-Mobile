@@ -319,7 +319,8 @@ button {
   pointer-events: none;
 }
 
-.fullscreen-button {
+.fullscreen-button,
+.toolbar-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -340,21 +341,31 @@ button {
   transition: background-color 160ms ease, transform 160ms ease;
 }
 
-.fullscreen-button:hover {
+.fullscreen-button:hover,
+.toolbar-button:hover {
   background: rgba(63, 46, 31, 0.92);
   transform: translateY(-1px);
 }
 
-.fullscreen-button:active {
+.fullscreen-button:active,
+.toolbar-button:active {
   transform: translateY(0);
 }
 
-.fullscreen-button:focus-visible {
+.toolbar-button.is-active {
+  border-color: rgba(74, 222, 128, 0.65);
+  background: rgba(20, 83, 45, 0.85);
+  color: #dcfce7;
+}
+
+.fullscreen-button:focus-visible,
+.toolbar-button:focus-visible {
   outline: 2px solid #f4c84f;
   outline-offset: 3px;
 }
 
-.fullscreen-icon {
+.fullscreen-icon,
+.toolbar-icon {
   width: 16px;
   height: 16px;
   flex: none;
@@ -366,7 +377,8 @@ button {
     right: calc(var(--safe-right) + 10px);
   }
 
-  .fullscreen-button {
+  .fullscreen-button,
+  .toolbar-button {
     min-height: 40px;
     padding: 0 12px;
     gap: 7px;

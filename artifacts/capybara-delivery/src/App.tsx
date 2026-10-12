@@ -1,10 +1,11 @@
-import { type ReactNode, useEffect, useState } from 'react';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
-import { Maximize, Minimize } from 'lucide-react';
+import { Gamepad2, Maximize, Minimize, Smartphone, X, Copy, Check } from 'lucide-react';
+import { installTouchControls } from '@/lib/touch-controls';
 import {
   Route,
   Switch,
@@ -14,7 +15,7 @@ import {
 
 const queryClient = new QueryClient();
 
-function prepareGameFrame(frame: HTMLIFrameElement) {
+function prepareGameFrame(frame: HTMLIFrameElement, touchEnabled: boolean) {
   const frameDocument = frame.contentDocument;
   if (!frameDocument) return;
 
@@ -40,12 +41,15 @@ function prepareGameFrame(frame: HTMLIFrameElement) {
   `;
   frameDocument.head.append(shellStyles);
 
+  // Install virtual touch controls
+  installTouchControls(frame, { enabled: touchEnabled });
+
   const isTouchDevice =
     window.matchMedia('(pointer: coarse)').matches ||
     window.matchMedia('(max-width: 760px)').matches ||
     navigator.maxTouchPoints > 0;
 
-  if (!isTouchDevice) return;
+  if (!isTouchDevice && !touchEnabled) return;
 
   const updateTouchCopy = () => {
     const walker = frameDocument.createTreeWalker(
@@ -61,7 +65,7 @@ function prepareGameFrame(frame: HTMLIFrameElement) {
         node.textContent = 'Tap to start';
         changed += 1;
       } else if (text === 'Best on desktop. Use mouse and keyboard') {
-        node.textContent = 'Touch controls are ready after the intro.';
+        node.textContent = 'Touch controls are enabled.';
         changed += 1;
       }
       node = walker.nextNode();
@@ -85,7 +89,9 @@ function prepareGameFrame(frame: HTMLIFrameElement) {
 }
 
 function Home() {
+  const frameRef = useRef<HTMLIFrameElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [touchControlsEnabled, setTouchControlsEnabled] = useState(true);
 
   useEffect(() => {
     const syncFullscreen = () => {
@@ -95,6 +101,12 @@ function Home() {
     document.addEventListener('fullscreenchange', syncFullscreen);
     return () => document.removeEventListener('fullscreenchange', syncFullscreen);
   }, []);
+
+  useEffect(() => {
+    if (frameRef.current) {
+      installTouchControls(frameRef.current, { enabled: touchControlsEnabled });
+    }
+  }, [touchControlsEnabled]);
 
   const toggleFullscreen = async () => {
     const target = document.querySelector<HTMLElement>('.game-shell');
@@ -108,18 +120,51 @@ function Home() {
     }
   };
 
+  const [showMobileModal, setShowMobileModal] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const mobileUrl = 'https://wicked-horses-brake.loca.lt';
+
+  const copyUrl = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {}
+  };
+
   return (
     <main className="game-shell" data-testid="game-shell">
       <iframe
+        ref={frameRef}
         className="game-frame"
-        title="A Game About Capybaras Delivering Food"
+        title="Okada - A Game About Animals Delivering Food"
         src={`${import.meta.env.BASE_URL}capybara-game/index.html`}
         allow="gamepad; autoplay"
         allowFullScreen
-        onLoad={(event) => prepareGameFrame(event.currentTarget)}
+        onLoad={(event) => prepareGameFrame(event.currentTarget, touchControlsEnabled)}
         data-testid="game-frame"
       />
       <div className="game-toolbar">
+        <button
+          type="button"
+          className="toolbar-button"
+          onClick={() => setShowMobileModal((prev) => !prev)}
+          aria-label="Play on Mobile device"
+          data-testid="button-mobile-link"
+        >
+          <Smartphone aria-hidden="true" className="toolbar-icon" />
+          <span>Mobile</span>
+        </button>
+        <button
+          type="button"
+          className={`toolbar-button ${touchControlsEnabled ? 'is-active' : ''}`}
+          onClick={() => setTouchControlsEnabled((prev) => !prev)}
+          aria-label={touchControlsEnabled ? 'Disable touch controls' : 'Enable touch controls'}
+          data-testid="button-touch-toggle"
+        >
+          <Gamepad2 aria-hidden="true" className="toolbar-icon" />
+          <span>{touchControlsEnabled ? 'Touch: ON' : 'Touch: OFF'}</span>
+        </button>
         <button
           type="button"
           className="fullscreen-button"
@@ -135,6 +180,99 @@ function Home() {
           <span>{isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}</span>
         </button>
       </div>
+
+      {showMobileModal && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 9999,
+            background: 'rgba(5, 10, 20, 0.75)',
+            backdropFilter: 'blur(8px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '16px',
+          }}
+          onClick={() => setShowMobileModal(false)}
+        >
+          <div
+            style={{
+              background: '#0f172a',
+              border: '1.5px solid #38bdf8',
+              borderRadius: '16px',
+              padding: '24px',
+              maxWidth: '440px',
+              width: '100%',
+              color: '#f8fafc',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.6)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '18px', fontWeight: 700, color: '#38bdf8' }}>
+                <Smartphone size={20} />
+                <span>Play Okada on Mobile / iPad</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowMobileModal(false)}
+                style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: '4px' }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <p style={{ fontSize: '13px', color: '#94a3b8', lineHeight: 1.5, marginBottom: '16px' }}>
+              Open this link on your phone, iPad, or any mobile browser to play with fluid touch controls:
+            </p>
+
+            <div
+              style={{
+                background: '#1e293b',
+                padding: '12px 14px',
+                borderRadius: '10px',
+                border: '1px solid #334155',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: '12px',
+                gap: '8px',
+              }}
+            >
+              <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '13px', fontFamily: 'monospace', color: '#38bdf8' }}>
+                {mobileUrl}
+              </div>
+              <button
+                type="button"
+                onClick={() => copyUrl(mobileUrl)}
+                style={{
+                  background: copied ? '#10b981' : '#38bdf8',
+                  color: '#0f172a',
+                  border: 'none',
+                  borderRadius: '6px',
+                  padding: '6px 10px',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+              >
+                {copied ? <Check size={14} /> : <Copy size={14} />}
+                <span>{copied ? 'Copied' : 'Copy'}</span>
+              </button>
+            </div>
+
+            <div style={{ background: 'rgba(56, 189, 248, 0.08)', border: '1px solid rgba(56, 189, 248, 0.25)', borderRadius: '8px', padding: '10px 12px', fontSize: '12px', color: '#cbd5e1', lineHeight: 1.4 }}>
+              <strong>Tunnel Password:</strong> <code style={{ color: '#38bdf8' }}>105.113.107.160</code> (if prompted once by the tunnel security page).
+              <br />
+              <strong>Local Wi-Fi:</strong> <code style={{ color: '#38bdf8' }}>http://192.168.1.175:3000</code>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

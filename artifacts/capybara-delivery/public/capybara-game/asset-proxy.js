@@ -12,15 +12,22 @@
     const match = url.pathname.match(/^\/p\/(m|[a-f0-9]{10})\.bin$/i);
 
     if (url.origin === window.location.origin && match) {
-      const proxyUrl = new URL(
-        `/api/game-assets/${match[1]}.bin${url.search}`,
+      const localUrl = new URL(
+        `/p/${match[1]}.bin${url.search}`,
         window.location.href,
       );
-      const proxiedRequest =
-        input instanceof Request
-          ? new Request(proxyUrl, input)
-          : new Request(proxyUrl, init);
-      return nativeFetch(proxiedRequest);
+      return nativeFetch(localUrl, init).then((res) => {
+        if (res.ok) return res;
+        const proxyUrl = new URL(
+          `/api/game-assets/${match[1]}.bin${url.search}`,
+          window.location.href,
+        );
+        const proxiedRequest =
+          input instanceof Request
+            ? new Request(proxyUrl, input)
+            : new Request(proxyUrl, init);
+        return nativeFetch(proxiedRequest);
+      });
     }
 
     return nativeFetch(input, init);

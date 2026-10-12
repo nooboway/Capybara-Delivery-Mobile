@@ -3,21 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>A Game About Capybaras Delivering Food</title>
+  <title>Okada - A Game About Animals Delivering Food</title>
   <link rel="icon" href="data:,">
-  <meta name="description" content="Deliver fruit on a scooter across a capybara-run city. A vibe-coded Three.js game.">
+  <meta name="description" content="Deliver food on a scooter across Lekkiwood. Okada — a game about animals delivering food.">
   <meta property="og:type" content="website">
-  <meta property="og:site_name" content="A Game About Capybaras Delivering Food">
-  <meta property="og:title" content="A Game About Capybaras Delivering Food">
-  <meta property="og:description" content="Deliver fruit on a scooter across a capybara-run city. A vibe-coded Three.js game.">
-  <meta property="og:url" content="https://capybara-vibejam26.leocoout.dev/">
-  <meta property="og:image" content="https://capybara-vibejam26.leocoout.dev/images/capybara_thumbnail.png?v=1">
-  <meta property="og:image:alt" content="A Game About Capybaras Delivering Food">
+  <meta property="og:site_name" content="Okada - A Game About Animals Delivering Food">
+  <meta property="og:title" content="Okada - A Game About Animals Delivering Food">
+  <meta property="og:description" content="Deliver food on a scooter across Lekkiwood. Okada — a game about animals delivering food.">
+  <meta property="og:url" content="/">
+  <meta property="og:image" content="/images/capybara_thumbnail.png?v=1">
+  <meta property="og:image:alt" content="Okada - A Game About Animals Delivering Food">
   <meta name="twitter:card" content="player">
-  <meta name="twitter:title" content="A Game About Capybaras Delivering Food">
-  <meta name="twitter:description" content="Deliver fruit on a scooter across a capybara-run city. Play right here in the timeline.">
-  <meta name="twitter:image" content="https://capybara-vibejam26.leocoout.dev/images/capybara_thumbnail.png?v=2">
-  <meta name="twitter:player" content="https://capybara-vibejam26.leocoout.dev/?embed">
+  <meta name="twitter:title" content="Okada - A Game About Animals Delivering Food">
+  <meta name="twitter:description" content="Deliver food on a scooter across Lekkiwood. Okada — a game about animals delivering food.">
+  <meta name="twitter:image" content="/images/capybara_thumbnail.png?v=2">
+  <meta name="twitter:player" content="/?embed">
   <meta name="twitter:player:width" content="520">
   <meta name="twitter:player:height" content="520">
   <script>
@@ -2519,7 +2519,7 @@
   <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
 </head>
 <body>
-  <a id="embed-bar" href="/" target="_blank" rel="noopener"><span id="embed-bar-title">A Game About Capybaras Delivering Food</span><span id="embed-bar-label">Open full game ↗</span></a>
+  <a id="embed-bar" href="/" target="_blank" rel="noopener"><span id="embed-bar-title">Okada - A Game About Animals Delivering Food</span><span id="embed-bar-label">Open full game ↗</span></a>
   <div id="fps-counter">FPS: --</div>
   <div id="debug-info"></div>
   <div id="debug-panel" class="hidden">
@@ -3830,40 +3830,6 @@
   </div>
   <div id="game-version" aria-hidden="true">v1.7.1</div>
 
-  <script async src="https://vibejam.cc/2026/widget.js"></script>
-  <script>
-    // Fallback Vibe Jam badge. Content blockers on some browsers (Safari +
-    // 1Blocker / Brave shields / DNS-level filters) eat the official
-    // widget.js so the badge never appears. We give the real widget ~2.5s
-    // to attach its anchor; if nothing shows up by then we inject a
-    // visually-matching link ourselves so the badge is still visible to
-    // judges and players.
-    (function () {
-      function hasOfficialBadge() {
-        return !!document.querySelector('a[href="https://vibej.am/"], a[href^="https://vibejam.cc/"]');
-      }
-      function injectFallback() {
-        if (hasOfficialBadge()) return;
-        if (document.getElementById('vibejam-fallback-badge')) return;
-        var a = document.createElement('a');
-        a.id = 'vibejam-fallback-badge';
-        a.target = '_blank';
-        a.rel = 'noopener';
-        a.href = 'https://vibejam.cc/';
-        a.textContent = '🕹️ Vibe Jam 2026';
-        a.style.cssText = "font-family: 'system-ui', sans-serif; position: fixed; bottom: -1px; right: -1px; padding: 7px 14px; font-size: 14px; font-weight: bold; background: #000; color: #fff; text-decoration: none; z-index: 10000; border-top-left-radius: 12px; border: 1px solid #000;";
-        document.body.appendChild(a);
-      }
-      function check() {
-        if (hasOfficialBadge()) return;
-        injectFallback();
-      }
-      if (document.readyState === 'complete' || document.readyState === 'interactive') {
-        setTimeout(check, 2500);
-      } else {
-        document.addEventListener('DOMContentLoaded', function () { setTimeout(check, 2500); });
-      }
-    })();
-  </script>
+  <div id="sylens-badge" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; position: fixed; bottom: -1px; right: -1px; padding: 7px 14px; font-size: 13px; font-weight: 700; background: #0b0f19; color: #38bdf8; text-decoration: none; z-index: 10000; border-top-left-radius: 12px; border: 1.5px solid rgba(56, 189, 248, 0.4); box-shadow: 0 4px 14px rgba(0,0,0,0.4); pointer-events: none; user-select: none;">⚡ sylens 2026</div>
 </body>
 </html>
