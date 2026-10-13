@@ -33,6 +33,7 @@ export class TouchInputSource {
 
   // Digital button ownership: buttonId -> set of active pointer ids (Policy A).
   private buttonOwners = new Map<string, Set<number>>();
+  private capturedPointers = new Map<number, Element>();
   // Analog exclusive ownership.
   private steerOwner: number | null = null;
   private steerOriginX = 0;
@@ -60,7 +61,7 @@ export class TouchInputSource {
     this.buildButton("okada-btn-throttle", "GAS", () => (this.contribution.throttle = 1), () => (this.contribution.throttle = 0), "right:24px;bottom:120px;");
     this.buildButton("okada-btn-brake", "BRK", () => (this.contribution.brake = 1), () => (this.contribution.brake = 0), "right:24px;bottom:24px;");
     this.buildButton("okada-btn-drift", "DRIFT", () => (this.contribution.drift = true), () => (this.contribution.drift = false), "right:110px;bottom:120px;");
-    this.buildButton("okada-btn-interact", "E", () => (this.contribution.interact = true), () => (this.contribution.interact = false), "right:110px;bottom:210px;");
+    this.buildButton("okada-btn-interact", "E", () => (this.contribution.interact = true), () => (this.contribution.interact = false), "right:110px;bottom:210px;", false);
     this.buildWalkStick();
     this.readMode();
     this.observeMode();
@@ -89,26 +90,10 @@ export class TouchInputSource {
   /** Called by the mode observer when the game enters/leaves store mode. */
   setMode(mode: Mode): void {
     if (mode === this.mode) return;
-    const previous = this.mode;
     this.mode = mode;
-    // Never carry input across a mode boundary.
-    if (previous === "store") {
-      // leaving store: clear walking
-      this.contribution.walkX = 0;
-      this.contribution.walkY = 0;
-      this.walkOwner = null;
-      this.resetStickVisual();
-    } else {
-      // entering store: clear driving
-      this.contribution.steer = 0;
-      this.contribution.throttle = 0;
-      this.contribution.brake = 0;
-      this.contribution.reverse = 0;
-      this.contribution.drift = false;
-      this.contribution.interact = false;
-    }
+    // Revoke ownership as well as values before hiding any captured controls.
+    this.reset("mode-change");
     this.applyVisibility();
-    this.apply();
   }
 
   private injectStyles(): void {
@@ -163,11 +148,12 @@ export class TouchInputSource {
     this.steerKnob = knob;
 
     el.addEventListener("pointerdown", (e: PointerEvent) => {
+      if (!this.attached || this.mode !== "driving") return;
       if (this.steerOwner !== null) return; // exclusive owner
       e.preventDefault();
       this.steerOwner = e.pointerId;
       this.steerOriginX = e.clientX;
-      safeCapture(el, e.pointerId);
+      this.capture(el, e.pointerId);
     });
     el.addEventListener("pointermove", (e: PointerEvent) => {
       if (e.pointerId !== this.steerOwner) return;
@@ -180,6 +166,7 @@ export class TouchInputSource {
     const end = (e: PointerEvent) => {
       if (e.pointerId !== this.steerOwner) return;
       this.steerOwner = null;
+      this.capturedPointers.delete(e.pointerId);
       this.contribution.steer = 0;
       knob.style.transform = "translate(-50%,-50%)";
       this.apply();
@@ -195,12 +182,13 @@ export class TouchInputSource {
     onPress: () => void,
     onRelease: () => void,
     css: string,
+    drivingOnly = true,
   ): void {
     const root = this.ensureRoot();
     const el = this.doc.createElement("button");
     el.type = "button";
     el.id = id;
-    el.className = "okada-btn driving-control";
+    el.className = drivingOnly ? "okada-btn driving-control" : "okada-btn";
     el.textContent = label;
     el.style.cssText = css;
     root.appendChild(el);
@@ -210,8 +198,9 @@ export class TouchInputSource {
       this.buttonOwners.set(id, owners);
     }
     const down = (e: PointerEvent) => {
+      if (!this.attached || (drivingOnly && this.mode !== "driving")) return;
       e.preventDefault();
-      safeCapture(el, e.pointerId);
+      this.capture(el, e.pointerId);
       owners.add(e.pointerId);
       if (owners.size === 1) {
         el.classList.add("pressed");
@@ -222,6 +211,7 @@ export class TouchInputSource {
     const up = (e: PointerEvent) => {
       if (!owners.has(e.pointerId)) return;
       owners.delete(e.pointerId);
+      this.capturedPointers.delete(e.pointerId);
       if (owners.size === 0) {
         el.classList.remove("pressed");
         onRelease();
@@ -272,10 +262,11 @@ export class TouchInputSource {
     };
 
     el.addEventListener("pointerdown", (e: PointerEvent) => {
+      if (!this.attached || this.mode !== "store") return;
       if (this.walkOwner !== null) return; // exclusive owner
       e.preventDefault();
       this.walkOwner = e.pointerId;
-      safeCapture(el, e.pointerId);
+      this.capture(el, e.pointerId);
       move(e.clientX, e.clientY);
     });
     el.addEventListener("pointermove", (e: PointerEvent) => {
@@ -285,6 +276,7 @@ export class TouchInputSource {
     const end = (e: PointerEvent) => {
       if (e.pointerId !== this.walkOwner) return;
       this.walkOwner = null;
+      this.capturedPointers.delete(e.pointerId);
       this.contribution.walkX = 0;
       this.contribution.walkY = 0;
       knob.style.transform = "translate(-50%,-50%)";
@@ -311,7 +303,14 @@ export class TouchInputSource {
     this.observer = null;
   }
 
+  private capture(el: Element, pointerId: number): void {
+    safeCapture(el, pointerId);
+    this.capturedPointers.set(pointerId, el);
+  }
+
   private releaseAllControls(): void {
+    const captures = Array.from(this.capturedPointers);
+    this.capturedPointers.clear();
     this.buttonOwners.forEach((owners) => owners.clear());
     for (const el of Array.from(this.doc.querySelectorAll(".okada-btn.pressed"))) el.classList.remove("pressed");
     this.steerOwner = null;
@@ -325,6 +324,14 @@ export class TouchInputSource {
     this.contribution.drift = false;
     this.contribution.interact = false;
     this.resetStickVisual();
+    // Clear owners first: release may synchronously produce lostpointercapture.
+    for (const [pointerId, el] of captures) {
+      try {
+        if (el.hasPointerCapture?.(pointerId)) el.releasePointerCapture(pointerId);
+      } catch {
+        // The browser may already have released a cancelled/detached pointer.
+      }
+    }
   }
 
   private resetStickVisual(): void {

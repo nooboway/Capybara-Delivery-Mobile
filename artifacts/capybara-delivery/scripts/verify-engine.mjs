@@ -78,14 +78,16 @@ const pageEval = `(${(() => {
 async function main() {
   await serve(4203);
   const browser = await pw.chromium.launch({ headless: true, executablePath: "C:/Program Files/Google/Chrome/Application/chrome.exe", args: ["--no-sandbox", "--disable-gpu"] });
-  const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
+  const page = await browser.newPage({ viewport: { width: 1280, height: 720 }, hasTouch: true });
   page.on("pageerror", (e) => console.log("[pageerror]", String(e)));
-  await page.goto("http://127.0.0.1:4203/capybara-game/index.html", { waitUntil: "domcontentloaded", timeout: 60000 }).catch(() => {});
-  await page.waitForFunction(() => typeof window.__capyGame !== "undefined", { timeout: 120000, polling: 500 }).catch(() => {});
+  page.on("requestfailed", (request) => console.log("[requestfailed]", request.url(), request.failure()?.errorText));
+  page.on("console", (message) => { if (message.type() === "error") console.log("[console error]", message.text()); });
+  await page.goto("http://127.0.0.1:4203/capybara-game/index.html", { waitUntil: "domcontentloaded", timeout: 60000 });
+  await page.waitForFunction(() => typeof window.__capyGame !== "undefined", null, { timeout: 120000, polling: 500 });
   // Fire-and-forget the full boot (it can take 60s+ under software WebGL); we only
   // need the input seam (world._lastInput), which becomes available once the loop runs.
   await page.evaluate(() => { void window.__capyGame.start(); });
-  await page.waitForFunction(() => window.__capyGame && window.__capyGame.world && window.__capyGame.world._lastInput, { timeout: 120000, polling: 500 }).catch(() => {});
+  await page.waitForFunction(() => window.__capyGame && window.__capyGame.world && window.__capyGame.world._lastInput, null, { timeout: 120000, polling: 500 });
 
   currentLayer = "A";
   const boot = await page.evaluate(() => ({
@@ -220,12 +222,39 @@ async function main() {
     out.brakeAfterBrk = h.manager.getState().brake;
     brk.dispatchEvent(new PointerEvent("pointerup", { pointerId: 3, bubbles: true }));
 
+    // Visibility must reset the source as well as the resolved manager state.
+    gas.dispatchEvent(new PointerEvent("pointerdown", { pointerId: 1, bubbles: true }));
+    const hiddenDescriptor = Object.getOwnPropertyDescriptor(document, "hidden");
+    Object.defineProperty(document, "hidden", { configurable: true, value: true });
+    document.dispatchEvent(new Event("visibilitychange"));
+    if (hiddenDescriptor) Object.defineProperty(document, "hidden", hiddenDescriptor);
+    else delete document.hidden;
+    brk.dispatchEvent(new PointerEvent("pointerdown", { pointerId: 3, bubbles: true }));
+    out.visibilityNoResurrection = h.manager.getState().throttle === 0 && h.manager.getState().brake === 1;
+    h.reset("test");
+
+    // Hold actual source owners across the mode boundary, then send late events.
+    steer.dispatchEvent(new PointerEvent("pointerdown", { pointerId: 10, clientX: 100 }));
+    steer.dispatchEvent(new PointerEvent("pointermove", { pointerId: 10, clientX: 130 }));
+    gas.dispatchEvent(new PointerEvent("pointerdown", { pointerId: 20 }));
+    out.heldBeforeStore = h.manager.getState().steer === 0.5 && h.manager.getState().throttle === 1;
+
     // F4: mode visibility + analog walk
     out.walkHiddenInitially = getComputedStyle(document.getElementById("okada-walk")).display === "none";
     document.body.classList.add("in-store-mode");
     await new Promise((r) => setTimeout(r, 50)); // let MutationObserver fire
     out.walkVisibleInStore = getComputedStyle(document.getElementById("okada-walk")).display !== "none";
     out.drivingHiddenInStore = getComputedStyle(document.getElementById("okada-steer")).display === "none";
+    out.drivingButtonsHidden = [gas, brk, document.getElementById("okada-btn-drift")].every(el => getComputedStyle(el).display === "none");
+    const interact = document.getElementById("okada-btn-interact");
+    const ir = interact.getBoundingClientRect();
+    out.interactVisible = getComputedStyle(interact).display !== "none" && ir.width > 0 && ir.height > 0;
+    out.interactHitTest = interact.contains(document.elementFromPoint(ir.left + ir.width / 2, ir.top + ir.height / 2));
+    out.drivingOwnersCleared = h.touch.steerOwner === null && [...h.touch.buttonOwners.values()].every(owners => owners.size === 0) && h.touch.capturedPointers.size === 0;
+    steer.dispatchEvent(new PointerEvent("pointermove", { pointerId: 10, clientX: 145 }));
+    gas.dispatchEvent(new PointerEvent("pointerdown", { pointerId: 20 }));
+    gas.dispatchEvent(new PointerEvent("pointerup", { pointerId: 20 }));
+    out.oldDrivingIgnored = h.manager.getState().steer === 0 && h.manager.getState().throttle === 0;
     const walk = document.getElementById("okada-walk");
     const wr = walk.getBoundingClientRect();
     walk.dispatchEvent(new PointerEvent("pointerdown", { pointerId: 5, bubbles: true, cancelable: true, clientX: wr.left + wr.width * 0.8, clientY: wr.top + wr.height * 0.2 }));
@@ -236,8 +265,12 @@ async function main() {
     document.body.classList.remove("in-store-mode");
     await new Promise((r) => setTimeout(r, 50));
     out.walkResetAfterModeExit = h.manager.getState().walkX === 0 && h.manager.getState().walkY === 0;
+    out.walkOwnerCleared = h.touch.walkOwner === null && h.touch.capturedPointers.size === 0;
+    walk.dispatchEvent(new PointerEvent("pointermove", { pointerId: 5, clientX: wr.right, clientY: wr.top }));
+    walk.dispatchEvent(new PointerEvent("pointerdown", { pointerId: 5, clientX: wr.right, clientY: wr.top }));
+    out.oldWalkIgnored = h.manager.getState().walkX === 0 && h.manager.getState().walkY === 0;
 
-    h.dispose();
+    window.__okadaVerifyHandle = h;
     return out;
     } catch (e) { return { error: String(e && e.stack || e) }; }
   }), 45000, "layer C");
@@ -255,6 +288,27 @@ async function main() {
   check("F4 walk visible in store, driving hidden", c.walkVisibleInStore && c.drivingHiddenInStore, JSON.stringify({ walkVisible: c.walkVisibleInStore, drivingHidden: c.drivingHiddenInStore }));
   check("F4 analog non-cardinal walk via pointer", c.walkNonCardinal, JSON.stringify({ x: c.walkX, y: c.walkY }));
   check("F4 mode exit resets walk", c.walkResetAfterModeExit);
+  check("visibility reset prevents stale GAS", c.visibilityNoResurrection);
+  check("store Interact visible and hit-testable; driving-only buttons hidden", c.interactVisible && c.interactHitTest && c.drivingButtonsHidden);
+  check("STORE revokes held driving owners and rejects late pointer events", c.heldBeforeStore && c.drivingOwnersCleared && c.oldDrivingIgnored);
+  check("DRIVING revokes walking owner and rejects late pointer events", c.walkResetAfterModeExit && c.walkOwnerCleared && c.oldWalkIgnored);
+
+  // Trusted browser touch input, not dispatchEvent or manager.apply. This checks
+  // the rendered store-mode control; actual mission navigation is a separate check.
+  await page.evaluate(() => document.body.classList.add("in-store-mode"));
+  await page.waitForFunction(() => document.getElementById("okada-phase1-controls-root").classList.contains("mode-store"));
+  const point = await page.evaluate(() => {
+    const el = document.getElementById("okada-btn-interact");
+    el.addEventListener("pointerdown", (event) => {
+      window.__okadaVerifyPress = { trusted: event.isTrusted, type: event.pointerType, interact: window.__okadaInput.adapter.getEngineInput().interact };
+    }, { once: true });
+    const r = el.getBoundingClientRect();
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+  });
+  await page.touchscreen.tap(point.x, point.y);
+  const pressed = await page.evaluate(() => window.__okadaVerifyPress);
+  check("visible store Interact trusted touch reaches engine input", pressed?.trusted === true && pressed?.type === "touch" && pressed?.interact === true, JSON.stringify(pressed));
+  await page.evaluate(() => { window.__okadaVerifyHandle.dispose(); delete window.__okadaVerifyHandle; document.body.classList.remove("in-store-mode"); });
 
   // ============ LAYER D: lifecycle ============
   currentLayer = "D";
