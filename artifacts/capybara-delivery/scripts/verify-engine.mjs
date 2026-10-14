@@ -1,9 +1,11 @@
-// Automated Phase-1C verification.
+// Automated Phase-1 verification (normal startup and canonical store acceptance).
+import { verifyStoreInteractions } from "./verify-store-interaction.mjs";
 // Layers:
 //   A — canonical engine integrity (hash, size, parse)
 //   B — manager/adapter mapping + keyboard fallback + interlock + descriptor restore
 //   C — touch source event tests (root, ownership, multitouch, reset, mode visibility, analog walk)
 //   D — lifecycle (abort/dispose/restore idempotency)
+//   E — actual canonical store interactions after normal menu startup
 // Bundles the REAL src/lib/input modules with esbuild and runs them in a headless browser.
 import { createRequire } from "node:module";
 import crypto from "node:crypto";
@@ -79,15 +81,30 @@ async function main() {
   await serve(4203);
   const browser = await pw.chromium.launch({ headless: true, executablePath: "C:/Program Files/Google/Chrome/Application/chrome.exe", args: ["--no-sandbox", "--disable-gpu"] });
   const page = await browser.newPage({ viewport: { width: 1280, height: 720 }, hasTouch: true });
+  page.setDefaultTimeout(180000);
   page.on("pageerror", (e) => console.log("[pageerror]", String(e)));
   page.on("requestfailed", (request) => console.log("[requestfailed]", request.url(), request.failure()?.errorText));
   page.on("console", (message) => { if (message.type() === "error") console.log("[console error]", message.text()); });
   await page.goto("http://127.0.0.1:4203/capybara-game/index.html", { waitUntil: "domcontentloaded", timeout: 60000 });
-  await page.waitForFunction(() => typeof window.__capyGame !== "undefined", null, { timeout: 120000, polling: 500 });
-  // Fire-and-forget the full boot (it can take 60s+ under software WebGL); we only
-  // need the input seam (world._lastInput), which becomes available once the loop runs.
-  await page.evaluate(() => { void window.__capyGame.start(); });
-  await page.waitForFunction(() => window.__capyGame && window.__capyGame.world && window.__capyGame.world._lastInput, null, { timeout: 120000, polling: 500 });
+  // Direct game.start() leaves the application's awaitClick/menu startup pending.
+  // Consume that UI normally before installing or pressing any Okada control.
+  await page.waitForFunction(() => document.querySelector('[data-role="click"]'), null, { timeout: 180000 });
+  await page.evaluate(() => {
+    // Reduce software-rendering cost without changing gameplay configuration.
+    window.__capyGame.renderer.setPixelRatio(0.25);
+    window.__capyGame._applyRenderSize();
+  });
+  const startRect = await page.locator('[data-role="click"]').boundingBox();
+  await page.touchscreen.tap(startRect.x + startRect.width / 2, startRect.y + startRect.height / 2);
+  await page.getByRole('button', { name: /play offline/i }).click();
+  await page.getByRole('button', { name: 'Play', exact: true }).click();
+  await page.waitForFunction(() => document.body.classList.contains('in-game'), null, { timeout: 180000 });
+  await page.evaluate(() => window.__capyGame.tutorial?.complete());
+  console.log('NORMAL_STARTUP', await page.evaluate(() => ({
+    mode: window.__capyGame.mode,
+    menu: window.__capyGame._menuRendering,
+    launched: window.__capyGame._launched,
+  })));
 
   currentLayer = "A";
   const boot = await page.evaluate(() => ({
@@ -329,6 +346,9 @@ async function main() {
   });
   check("aborted signal -> null handle", d.abortedReturnsNull && d.noGlobalAfterAbort, JSON.stringify(d));
   check("dispose idempotent", d.disposeIdempotent);
+
+  currentLayer = "E";
+  await verifyStoreInteractions(page, check);
 
   await browser.close();
   const pass = results.filter((r) => r.ok).length;
