@@ -3,35 +3,27 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1" />
-    <title>Okada - A Game About Animals Delivering Food</title>
-    <meta name="description" content="Okada — a game about animals delivering food. Ride your scooter across Lekkiwood and deliver food fast and seamlessly on any device." />
+    <title>Ryder - A Game About Animals Delivering Food</title>
+    <meta name="description" content="Ryder — a fast-paced game about animals delivering food on scooters. Ride, drift, and deliver seamlessly on mobile." />
     <meta name="robots" content="index, follow" />
-    <meta property="og:title" content="Okada - A Game About Animals Delivering Food" />
-    <meta property="og:description" content="Okada — a game about animals delivering food. Fast, seamless delivery gameplay powered by sylens 2026." />
+    <meta property="og:title" content="Ryder - A Game About Animals Delivering Food" />
+    <meta property="og:description" content="Ryder — deliver delicious food across Lekkiwood on any device." />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Okada - A Game About Animals Delivering Food" />
-    <meta name="twitter:description" content="Okada — a game about animals delivering food. Ride, drift, and deliver delicious food across Lekkiwood." />
+    <meta name="twitter:title" content="Ryder - A Game About Animals Delivering Food" />
+    <meta name="twitter:description" content="Ryder — a fast-paced game about animals delivering food on scooters." />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script>
-      // Choose a mobile-safe renderer tier before the game iframe is created.
-      // Keep any tier the player has already selected in the game's settings.
+      // Initialize HD render settings before the game iframe boots.
       try {
-        const isTouchDevice =
-          window.matchMedia("(pointer: coarse)").matches ||
-          window.matchMedia("(max-width: 760px)").matches ||
-          navigator.maxTouchPoints > 0;
-        if (
-          isTouchDevice &&
-          !window.localStorage.getItem("capy.settings.qualityTier")
-        ) {
-          window.localStorage.setItem("capy.settings.qualityTier", "low");
+        if (!window.localStorage.getItem("capy.settings.qualityTier")) {
+          window.localStorage.setItem("capy.settings.qualityTier", "high");
         }
       } catch {
-        // Some privacy modes block local storage; the game has its own fallback.
+        // Privacy modes fallback cleanly
       }
     </script>
   </head>

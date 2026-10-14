@@ -306,43 +306,47 @@ export class TouchInputSource {
         pointer-events: none !important;
       }
 
-      /* General Button Styling — Modern Arcade Glassmorphism */
+      /* General Button Styling — Refined Arcade Translucent Glass */
       .okada-btn {
         position: fixed;
         border-radius: 50%;
-        background: rgba(18, 22, 30, 0.62);
+        background: rgba(15, 23, 42, 0.65);
         color: #f8fafc;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         font-weight: 800;
         display: flex; flex-direction: column; align-items: center; justify-content: center;
-        border: 2px solid rgba(255, 255, 255, 0.28);
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        transition: transform 100ms ease, background-color 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+        border: 1.5px solid rgba(255, 255, 255, 0.22);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        transition: transform 80ms ease, background-color 100ms ease, border-color 100ms ease, box-shadow 100ms ease;
       }
       .okada-btn:active,
       .okada-btn.pressed {
-        background: rgba(250, 204, 21, 0.45) !important;
-        border-color: rgba(250, 204, 21, 0.85) !important;
-        box-shadow: 0 0 18px rgba(250, 204, 21, 0.5) !important;
-        transform: scale(0.93) !important;
+        transform: scale(0.92) !important;
       }
 
       /* Specific Right-Thumb Cluster Actions */
       #okada-btn-throttle {
-        width: clamp(68px, 11vw, 82px);
-        height: clamp(68px, 11vw, 82px);
+        width: clamp(70px, 11.5vw, 84px);
+        height: clamp(70px, 11.5vw, 84px);
         right: calc(var(--okada-safe-right) + 16px);
-        bottom: calc(var(--okada-safe-bottom) + 84px);
+        bottom: calc(var(--okada-safe-bottom) + 82px);
         font-size: clamp(14px, 2.2vw, 16px);
         letter-spacing: 0.05em;
-        background: rgba(30, 41, 59, 0.68);
+        background: rgba(15, 23, 42, 0.72);
+        border: 2px solid rgba(255, 255, 255, 0.28);
+      }
+      #okada-btn-throttle:active,
+      #okada-btn-throttle.pressed {
+        background: rgba(34, 197, 94, 0.45) !important;
+        border-color: rgba(74, 222, 128, 0.9) !important;
+        box-shadow: 0 0 22px rgba(34, 197, 94, 0.55) !important;
       }
       #okada-btn-throttle.locked {
         background: rgba(34, 197, 94, 0.65) !important;
         border-color: rgba(34, 197, 94, 0.95) !important;
-        box-shadow: 0 0 22px rgba(34, 197, 94, 0.6) !important;
+        box-shadow: 0 0 24px rgba(34, 197, 94, 0.65) !important;
         color: #f0fdf4 !important;
       }
       #okada-btn-throttle .lock-tag {
@@ -363,12 +367,12 @@ export class TouchInputSource {
         bottom: var(--okada-safe-bottom);
         font-size: clamp(12px, 1.8vw, 14px);
         background: rgba(225, 29, 72, 0.35);
-        border-color: rgba(244, 63, 94, 0.45);
+        border: 1.5px solid rgba(244, 63, 94, 0.45);
       }
       #okada-btn-brake.pressed {
-        background: rgba(225, 29, 72, 0.7) !important;
-        border-color: rgba(244, 63, 94, 0.9) !important;
-        box-shadow: 0 0 18px rgba(225, 29, 72, 0.6) !important;
+        background: rgba(225, 29, 72, 0.75) !important;
+        border-color: rgba(244, 63, 94, 0.95) !important;
+        box-shadow: 0 0 20px rgba(225, 29, 72, 0.65) !important;
       }
 
       #okada-btn-reverse {
@@ -378,47 +382,47 @@ export class TouchInputSource {
         bottom: var(--okada-safe-bottom);
         font-size: clamp(11px, 1.5vw, 12px);
         background: rgba(217, 119, 6, 0.35);
-        border-color: rgba(245, 158, 11, 0.45);
+        border: 1.5px solid rgba(245, 158, 11, 0.45);
       }
       #okada-btn-reverse.pressed {
-        background: rgba(217, 119, 6, 0.7) !important;
-        border-color: rgba(245, 158, 11, 0.9) !important;
-        box-shadow: 0 0 16px rgba(245, 158, 11, 0.6) !important;
+        background: rgba(217, 119, 6, 0.75) !important;
+        border-color: rgba(245, 158, 11, 0.95) !important;
+        box-shadow: 0 0 18px rgba(245, 158, 11, 0.65) !important;
       }
 
       #okada-btn-drift {
         width: clamp(54px, 8.5vw, 64px);
         height: clamp(54px, 8.5vw, 64px);
-        right: calc(var(--okada-safe-right) + 108px);
+        right: calc(var(--okada-safe-right) + 106px);
         bottom: calc(var(--okada-safe-bottom) + 64px);
         font-size: clamp(11px, 1.6vw, 13px);
         background: rgba(147, 51, 234, 0.35);
-        border-color: rgba(168, 85, 247, 0.45);
+        border: 1.5px solid rgba(168, 85, 247, 0.45);
       }
       #okada-btn-drift.pressed {
-        background: rgba(147, 51, 234, 0.7) !important;
-        border-color: rgba(168, 85, 247, 0.9) !important;
-        box-shadow: 0 0 18px rgba(168, 85, 247, 0.6) !important;
+        background: rgba(147, 51, 234, 0.75) !important;
+        border-color: rgba(168, 85, 247, 0.95) !important;
+        box-shadow: 0 0 20px rgba(168, 85, 247, 0.65) !important;
       }
 
       #okada-btn-interact {
         width: clamp(56px, 9vw, 66px);
         height: clamp(56px, 9vw, 66px);
-        right: calc(var(--okada-safe-right) + 108px);
+        right: calc(var(--okada-safe-right) + 106px);
         bottom: calc(var(--okada-safe-bottom) + 144px);
         font-size: clamp(13px, 2vw, 15px);
         background: rgba(16, 185, 129, 0.4);
-        border-color: rgba(52, 211, 153, 0.5);
+        border: 1.5px solid rgba(52, 211, 153, 0.5);
       }
       #okada-btn-interact.pressed {
-        background: rgba(16, 185, 129, 0.75) !important;
+        background: rgba(16, 185, 129, 0.8) !important;
         border-color: rgba(52, 211, 153, 0.95) !important;
-        box-shadow: 0 0 20px rgba(52, 211, 153, 0.6) !important;
+        box-shadow: 0 0 22px rgba(52, 211, 153, 0.65) !important;
       }
       #${ROOT_ID}.mode-store #okada-btn-interact {
-        transform: scale(1.05);
-        border-color: rgba(52, 211, 153, 0.85);
-        box-shadow: 0 0 16px rgba(16, 185, 129, 0.4);
+        transform: scale(1.06);
+        border-color: rgba(52, 211, 153, 0.9);
+        box-shadow: 0 0 18px rgba(16, 185, 129, 0.45);
       }
 
       /* Phone Trigger in Top HUD Bar */
@@ -442,34 +446,65 @@ export class TouchInputSource {
         background: rgba(56, 189, 248, 0.6);
       }
 
-      /* Steering Control Surface (Left Thumb) */
+      /* Steering Control Surface (Left Thumb Floating Zone) */
       #okada-steer {
         position: fixed;
-        left: 20px; bottom: 24px;
-        width: 180px; height: 120px;
-        border-radius: 16px;
-        background: rgba(20, 30, 50, 0.35);
-        border: 2px solid rgba(255, 255, 255, 0.3);
+        left: 0; bottom: 0;
+        width: clamp(200px, 46vw, 420px);
+        height: clamp(180px, 72vh, 460px);
+        background: transparent;
         touch-action: none;
+        pointer-events: auto;
+      }
+      #okada-steer .steer-guide {
+        position: absolute;
+        left: calc(var(--okada-safe-left) + 24px);
+        bottom: calc(var(--okada-safe-bottom) + 24px);
+        width: 140px; height: 50px;
+        border-radius: 25px;
+        background: rgba(15, 23, 42, 0.42);
+        border: 1.5px solid rgba(255, 255, 255, 0.22);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        pointer-events: none;
+        transition: opacity 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+        opacity: 0.55;
+      }
+      #okada-steer.active .steer-guide {
+        opacity: 0.95;
+        border-color: rgba(56, 189, 248, 0.85);
+        box-shadow: 0 0 20px rgba(56, 189, 248, 0.45);
       }
       #okada-steer .knob {
-        position: absolute; top: 50%; left: 50%;
-        width: 40px; height: 40px; border-radius: 50%;
-        transform: translate(-50%, -50%);
-        background: rgba(56, 189, 248, 0.8);
-        border: 2px solid rgba(255, 255, 255, 0.85);
-        box-shadow: 0 3px 12px rgba(2, 132, 199, 0.55);
+        position: absolute;
+        left: calc(var(--okada-safe-left) + 94px);
+        bottom: calc(var(--okada-safe-bottom) + 49px);
+        width: 44px; height: 44px; border-radius: 50%;
+        transform: translate(-50%, 50%);
+        background: rgba(56, 189, 248, 0.85);
+        border: 2px solid rgba(255, 255, 255, 0.9);
+        box-shadow: 0 2px 14px rgba(2, 132, 199, 0.6);
         pointer-events: none;
+        transition: background-color 120ms ease;
+      }
+      #okada-steer.active .knob {
+        background: rgba(56, 189, 248, 0.95);
+        box-shadow: 0 0 22px rgba(56, 189, 248, 0.8);
       }
 
-      /* Store Walking Stick (Left Thumb 2D Floating) */
+      /* Store Walking Stick (Left Thumb 2D Floating Stick) */
       #okada-walk {
         position: fixed;
-        left: 24px; bottom: 24px;
+        left: calc(var(--okada-safe-left) + 24px);
+        bottom: calc(var(--okada-safe-bottom) + 24px);
         width: ${WALK_BASE_DIAMETER}px; height: ${WALK_BASE_DIAMETER}px;
         border-radius: 50%;
-        background: rgba(20, 30, 50, 0.35);
-        border: 2px solid rgba(255, 255, 255, 0.3);
+        background: rgba(15, 23, 42, 0.45);
+        border: 2px solid rgba(52, 211, 153, 0.4);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
         display: none;
         touch-action: none;
       }
@@ -477,9 +512,9 @@ export class TouchInputSource {
         position: absolute; top: 50%; left: 50%;
         width: ${WALK_KNOB_DIAMETER}px; height: ${WALK_KNOB_DIAMETER}px; border-radius: 50%;
         transform: translate(-50%, -50%);
-        background: rgba(34, 197, 94, 0.8);
-        border: 2px solid rgba(255, 255, 255, 0.85);
-        box-shadow: 0 3px 12px rgba(22, 163, 74, 0.55);
+        background: rgba(34, 197, 94, 0.85);
+        border: 2px solid rgba(255, 255, 255, 0.9);
+        box-shadow: 0 3px 14px rgba(22, 163, 74, 0.6);
         pointer-events: none;
       }
 
@@ -494,27 +529,50 @@ export class TouchInputSource {
       /* Orientation Barrier Overlay */
       #okada-portrait-barrier {
         position: fixed; inset: 0; z-index: 10000;
-        background: #0f172a; color: #f8fafc;
+        background: radial-gradient(circle at center, #1e293b 0%, #090d16 100%);
+        color: #f8fafc;
         display: none; flex-direction: column; align-items: center; justify-content: center;
-        text-align: center; padding: 24px;
+        text-align: center; padding: 28px;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       }
       #okada-portrait-barrier.visible {
         display: flex !important;
       }
-      .barrier-icon {
-        font-size: 54px; margin-bottom: 16px;
-        animation: okadaRotatePrompt 2s infinite ease-in-out;
+      .barrier-card {
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        max-width: 320px;
+      }
+      .barrier-badge {
+        font-size: 13px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase;
+        color: #38bdf8; background: rgba(56, 189, 248, 0.12);
+        padding: 4px 14px; border-radius: 999px; margin-bottom: 24px;
+        border: 1px solid rgba(56, 189, 248, 0.28);
+      }
+      .barrier-device-wrap {
+        margin-bottom: 24px;
+        display: flex; align-items: center; justify-content: center;
+      }
+      .barrier-phone-svg {
+        animation: ryderPhoneRotate 2.6s infinite ease-in-out;
+        transform-origin: center center;
+        filter: drop-shadow(0 0 14px rgba(56, 189, 248, 0.4));
       }
       .barrier-title {
-        font-size: 22px; font-weight: 800; margin-bottom: 8px; color: #fbbf24;
+        font-size: 22px; font-weight: 800; margin-bottom: 10px; color: #f8fafc;
+        letter-spacing: -0.01em;
       }
       .barrier-subtitle {
-        font-size: 15px; opacity: 0.8; max-width: 280px; line-height: 1.4;
+        font-size: 14px; color: #94a3b8; line-height: 1.5; max-width: 280px;
       }
-      @keyframes okadaRotatePrompt {
-        0%, 100% { transform: rotate(0deg); }
-        50% { transform: rotate(-90deg); }
+      @keyframes ryderPhoneRotate {
+        0%, 15% { transform: rotate(0deg); }
+        45%, 65% { transform: rotate(-90deg); }
+        85%, 100% { transform: rotate(0deg); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .barrier-phone-svg {
+          animation: none !important;
+        }
       }
     `;
     this.doc.head.appendChild(el);
@@ -536,6 +594,10 @@ export class TouchInputSource {
     el.id = "okada-steer";
     el.className = "driving-control";
 
+    const guide = this.doc.createElement("div");
+    guide.className = "steer-guide";
+    el.appendChild(guide);
+
     const knob = this.doc.createElement("div");
     knob.className = "knob";
     el.appendChild(knob);
@@ -554,6 +616,21 @@ export class TouchInputSource {
       // Dynamic origin established at initial touch
       this.steerOriginX = e.clientX;
       this.steerOriginY = e.clientY;
+      el.classList.add("active");
+
+      if (e.clientX > 0 && e.clientY > 0) {
+        const r = el.getBoundingClientRect();
+        const rx = e.clientX - r.left;
+        const ry = e.clientY - r.top;
+        guide.style.left = `${rx}px`;
+        guide.style.top = `${ry}px`;
+        guide.style.bottom = "auto";
+        guide.style.transform = "translate(-50%, -50%)";
+        knob.style.left = `${rx}px`;
+        knob.style.top = `${ry}px`;
+        knob.style.bottom = "auto";
+        knob.style.transform = "translate(-50%, -50%)";
+      }
     });
 
     el.addEventListener("pointermove", (e: PointerEvent) => {
@@ -583,6 +660,14 @@ export class TouchInputSource {
       this.steerOwner = null;
       this.capturedPointers.delete(e.pointerId);
       this.contribution.steer = 0;
+      el.classList.remove("active");
+      guide.style.left = "";
+      guide.style.top = "";
+      guide.style.bottom = "";
+      guide.style.transform = "";
+      knob.style.left = "";
+      knob.style.top = "";
+      knob.style.bottom = "";
       knob.style.transform = "translate(-50%, -50%)";
       this.apply();
     };
@@ -741,13 +826,21 @@ export class TouchInputSource {
   }
 
   private toggleVirtualPhone(): void {
-    const win = this.doc.defaultView as unknown as { __capyGame?: { phone?: { toggle: () => void; visible?: boolean } } };
-    if (win?.__capyGame?.phone?.toggle) {
-      win.__capyGame.phone.toggle();
+    const win = this.doc.defaultView as unknown as { __capyGame?: { phone?: { toggle: () => void; show: () => void; hide: () => void; visible?: boolean } } };
+    const phone = win?.__capyGame?.phone;
+    if (phone && typeof phone.hide === "function" && typeof phone.show === "function") {
+      if (this.isPhoneOpen || phone.visible) {
+        phone.hide();
+      } else {
+        phone.show();
+      }
+    } else if (phone?.toggle) {
+      phone.toggle();
     } else {
       // Fallback: dispatch Tab keydown to document
       this.doc.dispatchEvent(new KeyboardEvent("keydown", { code: "Tab", key: "Tab", bubbles: true }));
     }
+    setTimeout(() => this.checkPhone(), 60);
   }
 
   private buildPortraitBarrier(): void {
@@ -755,9 +848,20 @@ export class TouchInputSource {
     const barrier = this.doc.createElement("div");
     barrier.id = "okada-portrait-barrier";
     barrier.innerHTML = `
-      <div class="barrier-icon">📱 ↷</div>
-      <div class="barrier-title">Rotate Your Device</div>
-      <div class="barrier-subtitle">Okada delivery controls require landscape orientation for safe riding.</div>
+      <div class="barrier-card">
+        <div class="barrier-badge">RYDER</div>
+        <div class="barrier-device-wrap">
+          <svg class="barrier-phone-svg" viewBox="0 0 64 96" width="64" height="96" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="6" y="4" width="52" height="88" rx="10" stroke="#38bdf8" fill="rgba(15, 23, 42, 0.75)" />
+            <line x1="26" y1="12" x2="38" y2="12" stroke="#94a3b8" stroke-width="2" />
+            <circle cx="32" cy="80" r="3" fill="#94a3b8" stroke="none" />
+            <path d="M 48 30 C 58 40, 58 56, 48 66" stroke="#fbbf24" stroke-width="2.5" stroke-dasharray="2 3" />
+            <polyline points="50,60 48,66 42,65" stroke="#fbbf24" stroke-width="2.5" fill="none" />
+          </svg>
+        </div>
+        <div class="barrier-title">Rotate your phone to play</div>
+        <div class="barrier-subtitle">Ryder is designed for mobile landscape. Turn your device horizontally to ride.</div>
+      </div>
     `;
     this.doc.body.appendChild(barrier);
     this.portraitBarrier = barrier;
@@ -779,6 +883,7 @@ export class TouchInputSource {
       this.root?.classList.remove("is-portrait");
       this.reset("landscape-restore");
     }
+    this.checkPhone();
   }
 
   private readMode(): void {
@@ -792,30 +897,29 @@ export class TouchInputSource {
     this.modeObserver.observe(this.doc.body, { attributes: true, attributeFilter: ["class"] });
   }
 
-  private observePhone(): void {
-    const checkPhone = () => {
-      const phoneHud = this.doc.getElementById("phone-hud");
-      const win = this.doc.defaultView as unknown as { __capyGame?: { phone?: { visible?: boolean } } };
-      const isOpen = !!(
-        (phoneHud && (phoneHud.classList.contains("phone-visible") || phoneHud.classList.contains("is-mobile-fullscreen"))) ||
-        win?.__capyGame?.phone?.visible
-      );
+  private checkPhone(): void {
+    const phoneHud = this.doc.getElementById("phone-hud");
+    const win = this.doc.defaultView as unknown as { __capyGame?: { phone?: { visible?: boolean } } };
+    const isOpen = !!(
+      win?.__capyGame?.phone?.visible ||
+      (phoneHud && phoneHud.classList.contains("phone-visible") && this.doc.defaultView?.getComputedStyle(phoneHud).display !== "none")
+    );
 
-      if (isOpen !== this.isPhoneOpen) {
-        this.isPhoneOpen = isOpen;
-        if (isOpen) {
-          this.reset("phone-opened");
-          this.root?.classList.add("phone-open");
-        } else {
-          this.root?.classList.remove("phone-open");
-          this.reset("phone-closed");
-        }
+    if (isOpen !== this.isPhoneOpen) {
+      this.isPhoneOpen = isOpen;
+      if (isOpen) {
+        this.reset("phone-opened");
+        this.root?.classList.add("phone-open");
+      } else {
+        this.root?.classList.remove("phone-open");
+        this.reset("phone-closed");
       }
-    };
+    }
+  }
 
-    // Check immediately and observe DOM changes
-    checkPhone();
-    this.phoneObserver = new MutationObserver(() => checkPhone());
+  private observePhone(): void {
+    this.checkPhone();
+    this.phoneObserver = new MutationObserver(() => this.checkPhone());
     this.phoneObserver.observe(this.doc.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["class"] });
   }
 

@@ -264,6 +264,11 @@ export async function verifyStoreInteractions(page, check) {
   await page.evaluate(() => {
     __capyGame._onOrderAccepted({});
     __capyGame._pendingStoreItems = ["Bubble Milk Tea"];
+    if (__capyGame.store?.shelfItems) {
+      __capyGame.store.shelfItems.forEach((m) => { m.collected = false; });
+      __capyGame.store.cart = [];
+      __capyGame.store.hasCart = false;
+    }
     __capyGame.setMode("store");
   });
   await page.waitForFunction(

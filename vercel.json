@@ -1,0 +1,5 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "pnpm --filter @workspace/capybara-delivery run build",
+  "outputDirectory": "artifacts/capybara-delivery/dist/public"
+}

@@ -4,7 +4,6 @@ import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
-import { Maximize, Minimize } from 'lucide-react';
 import { initOkadaInput, type OkadaInputHandle } from '@/lib/input';
 import {
   Route,
@@ -61,6 +60,28 @@ function prepareGameFrame(frame: HTMLIFrameElement) {
     inputHandle = handle;
   });
 
+  // Adaptive HD render quality: bound DPR between 1.0 and 2.0 to restore crisp HD graphics on mobile screens without GPU buffer waste
+  const frameWin = frame.contentWindow;
+  const applyAdaptiveHdDpr = () => {
+    const win = frameWin as unknown as {
+      devicePixelRatio?: number;
+      __capyGame?: {
+        renderer?: { setPixelRatio: (dpr: number) => void };
+        _applyRenderSize?: () => void;
+      };
+    };
+    if (win?.__capyGame?.renderer) {
+      const nativeDpr = win.devicePixelRatio || 1;
+      const effectiveDpr = Math.min(Math.max(nativeDpr, 1.0), 2.0);
+      win.__capyGame.renderer.setPixelRatio(effectiveDpr);
+      win.__capyGame._applyRenderSize?.();
+    }
+  };
+  applyAdaptiveHdDpr();
+  const dprPoll = frameWin.setInterval(applyAdaptiveHdDpr, 200);
+  frameWin.setTimeout(() => frameWin.clearInterval(dprPoll), 6000);
+  frameWin.addEventListener('resize', applyAdaptiveHdDpr);
+
   const isTouchDevice =
     window.matchMedia('(pointer: coarse)').matches ||
     window.matchMedia('(max-width: 760px)').matches ||
@@ -79,10 +100,10 @@ function prepareGameFrame(frame: HTMLIFrameElement) {
     while (node) {
       const text = node.textContent?.trim();
       if (text === 'Click to start') {
-        node.textContent = 'Tap to start';
+        node.textContent = 'Tap to ride';
         changed += 1;
       } else if (text === 'Best on desktop. Use mouse and keyboard') {
-        node.textContent = 'Touch controls are enabled.';
+        node.textContent = 'Ryder touch controls enabled.';
         changed += 1;
       }
       node = walker.nextNode();
@@ -107,16 +128,6 @@ function prepareGameFrame(frame: HTMLIFrameElement) {
 
 function Home() {
   const frameRef = useRef<HTMLIFrameElement>(null);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-
-  useEffect(() => {
-    const syncFullscreen = () => {
-      const shell = document.querySelector('.game-shell');
-      setIsFullscreen(document.fullscreenElement === shell);
-    };
-    document.addEventListener('fullscreenchange', syncFullscreen);
-    return () => document.removeEventListener('fullscreenchange', syncFullscreen);
-  }, []);
 
   useEffect(() => {
     return () => {
@@ -127,46 +138,18 @@ function Home() {
     };
   }, []);
 
-  const toggleFullscreen = async () => {
-    const target = document.querySelector<HTMLElement>('.game-shell');
-    if (!target) return;
-    try {
-      if (!document.fullscreenElement) await target.requestFullscreen?.();
-      else await document.exitFullscreen?.();
-      setIsFullscreen(Boolean(document.fullscreenElement));
-    } catch {
-      setIsFullscreen(Boolean(document.fullscreenElement));
-    }
-  };
-
   return (
     <main className="game-shell" data-testid="game-shell">
       <iframe
         ref={frameRef}
         className="game-frame"
-        title="Okada - A Game About Animals Delivering Food"
+        title="Ryder - A Game About Animals Delivering Food"
         src={`${import.meta.env.BASE_URL}capybara-game/index.html`}
         allow="gamepad; autoplay"
         allowFullScreen
         onLoad={(event) => prepareGameFrame(event.currentTarget)}
         data-testid="game-frame"
       />
-      <div className="game-toolbar">
-        <button
-          type="button"
-          className="fullscreen-button"
-          onClick={toggleFullscreen}
-          aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
-          data-testid="button-fullscreen"
-        >
-          {isFullscreen ? (
-            <Minimize aria-hidden="true" className="fullscreen-icon" />
-          ) : (
-            <Maximize aria-hidden="true" className="fullscreen-icon" />
-          )}
-          <span>{isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}</span>
-        </button>
-      </div>
     </main>
   );
 }
