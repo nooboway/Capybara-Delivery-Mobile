@@ -1,0 +1,29 @@
+=== RYDER PHASE 2C-R3 STORE-MOTION INTEGRATION ===
+PASS  canonical bundle SHA-256 unchanged  (C7E6C0AE11C358DCA1E51B9CC1CB0C971DE97659094E1D8D2C27D81D9AE4682E)
+PASS  acceptance path installs the Ryder store policy (own wrapper)
+PASS  canonical store.update executes exactly once per call  (delta=1)
+PASS  wrapper is not the canonical prototype method
+PASS  store is active in store mode
+PASS  keyboard fallback reaches engine while touch is registered  ({"x":0,"z":-1,"active":false})
+PASS  normalized touch state stays neutral under keyboard
+PASS  keyboard walking accelerates (no touch-coupled damping)  (vel=3.000 vz=-3.000)
+PASS  store reaches full walking speed while held  (v0=3.000)
+PASS  practical rest from full speed within 100-200 ms  (stopMs=150.0)
+PASS  velocity is exactly zero at rest (no linger)
+PASS  diagonal walking preserves speed while held  (v0=2.915)
+PASS  diagonal release rests within 100-200 ms  (stopMs=150.0)
+PASS  low-speed release comes to rest <= 200 ms  (stopMs=66.7)
+PASS  policy: no sustained rebound after wall collision (final velocity exactly 0)  (final=0)
+PASS  policy: no rebound resurrection after rest
+PASS  control: canonical-only retains rebound motion  (canonFinal=2.000)
+PASS  no damping when intent active (store velocity == canonical post-step)  ({"store":{"x":0.75,"z":0},"post":{"x":0.75,"z":0}})
+PASS  forward walking is responsive (vx > 0)  (vx=3.000)
+PASS  direction change is responsive (vx < 0 after reversal)  (vx=-3.000)
+PASS  re-init installs a fresh wrapper (no stacked wrappers)  ({"own":true,"wrapper":true,"changed":true})
+PASS  re-init still executes canonical exactly once  (delta=1)
+PASS  dispose restores the canonical store.update descriptor
+PASS  dispose restores the adapter (native getters rebound)
+PASS  pagehide installs then restores the wrapper via lifecycle
+
+TOTAL CHECKS: 25 | PASSED: 25 | FAILED: 0
+ALL PHASE 2C-R3 INTEGRATION CHECKS PASSED

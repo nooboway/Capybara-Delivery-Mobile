@@ -16,6 +16,7 @@
  *
  * This module is framework-agnostic (no React dependency).
  */
+import { installRyderStoreMotionPolicy, type StoreMotionTarget } from "../ryder-store-motion-policy";
 import { OkadaInputManager } from "./input-manager";
 import { OkadaEngineAdapter } from "./engine-adapter";
 import { TouchInputSource } from "./sources/touch";
@@ -41,6 +42,7 @@ export interface OkadaInputOptions {
   signal?: AbortSignal;
 }
 
+const generations = new WeakMap<Window, { dispose?: () => void }>();
 const RESOLVE_TIMEOUT_MS = 60000;
 const RESOLVE_POLL_MS = 250;
 
@@ -53,19 +55,24 @@ export async function initOkadaInput(
   doc: Document,
   options: OkadaInputOptions = {},
 ): Promise<OkadaInputHandle | null> {
+  generations.get(win)?.dispose?.();
+  const generation: { dispose?: () => void } = {};
+  generations.set(win, generation);
   const manager = new OkadaInputManager();
   const adapter = new OkadaEngineAdapter();
   const touch = new TouchInputSource(doc, manager);
   const gamepad = new GamepadInputSource(manager);
 
   const resolved = await waitForInput(win, adapter, RESOLVE_TIMEOUT_MS, options.signal);
-  if (!resolved) {
+  if (!resolved || options.signal?.aborted || generations.get(win) !== generation) {
     // eslint-disable-next-line no-console
     console.error("[okada] engine input object not resolved; normalized input unavailable");
     return null;
   }
 
   adapter.override(manager);
+  const game = (win as unknown as { __capyGame?: { store?: StoreMotionTarget } }).__capyGame;
+  const motionPolicy = game?.store ? installRyderStoreMotionPolicy(game.store) : null;
 
   if (options.touchControls !== false) {
     touch.attach();
@@ -99,7 +106,7 @@ export async function initOkadaInput(
     state: () => manager.getState(),
   };
 
-  return {
+  const handle: OkadaInputHandle = {
     manager,
     adapter,
     touch,
@@ -112,11 +119,19 @@ export async function initOkadaInput(
       gamepad.stop();
       manager.reset();
       adapter.restore();
+      motionPolicy?.dispose();
+      win.removeEventListener("pagehide", handle.dispose);
+      options.signal?.removeEventListener("abort", handle.dispose);
+      if (generations.get(win) === generation) generations.delete(win);
       win.removeEventListener("blur", onBlur);
       doc.removeEventListener("visibilitychange", onVisibility);
       delete (win as unknown as Record<string, unknown>)["__okadaInput"];
     },
   };
+  generation.dispose = handle.dispose;
+  win.addEventListener("pagehide", handle.dispose);
+  options.signal?.addEventListener("abort", handle.dispose, { once: true });
+  return handle;
 }
 
 async function waitForInput(
