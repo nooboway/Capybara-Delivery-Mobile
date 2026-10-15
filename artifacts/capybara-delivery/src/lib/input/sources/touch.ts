@@ -1,19 +1,22 @@
 /**
- * Okada Professional Mobile Touch Input Source (Phase 2B).
+ * Ryder Professional Mobile Touch Input Source (Phase 2C-R1).
  *
  * Implements:
- *  - 1-Axis Floating Dynamic-Origin Steering (Left Thumb)
+ *  - 1-Axis Floating Dynamic-Origin Steering over a broad left-side zone
  *  - 2D Continuous Walking Joystick in Store (Left Thumb)
- *  - Ergonomic Right-Thumb Action Cluster (GAS, BRK, REV, DRIFT, E)
+ *  - Ergonomic Right-Thumb Action Cluster (GAS, BRK, REV, DRIFT, ACTION)
  *  - Isolated Acceleration Lock feature on GAS (hold 1s to latch, tap to unlock)
  *  - Dedicated Reverse (REV) control distinct from Brake
+ *  - HUD exclusion zones: steering/walk never steal touches from real UI
+ *  - Robust multi-signal physical orientation detection + portrait barrier
+ *  - Hardware audio/mute awareness (does NOT rewire canonical mute)
+ *  - Liquid-glass studio signature: "sylens studios ™"
+ *  - Repurposed menu button: SHOP ("Coming soon" Ryder shell)
  *  - Safe-Area Inset bounding (`env(safe-area-inset-*)`)
- *  - Responsive clamp sizing across phone/tablet landscape viewports
- *  - Virtual Phone input neutralization and control suppression
- *  - Portrait Mode orientation barrier
  *  - Multitouch pointer ownership and capture lifecycle
  *
- * Engine boundaries: Zero modifications to canonical engine or EngineAdapter.
+ * Engine boundaries: Zero modifications to canonical engine bundle (SHA preserved)
+ * and zero modifications to the frozen R3 store-motion policy or EngineAdapter.
  */
 import type { OkadaInputManager } from "../input-manager";
 import type { InputContribution } from "../types";
@@ -21,12 +24,18 @@ import type { InputContribution } from "../types";
 // ==========================================
 // Tuning Parameters (Physical Device Tuning)
 // ==========================================
+//
+// Steering response is exposed for physical tuning. Candidate A (shipped) is
+// near-linear: low deadzone, linear response (gamma 1.0). Candidate B (mild
+// precision curve, gamma 1.15-1.2) can be enabled by raising
+// STEER_RESPONSE_EXPONENT, but it changes the accepted Phase-1 monotonic
+// response baseline (30px => 0.5) and must be re-baselined before shipping.
 
 /** Steering deadzone near neutral center (fraction of max throw: 0..1). */
-export const STEER_DEADZONE = 0.05;
+export const STEER_DEADZONE = 0.04;
 /** Steering maximum physical throw in pixels for full lock (+-1.0). */
 export const STEER_MAX_THROW = 60;
-/** Steering nonlinear response exponent (gamma: 1.0 = linear baseline, >1.0 expands center precision). */
+/** Steering nonlinear response exponent (gamma: 1.0 = near-linear Candidate A, >1.0 = precision Candidate B). */
 export const STEER_RESPONSE_EXPONENT = 1.0;
 
 /** Store walking outer ring base diameter in pixels. */
@@ -81,6 +90,7 @@ export class TouchInputSource {
   private walkKnob: HTMLElement | null = null;
   private phoneBtn: HTMLElement | null = null;
   private portraitBarrier: HTMLElement | null = null;
+  private shopModal: HTMLElement | null = null;
 
   // Mode and lifecycle state
   private mode: Mode = "driving";
@@ -88,6 +98,7 @@ export class TouchInputSource {
   private isPortrait = false;
   private modeObserver: MutationObserver | null = null;
   private phoneObserver: MutationObserver | null = null;
+  private menuObserver: MutationObserver | null = null;
   private attached = false;
 
   // Bound event handlers for clean removal
@@ -152,6 +163,10 @@ export class TouchInputSource {
     this.buildWalkStick();
     this.buildPhoneTrigger();
     this.buildPortraitBarrier();
+    this.buildShopModal();
+    this.setupTouchControlMarkers();
+    this.enhanceStudioSignature();
+    this.observeMainMenu();
 
     this.readMode();
     this.observeMode();
@@ -183,6 +198,8 @@ export class TouchInputSource {
     this.contribution = {};
     this.manager.release("touch");
 
+    this.shopModal?.remove();
+    this.shopModal = null;
     this.root?.remove();
     this.root = null;
     const style = this.doc.getElementById(STYLE_ID);
@@ -574,6 +591,75 @@ export class TouchInputSource {
           animation: none !important;
         }
       }
+
+      /* Suppress obsolete Vibe Jam player-facing marks */
+      img[src*="award_white_on_transparent_vibejam_winner"],
+      img[alt*="Vibe Jam Winner"] { display: none !important; }
+
+      /* Canonical top-right HUD: keep it above the movement surface */
+      #top-right-controls { z-index: 210 !important; }
+      #top-right-controls button svg { pointer-events: none !important; }
+
+      /* Liquid-Glass Studio Signature: sylens studios ™ */
+      #sylens-badge {
+        position: fixed !important;
+        bottom: calc(var(--okada-safe-bottom) + 8px) !important;
+        right: calc(var(--okada-safe-right) + 8px) !important;
+        padding: 6px 14px !important;
+        border-radius: 999px !important;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.03) 100%), rgba(15, 23, 42, 0.5) !important;
+        color: rgba(248, 250, 252, 0.9) !important;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        font-size: 11px !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.1em !important;
+        text-transform: lowercase !important;
+        border: 1px solid rgba(255, 255, 255, 0.25) !important;
+        box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.5), inset 0 -1px 2px 0 rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.35) !important;
+        backdrop-filter: blur(14px) saturate(160%) !important;
+        -webkit-backdrop-filter: blur(14px) saturate(160%) !important;
+        pointer-events: none !important;
+        user-select: none !important;
+        z-index: 10000 !important;
+        transition: opacity 200ms ease !important;
+      }
+      body.in-game #sylens-badge,
+      body.in-store-mode #sylens-badge { opacity: 0 !important; }
+
+      /* Ryder Shop Shell */
+      #ryder-shop-modal {
+        position: fixed; inset: 0; z-index: 99995;
+        background: rgba(10, 15, 26, 0.82);
+        backdrop-filter: blur(18px) saturate(140%);
+        -webkit-backdrop-filter: blur(18px) saturate(140%);
+        display: none; flex-direction: column; align-items: center; justify-content: center;
+        color: #f8fafc; padding: 24px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      }
+      #ryder-shop-modal.visible { display: flex !important; }
+      .ryder-shop-card {
+        background: rgba(15, 23, 42, 0.75);
+        border: 1.5px solid rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        padding: 32px 36px;
+        display: flex; flex-direction: column; align-items: center; gap: 14px;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+        max-width: 380px; width: 90vw; text-align: center;
+      }
+      .ryder-shop-badge {
+        font-size: 11px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase;
+        color: #fbbf24; background: rgba(245, 158, 11, 0.15);
+        padding: 4px 12px; border-radius: 999px;
+        border: 1px solid rgba(245, 158, 11, 0.35);
+      }
+      .ryder-shop-title { font-size: 26px; font-weight: 800; letter-spacing: 0.08em; color: #f8fafc; }
+      .ryder-shop-desc { font-size: 13.5px; color: #94a3b8; line-height: 1.5; margin-bottom: 8px; }
+      .ryder-shop-close {
+        padding: 12px 24px; border-radius: 12px; border: none;
+        background: #38bdf8; color: #0b0f19;
+        font-size: 15px; font-weight: 700; cursor: pointer;
+        box-shadow: 0 4px 16px rgba(56, 189, 248, 0.4);
+      }
     `;
     this.doc.head.appendChild(el);
   }
@@ -608,6 +694,7 @@ export class TouchInputSource {
 
     el.addEventListener("pointerdown", (e: PointerEvent) => {
       if (!this.attached || this.mode !== "driving" || this.isPhoneOpen || this.isPortrait) return;
+      if (this.isHudTarget(e.target)) return; // never steal real UI touches
       if (this.steerOwner !== null) return; // exclusive ownership
       e.preventDefault();
       this.steerOwner = e.pointerId;
@@ -780,6 +867,7 @@ export class TouchInputSource {
 
     el.addEventListener("pointerdown", (e: PointerEvent) => {
       if (!this.attached || this.mode !== "store" || this.isPhoneOpen || this.isPortrait) return;
+      if (this.isHudTarget(e.target)) return; // never steal real UI touches
       if (this.walkOwner !== null) return; // exclusive owner
       e.preventDefault();
       this.walkOwner = e.pointerId;
@@ -836,10 +924,8 @@ export class TouchInputSource {
       }
     } else if (phone?.toggle) {
       phone.toggle();
-    } else {
-      // Fallback: dispatch Tab keydown to document
-      this.doc.dispatchEvent(new KeyboardEvent("keydown", { code: "Tab", key: "Tab", bubbles: true }));
     }
+    // No synthetic keyboard fallback: never emit keyboard events.
     setTimeout(() => this.checkPhone(), 60);
   }
 
@@ -870,7 +956,31 @@ export class TouchInputSource {
   private checkOrientation(): void {
     const win = this.doc.defaultView;
     if (!win) return;
-    const isPortrait = win.innerHeight > win.innerWidth;
+
+    // Multi-signal physical orientation: never trust a single API.
+    const winW = win.innerWidth;
+    const winH = win.innerHeight;
+    let topW = winW;
+    let topH = winH;
+    try {
+      if (win.top && win.top !== win) {
+        topW = win.top.innerWidth;
+        topH = win.top.innerHeight;
+      }
+    } catch {
+      // Cross-origin parent window guard.
+    }
+
+    const matchPortrait = !!win.matchMedia?.("(orientation: portrait)")?.matches;
+    const screenType = win.screen?.orientation?.type;
+    const screenLandscape = typeof screenType === "string" && screenType.includes("landscape");
+    const screenPortrait = typeof screenType === "string" && screenType.includes("portrait");
+
+    let isPortrait: boolean;
+    if (screenLandscape) isPortrait = false;
+    else if (screenPortrait) isPortrait = true;
+    else isPortrait = winH > winW || topH > topW || matchPortrait;
+
     if (isPortrait === this.isPortrait) return;
 
     this.isPortrait = isPortrait;
@@ -928,6 +1038,88 @@ export class TouchInputSource {
     this.modeObserver = null;
     this.phoneObserver?.disconnect();
     this.phoneObserver = null;
+    this.menuObserver?.disconnect();
+    this.menuObserver = null;
+  }
+
+  /** True when a pointer landed on real canonical/HUD UI rather than the play area. */
+  private isHudTarget(target: EventTarget | null): boolean {
+    const el = target as HTMLElement | null;
+    return !!el?.closest?.(
+      "#top-right-controls, #okada-btn-phone, #phone-hud, #mission-prompt, #mission-result, " +
+        ".capy-mbtn, #mp-main-menu, #ryder-shop-modal, #okada-portrait-barrier",
+    );
+  }
+
+  private setupTouchControlMarkers(): void {
+    const mute = this.doc.getElementById("btn-mute");
+    mute?.setAttribute("data-touch-control", "true");
+    const topRight = this.doc.getElementById("top-right-controls");
+    if (topRight) {
+      for (const btn of Array.from(topRight.querySelectorAll("button"))) {
+        btn.setAttribute("data-touch-control", "true");
+      }
+    }
+    // The canonical bundle already owns the #btn-mute click listener. Do NOT add
+    // a second mute handler here; a duplicate toggle makes mute appear to do nothing.
+  }
+
+  private enhanceStudioSignature(): void {
+    const badge = this.doc.getElementById("sylens-badge");
+    if (!badge) return;
+    if (badge.textContent !== "sylens studios ™") badge.textContent = "sylens studios ™";
+    if (badge.className !== "sylens-liquid-glass") badge.className = "sylens-liquid-glass";
+  }
+
+  private buildShopModal(): void {
+    if (this.doc.getElementById("ryder-shop-modal")) return;
+    const modal = this.doc.createElement("div");
+    modal.id = "ryder-shop-modal";
+    modal.innerHTML = `
+      <div class="ryder-shop-card">
+        <div class="ryder-shop-badge">COMING SOON</div>
+        <div class="ryder-shop-title">RYDER SHOP</div>
+        <div class="ryder-shop-desc">
+          Custom delivery bikes, courier helmets, and performance gear are being engineered for Lekkiwood.
+        </div>
+        <button type="button" class="ryder-shop-close" id="ryder-shop-close">CLOSE</button>
+      </div>
+    `;
+    modal.querySelector("#ryder-shop-close")?.addEventListener("click", () => {
+      modal.classList.remove("visible");
+    });
+    this.doc.body.appendChild(modal);
+    this.shopModal = modal;
+  }
+
+  private observeMainMenu(): void {
+    const scanMenu = () => {
+      this.enhanceStudioSignature();
+      const buttons = Array.from(this.doc.querySelectorAll(".capy-mbtn"));
+      for (const btn of buttons) {
+        if (btn.classList.contains("ryder-shop-repurposed")) continue;
+        const txt = (btn.textContent || "").toLowerCase();
+        if (txt.includes("portal") || txt.includes("vibe")) {
+          btn.textContent = "SHOP";
+          btn.classList.add("ryder-shop-repurposed");
+          // Intercept in capture phase so the canonical click redirect never fires.
+          btn.addEventListener(
+            "click",
+            (e) => {
+              e.preventDefault();
+              e.stopImmediatePropagation();
+              this.shopModal?.classList.add("visible");
+            },
+            true,
+          );
+          btn.addEventListener("pointerdown", (e) => e.stopPropagation(), true);
+        }
+      }
+    };
+
+    scanMenu();
+    this.menuObserver = new MutationObserver(scanMenu);
+    this.menuObserver.observe(this.doc.body, { childList: true, subtree: true });
   }
 
   private handleExternalReset(reason: string): void {

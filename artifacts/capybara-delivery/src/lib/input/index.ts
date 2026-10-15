@@ -63,8 +63,23 @@ export async function initOkadaInput(
   const touch = new TouchInputSource(doc, manager);
   const gamepad = new GamepadInputSource(manager);
 
+  // Attach the HUD/controls immediately so the menu (SHOP), orientation barrier,
+  // shop shell and studio signature exist before the engine input object resolves.
+  if (options.touchControls !== false) {
+    touch.attach();
+    generation.dispose = () => {
+      touch.detach();
+      gamepad.stop();
+    };
+  }
+
   const resolved = await waitForInput(win, adapter, RESOLVE_TIMEOUT_MS, options.signal);
   if (!resolved || options.signal?.aborted || generations.get(win) !== generation) {
+    // Superseded or aborted: release the provisional touch UI (a plain resolve
+    // timeout keeps it so menu/orientation UX survives a slow engine start).
+    if (options.signal?.aborted || generations.get(win) !== generation) {
+      touch.detach();
+    }
     // eslint-disable-next-line no-console
     console.error("[okada] engine input object not resolved; normalized input unavailable");
     return null;
@@ -74,9 +89,6 @@ export async function initOkadaInput(
   const game = (win as unknown as { __capyGame?: { store?: StoreMotionTarget } }).__capyGame;
   const motionPolicy = game?.store ? installRyderStoreMotionPolicy(game.store) : null;
 
-  if (options.touchControls !== false) {
-    touch.attach();
-  }
   if (options.gamepad) {
     gamepad.start();
   }
