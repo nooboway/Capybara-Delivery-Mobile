@@ -1,0 +1,9 @@
+PASS menu wait beyond 60 seconds remains pending
+PASS late normal engine readiness connects input
+PASS late connection feeds actual engine getter
+PASS abort cancels provisional initialization immediately
+PASS new generation cancels old pending initialization
+PASS stale generation cannot overwrite new adapter
+PASS pagehide cancels pre-game initialization
+PASS all polling timers released
+TOTAL 8/8 PASS

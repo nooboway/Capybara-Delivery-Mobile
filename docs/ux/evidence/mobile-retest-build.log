@@ -1,0 +1,14 @@
+
+> @workspace/capybara-delivery@0.0.0 build C:\Users\dev\.gemini\antigravity-ide\scratch\Capybara-Delivery-Mobile\artifacts\capybara-delivery
+> vite build --config vite.config.ts
+
+vite v7.3.6 building client environment for production...
+transforming...
+src/components/ui/tooltip.tsx (2:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.
+✓ 1775 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/public/index.html                   2.34 kB │ gzip:   0.91 kB
+dist/public/assets/index-C027oD76.css   97.41 kB │ gzip:  16.01 kB
+dist/public/assets/index-DFpKJDie.js   370.39 kB │ gzip: 116.87 kB
+✓ built in 9.86s

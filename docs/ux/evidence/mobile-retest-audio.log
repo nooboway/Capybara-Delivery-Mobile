@@ -1,0 +1,13 @@
+PASS play return and single invocation preserved
+PASS existing detached SFX muted without changing volume
+PASS native toggle delegated exactly once
+PASS new detached SFX muted before native play
+PASS unmute restores preexisting flags
+PASS no SFX restart on mute/unmute
+PASS repeated mute does not overwrite original flags
+PASS script reinjection idempotent
+PASS BFCache pagehide retains bridge
+PASS final pagehide restores native interfaces
+PASS persisted mute silences first played media
+PASS persisted mute can unmute drift and SFX
+TOTAL 12/12 PASS

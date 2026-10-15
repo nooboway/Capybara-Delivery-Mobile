@@ -1,0 +1,38 @@
+import fs from 'node:fs';import path from 'node:path';import http from 'node:http';import{createRequire}from'node:module';import{fileURLToPath}from'node:url';
+const require=createRequire(import.meta.url);const pw=require('C:/Users/dev/AppData/Roaming/npm/node_modules/rea-agents/node_modules/playwright-core');
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../dist/public');
+const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.svg':'image/svg+xml','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.woff2':'font/woff2','.bin':'application/octet-stream'};
+const server=http.createServer((q,r)=>{let u=decodeURIComponent(q.url.split('?')[0]);if(u==='/')u='/index.html';const p=path.resolve(root,'.'+u);if(!p.startsWith(root+path.sep)){r.writeHead(403).end();return;}fs.readFile(p,(e,d)=>{if(e){r.writeHead(404).end();return;}r.writeHead(200,{'Content-Type':mime[path.extname(p)]||'application/octet-stream'}).end(d);});});await new Promise(r=>server.listen(0,'127.0.0.1',r));
+const browser=await pw.chromium.launch({headless:true,executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',args:['--no-sandbox','--autoplay-policy=no-user-gesture-required']});
+const results=[];function check(name,ok,data){results.push({name,ok});console.log(ok?'PASS':'FAIL',name,data?JSON.stringify(data):'');if(!ok)throw new Error(name);}
+try{
+ const page=await browser.newPage({viewport:{width:844,height:390},isMobile:true,hasTouch:true});page.setDefaultTimeout(240000);const errors=[],logs=[];page.on('pageerror',e=>{errors.push(e.message);console.log('ERROR',e.message);});page.on('console',m=>{if(m.type()==='error'&&m.text().includes('[okada]')){logs.push(m.text());console.log('CONSOLE',m.text());}});
+ const start=Date.now();await page.goto(`http://127.0.0.1:${server.address().port}/`,{waitUntil:'domcontentloaded'});await page.locator('iframe').waitFor({state:'attached'});const frame=page.frames().find(f=>f!==page.mainFrame());await frame.waitForFunction(()=>window.__capyGame&&document.querySelector('[data-role="click"]'));
+ console.log('LOADED',Date.now()-start);
+ // Exercise the deployed React startup, including a long menu wait. No input
+ // module injection, init call, reinitialization or test adapter is permitted.
+ const remaining=65000-(Date.now()-start);if(remaining>0)await page.waitForTimeout(remaining);
+ check('controls remain hidden after a long menu wait',await frame.evaluate(()=>document.querySelector('#okada-phase1-controls-root').classList.contains('not-in-game')));
+ const tap=async sel=>{const b=await frame.locator(sel).boundingBox();if(!b)throw new Error('Missing '+sel);await page.touchscreen.tap(b.x+b.width/2,b.y+b.height/2);await page.waitForTimeout(200);};
+ await tap('[data-role="click"]');await frame.getByRole('button',{name:/play offline/i}).click();await frame.getByRole('button',{name:'Play',exact:true}).click();await frame.waitForFunction(()=>document.body.classList.contains('in-game'));
+ await frame.waitForFunction(()=>!!window.__okadaInput?.adapter.isResolved(),null,{timeout:15000});
+ check('original production initialization connects after late Play',await frame.evaluate(()=>!!window.__okadaInput?.adapter.isResolved()));
+ await frame.evaluate(()=>{__capyGame.tutorial?.complete();__capyGame.phone._offersPaused=true;});
+ console.log('GAMEPLAY',Date.now()-start,await frame.evaluate(()=>({phoneVisible:__capyGame.phone.visible,app:__capyGame.phone.currentApp,ready:!!window.__okadaInput})));
+ if(!await frame.evaluate(()=>__capyGame.phone.visible))await tap('#okada-btn-phone');
+ await frame.waitForFunction(()=>__capyGame.phone.visible);await frame.evaluate(()=>__capyGame.phone.unlock());await frame.waitForFunction(()=>!document.querySelector('.phone-screen.home-entering'));
+ await tap('.app-icon[data-app="capyfood"]');await frame.waitForFunction(()=>__capyGame.phone.currentApp==='capyfood',null,{timeout:5000});check('trusted Capy Food opens in actual React iframe',true);
+ await frame.evaluate(()=>{const p=__capyGame.phone;p.online=true;p._forceDifficulty='Hard';p._offersPaused=false;p._tryFireOffer();p._offersPaused=true;p.offerTimer=10000;});
+ for(const [width,height] of [[844,390],[780,360],[667,375]]){
+  await page.setViewportSize({width,height});await page.waitForTimeout(200);
+  const layout=await frame.evaluate(()=>{const el=document.querySelector('.btn-offer-accept'),b=el.getBoundingClientRect(),screen=document.querySelector('.phone-screen').getBoundingClientRect(),hit=document.elementFromPoint(b.x+b.width/2,b.y+b.height/2),content=document.querySelector('.app-content'),body=document.querySelector('.offer-body');return {w:b.width,h:b.height,top:b.top,bottom:b.bottom,screenBottom:screen.bottom,visible:hit===el||el.contains(hit),scrollTop:content.scrollTop,outerScroll:content.scrollHeight-content.clientHeight,itemsScroll:body.scrollHeight-body.clientHeight};});
+  check(`Accept visible without scrolling @ ${width}x${height}`,layout.visible&&layout.h>=44&&layout.bottom<=layout.screenBottom&&layout.top>=0&&layout.scrollTop===0&&layout.outerScroll<=1,layout);
+ }
+ await tap('.btn-offer-accept');check('trusted Accept activates real canonical order',await frame.evaluate(()=>!!__capyGame.phone.activeOrder&&__capyGame.phone.phase==='drive-to-store'));await tap('#ryder-phone-close');
+ check('Close restores hit targets with original adapter',await frame.evaluate(()=>!__capyGame.phone.visible&&getComputedStyle(document.querySelector('#okada-btn-throttle')).pointerEvents==='auto'&&!!window.__okadaInput));
+ const cdp=await page.context().newCDPSession(page),center=async sel=>{const b=await frame.locator(sel).boundingBox();return{x:b.x+b.width/2,y:b.y+b.height/2};};const gas=await center('#okada-btn-throttle'),steer=await center('#okada-steer');await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{id:1,...steer},{id:2,...gas}]});await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{id:1,x:steer.x+30,y:steer.y-10},{id:2,...gas}]});
+ const motion=await frame.waitForFunction(()=>{const s=__okadaInput.state(),w=__capyGame.world,speed=w._bikeTelemetry.getDynamics().forwardSpeed;return s.throttle===1&&s.steer>0&&w._lastInput.forward&&Math.abs(speed)>.01?{throttle:s.throttle,steer:s.steer,speed}:false;},null,{timeout:10000});check('GAS and steering reach canonical engine and move vehicle',true,await motion.jsonValue());await motion.dispose();await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await frame.evaluate(()=>__okadaInput.touch.reset('QA release'));
+ const brake=await center('#okada-btn-brake');await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{id:3,...brake}]});await page.waitForTimeout(150);const br=await frame.evaluate(()=>({state:__okadaInput.state(),brake:__capyGame.world._lastInput.brake,reverse:__capyGame.world._lastInput.backward}));check('combined Brake/Reverse reaches canonical engine after Accept',br.state.brake>0&&br.brake||br.state.reverse>0&&br.reverse,br);await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+ const shots=path.resolve(root,'../../../../docs/ux/screenshots');await page.screenshot({path:path.join(shots,'mobile_retest_driving.png')});
+ check('zero runtime errors',errors.length===0,errors);check('no startup-unavailable errors',logs.length===0,logs);console.log(`TOTAL ${results.length}/${results.length} PASS`);
+}finally{await browser.close();await new Promise(r=>server.close(r));}

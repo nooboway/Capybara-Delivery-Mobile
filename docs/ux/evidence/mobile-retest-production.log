@@ -1,0 +1,15 @@
+LOADED 7382
+PASS controls remain hidden after a long menu wait 
+PASS original production initialization connects after late Play 
+GAMEPLAY 145727 { phoneVisible: false, app: null, ready: true }
+PASS trusted Capy Food opens in actual React iframe 
+PASS Accept visible without scrolling @ 844x390 {"w":240,"h":44,"top":261.79498291015625,"bottom":305.79498291015625,"screenBottom":330,"visible":true,"scrollTop":0,"outerScroll":0,"itemsScroll":0}
+PASS Accept visible without scrolling @ 780x360 {"w":240,"h":44,"top":227,"bottom":271,"screenBottom":300,"visible":true,"scrollTop":0,"outerScroll":0,"itemsScroll":13}
+PASS Accept visible without scrolling @ 667x375 {"w":226.796875,"h":44,"top":242,"bottom":286,"screenBottom":315,"visible":true,"scrollTop":0,"outerScroll":0,"itemsScroll":0}
+PASS trusted Accept activates real canonical order 
+PASS Close restores hit targets with original adapter 
+PASS GAS and steering reach canonical engine and move vehicle {"throttle":1,"steer":0.5,"speed":0.09985102036456779}
+PASS combined Brake/Reverse reaches canonical engine after Accept {"state":{"steer":0,"throttle":0,"brake":0,"reverse":1,"drift":false,"interact":false,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"brake":false,"reverse":true}
+PASS zero runtime errors []
+PASS no startup-unavailable errors []
+TOTAL 12/12 PASS

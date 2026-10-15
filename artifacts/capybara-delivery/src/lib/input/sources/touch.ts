@@ -574,17 +574,29 @@ export class TouchInputSource {
           transform: none !important; max-height: none !important;
         }
         #phone-hud.phone-visible .phone-shell { max-height: none !important; }
-        #phone-hud .phone-frame { width: min(320px, 48vw); }
+        #phone-hud .phone-frame { width: min(420px, 60vw); }
         #phone-hud .phone-screen {
           height: calc(100dvh - var(--embed-bar, 0px) - var(--okada-safe-top) - var(--okada-safe-bottom) - 110px);
         }
         #phone-hud .home-screen { padding-top: 24px; overflow-y: auto; }
         #phone-hud .app-icon { min-height: 64px; }
-        #phone-hud .app-content { min-height: 0; overflow-y: auto !important; }
-        /* Short landscape screens scroll the complete offer instead of clipping
-           its action footer beneath the Phone footer. Keep native button sizes. */
-        #phone-hud .offer-screen { flex: 0 0 auto; min-height: 300px; }
-        #phone-hud .offer-body { flex: none; overflow: visible; }
+        #phone-hud .app-titlebar { flex-shrink: 0; padding: 5px 10px; }
+        #phone-hud .app-footer { flex-shrink: 0; padding: 4px 10px; }
+        #phone-hud .app-content { min-height: 0; padding: 4px 8px; overflow-y: auto !important; }
+        /* Fit the offer to the available landscape screen. Keep actions in the
+           card; only the item list scrolls if text or a short viewport needs it. */
+        #phone-hud .app-content:has(.offer-screen:not([style*="display: none"]):not([style*="display:none"])) { overflow: hidden !important; }
+        #phone-hud .offer-screen { flex: 1 1 auto; height: 100%; min-height: 0; padding: 0 4px; }
+        #phone-hud .offer-hero { flex-shrink: 0; flex-direction: row; justify-content: space-between; padding: 2px 0; gap: 8px; }
+        #phone-hud .offer-title-row { justify-content: flex-start; }
+        #phone-hud .offer-reward-row { flex-direction: row; gap: 6px; }
+        #phone-hud .offer-reward { font-size: 24px; }
+        #phone-hud .offer-timer-bar { flex-shrink: 0; margin: 3px 0 2px; }
+        #phone-hud .offer-timer-label { flex-shrink: 0; margin-bottom: 2px; }
+        #phone-hud .offer-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding-top: 2px; }
+        #phone-hud .offer-items { padding: 2px 0; gap: 4px; }
+        #phone-hud .offer-actions { flex-shrink: 0; margin-top: 2px; padding: 2px 0 4px; }
+        #phone-hud .btn-offer-accept, #phone-hud .btn-offer-skip { min-height: 44px; padding: 8px 12px; }
       }
 
       /* Left-Thumb Floating Joystick (360° circular gate, dynamic origin) */

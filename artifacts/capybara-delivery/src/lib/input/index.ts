@@ -43,12 +43,11 @@ export interface OkadaInputOptions {
 }
 
 const generations = new WeakMap<Window, { dispose?: () => void }>();
-const RESOLVE_TIMEOUT_MS = 60000;
 const RESOLVE_POLL_MS = 250;
 
 /**
  * Initialize the Okada input system against a game iframe.
- * Returns null if the engine input object could not be resolved (or was aborted).
+ * Waits for normal engine startup; returns null if this generation is cancelled.
  */
 export async function initOkadaInput(
   win: Window,
@@ -62,29 +61,40 @@ export async function initOkadaInput(
   const adapter = new OkadaEngineAdapter();
   const touch = new TouchInputSource(doc, manager);
   const gamepad = new GamepadInputSource(manager);
+  const pending = new AbortController();
+  let pendingDisposed = false;
+  const removePendingListeners = () => {
+    win.removeEventListener("pagehide", disposePending);
+    options.signal?.removeEventListener("abort", disposePending);
+  };
+  const disposePending = () => {
+    if (pendingDisposed) return;
+    pendingDisposed = true;
+    pending.abort();
+    removePendingListeners();
+    touch.detach();
+    gamepad.stop();
+  };
+  generation.dispose = disposePending;
+  win.addEventListener("pagehide", disposePending);
+  options.signal?.addEventListener("abort", disposePending, { once: true });
 
   // Attach the HUD/controls immediately so the menu (SHOP), orientation barrier,
   // shop shell and studio signature exist before the engine input object resolves.
   if (options.touchControls !== false) {
     touch.attach();
-    generation.dispose = () => {
-      touch.detach();
-      gamepad.stop();
-    };
   }
 
-  const resolved = await waitForInput(win, adapter, RESOLVE_TIMEOUT_MS, options.signal);
+  if (options.signal?.aborted) disposePending();
+  const resolved = await waitForInput(win, adapter, pending.signal);
+  removePendingListeners();
   if (!resolved || options.signal?.aborted || generations.get(win) !== generation) {
-    // Superseded or aborted: release the provisional touch UI (a plain resolve
-    // timeout keeps it so menu/orientation UX survives a slow engine start).
-    if (options.signal?.aborted || generations.get(win) !== generation) {
-      touch.detach();
-    }
-    // eslint-disable-next-line no-console
-    console.error("[okada] engine input object not resolved; normalized input unavailable");
+    disposePending();
     return null;
   }
 
+  // A menu gesture must not become held driving input when startup finishes.
+  touch.reset("engine-ready");
   adapter.override(manager);
   const game = (win as unknown as { __capyGame?: { store?: StoreMotionTarget } }).__capyGame;
   const motionPolicy = game?.store ? installRyderStoreMotionPolicy(game.store) : null;
@@ -149,26 +159,28 @@ export async function initOkadaInput(
 async function waitForInput(
   win: Window,
   adapter: OkadaEngineAdapter,
-  timeoutMs: number,
-  signal?: AbortSignal,
+  signal: AbortSignal,
 ): Promise<boolean> {
-  const start = Date.now();
   return new Promise((resolve) => {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const finish = (ready: boolean) => {
+      clearTimeout(timer);
+      signal.removeEventListener("abort", cancel);
+      resolve(ready);
+    };
+    const cancel = () => finish(false);
     const tick = () => {
-      if (signal?.aborted) {
-        resolve(false);
+      if (signal.aborted) {
+        finish(false);
         return;
       }
       if (adapter.resolve(win)) {
-        resolve(true);
+        finish(true);
         return;
       }
-      if (Date.now() - start > timeoutMs) {
-        resolve(false);
-        return;
-      }
-      setTimeout(tick, RESOLVE_POLL_MS);
+      timer = setTimeout(tick, RESOLVE_POLL_MS);
     };
+    signal.addEventListener("abort", cancel, { once: true });
     tick();
   });
 }

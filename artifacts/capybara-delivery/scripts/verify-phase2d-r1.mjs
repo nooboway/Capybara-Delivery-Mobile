@@ -99,10 +99,10 @@ async function main() {
   console.log('[boot] wait gameplay');
   await frame.waitForFunction(() => document.body.classList.contains('in-game'), null, { timeout: 180000 });
   await frame.evaluate(() => { window.__capyGame.tutorial?.complete(); if (window.__capyGame.phone) window.__capyGame.phone._offersPaused = true; });
-  // Phase 2: re-init now that world._lastInput exists so the engine adapter
-  // resolves immediately and yields a stable handle (supersedes the menu probe).
-  console.log("[boot] attach resolved adapter");
-  await frame.evaluate(async () => { window.h = await window.OkadaInput.initOkadaInput(window, document, { touchControls: true }); });
+  // Use the original pre-game initialization, exactly as the React shell does.
+  // Reinitializing here used to conceal the 60-second startup timeout defect.
+  console.log("[boot] await original adapter");
+  await frame.evaluate(async () => { window.h = await window.__initPromise; });
   await frame.waitForFunction(() => window.h != null && window.h.manager != null, null, { timeout: 30000 });
   // Keep normal Chromium rendering. Forced --disable-gpu reproduces a canonical
   // Rapier trap even with all Ryder integration absent; do not alter simulation.
