@@ -17,7 +17,7 @@ const PKG = path.resolve(__dirname, "..");
 const REPO = path.resolve(PKG, "..", "..");
 const BUNDLE = path.join(PKG, "public", "assets", "main-CSpZwCDB.js");
 const CANONICAL_SHA = "C7E6C0AE11C358DCA1E51B9CC1CB0C971DE97659094E1D8D2C27D81D9AE4682E";
-const SCREENSHOT_DIR = path.resolve(REPO, "docs/ux/screenshots");
+const SCREENSHOT_DIR = process.env.RYDER_SCREENSHOT_DIR || path.resolve(REPO, "docs/ux/screenshots");
 fs.mkdirSync(SCREENSHOT_DIR, { recursive: true });
 
 const esbuild = require(path.join(REPO, "node_modules/.pnpm/esbuild@0.18.20/node_modules/esbuild"));
@@ -77,10 +77,11 @@ async function main() {
 
   const server = await serve();
   const port = server.address().port;
-  const browser = await pw.chromium.launch({ headless: true, executablePath: "C:/Program Files/Google/Chrome/Application/chrome.exe", args: ["--no-sandbox", "--disable-gpu"] });
+  const browser = await pw.chromium.launch({ headless: true, executablePath: "C:/Program Files/Google/Chrome/Application/chrome.exe", args: ["--no-sandbox"] });
   const page = await browser.newPage({ viewport: { width: 1280, height: 720 }, hasTouch: true });
   page.setDefaultTimeout(180000);
-  page.on("pageerror", (e) => console.log("[pageerror]", e.message));
+  const runtimeErrors = [];
+  page.on("pageerror", (e) => { runtimeErrors.push(e.message); console.log("[pageerror]", e.message); });
 
   await page.goto(`http://127.0.0.1:${port}/capybara-game/index.html`, { waitUntil: "domcontentloaded", timeout: 60000 });
   await page.waitForFunction(() => document.querySelector('[data-role="click"]'), null, { timeout: 180000 });
@@ -237,6 +238,7 @@ async function main() {
   await browser.close();
   server.close();
 
+  if (runtimeErrors.length) throw new Error(`Runtime errors: ${runtimeErrors.join(" | ")}`);
   const failed = results.filter((x) => !x.ok).length;
   console.log(`\nTOTAL CHECKS: ${results.length} | PASSED: ${results.length - failed} | FAILED: ${failed}`);
   if (failed > 0) { console.error("FAILURES DETECTED IN PHASE 2D VERIFICATION"); process.exit(1); }

@@ -105,6 +105,7 @@ export class TouchInputSource {
   private walkEl: HTMLElement | null = null;
   private walkKnob: HTMLElement | null = null;
   private phoneBtn: HTMLElement | null = null;
+  private phoneCloseBtn: HTMLButtonElement | null = null;
   private portraitBarrier: HTMLElement | null = null;
   private shopModal: HTMLElement | null = null;
 
@@ -112,13 +113,18 @@ export class TouchInputSource {
   private mode: Mode = "driving";
   private isPhoneOpen = false;
   private isPortrait = false;
+  private isInGameplay = false;
+  private phoneLayoutObserver: ResizeObserver | null = null;
   private modeObserver: MutationObserver | null = null;
   private phoneObserver: MutationObserver | null = null;
   private menuObserver: MutationObserver | null = null;
   private attached = false;
 
   // Bound event handlers for clean removal
-  private handleResizeBound = () => this.checkOrientation();
+  private handleResizeBound = () => {
+    this.checkOrientation();
+    this.positionPhoneTrigger();
+  };
   private handleOrientationBound = () => {
     this.reset("orientation-change");
     this.checkOrientation();
@@ -181,8 +187,19 @@ export class TouchInputSource {
     this.observeMainMenu();
 
     this.readMode();
+    this.checkGameplayState();
+    // Apply visibility unconditionally so the initial (menu / not-in-game)
+    // state takes effect — checkGameplayState() and readMode() both no-op on
+    // an unchanged initial state and would otherwise leave controls visible.
+    this.applyVisibility();
     this.observeMode();
     this.observePhone();
+    const hud = this.doc.getElementById("top-right-controls");
+    if (hud && typeof ResizeObserver !== "undefined") {
+      this.phoneLayoutObserver = new ResizeObserver(() => this.positionPhoneTrigger());
+      this.phoneLayoutObserver.observe(hud);
+    }
+    this.positionPhoneTrigger();
 
     const win = this.doc.defaultView;
     if (win) {
@@ -205,6 +222,8 @@ export class TouchInputSource {
     this.doc.removeEventListener("visibilitychange", this.handleVisibilityBound);
 
     this.stopObservers();
+    this.phoneLayoutObserver?.disconnect();
+    this.phoneLayoutObserver = null;
     this.clearGasLock();
     this.clearBrakeReverse();
     this.releaseAllControls();
@@ -215,6 +234,8 @@ export class TouchInputSource {
     this.shopModal = null;
     this.root?.remove();
     this.root = null;
+    this.phoneCloseBtn?.remove();
+    this.phoneCloseBtn = null;
     const style = this.doc.getElementById(STYLE_ID);
     style?.remove();
 
@@ -379,16 +400,28 @@ export class TouchInputSource {
         touch-action: none;
       }
 
-      /* Control suppression when virtual phone or menu is open */
+      /* Control suppression when virtual phone or menu is open. visibility +
+         opacity + pointer-events together guarantee the controls can neither
+         render, receive a hit, nor linger in the accessibility tree. */
       #${ROOT_ID}.phone-open,
-      #${ROOT_ID}.is-portrait {
+      #${ROOT_ID}.is-portrait,
+      #${ROOT_ID}.not-in-game {
         opacity: 0 !important;
+        visibility: hidden !important;
         pointer-events: none !important;
       }
       #${ROOT_ID}.phone-open > *,
-      #${ROOT_ID}.is-portrait > * {
+      #${ROOT_ID}.is-portrait > *,
+      #${ROOT_ID}.not-in-game > * {
         pointer-events: none !important;
       }
+      #${ROOT_ID}.phone-open *,
+      #${ROOT_ID}.is-portrait *,
+      #${ROOT_ID}.not-in-game * {
+        visibility: hidden !important;
+        pointer-events: none !important;
+      }
+      #${ROOT_ID}.phone-open #okada-btn-phone { display: none !important; }
 
       /* General Button Styling — Refined Arcade Translucent Glass */
       .okada-btn {
@@ -509,12 +542,13 @@ export class TouchInputSource {
         box-shadow: 0 0 18px rgba(16, 185, 129, 0.45);
       }
 
-      /* Phone Trigger in Top HUD Bar */
-      #okada-btn-phone {
+      /* Phone Trigger in Top HUD Bar — sits LEFT of the canonical top-right
+         controls (menu/mute/players/reposition/settings) so it never overlaps. */
+      #okada-btn-phone, #ryder-phone-close {
         position: fixed;
         width: 44px; height: 44px;
         top: var(--okada-safe-top);
-        right: calc(var(--okada-safe-right) + 140px);
+        right: calc(var(--okada-safe-right) + 212px);
         border-radius: 12px;
         background: rgba(18, 22, 30, 0.7);
         border: 1.5px solid rgba(255, 255, 255, 0.3);
@@ -528,6 +562,29 @@ export class TouchInputSource {
       #okada-btn-phone:active {
         transform: scale(0.92);
         background: rgba(56, 189, 248, 0.6);
+      }
+      #ryder-phone-close { display: none; z-index: 280; color: #fff; font-size: 26px; }
+      #ryder-phone-close.visible { display: flex; align-items: center; justify-content: center; }
+      /* The closed native peek must not cover BRAKE/REVERSE. Phone has its own HUD entry. */
+      #phone-hud:not(.phone-visible) { visibility: hidden !important; pointer-events: none !important; }
+      @media (pointer: coarse) and (orientation: landscape) {
+        #phone-hud.phone-visible {
+          top: calc(var(--okada-safe-top) + 58px) !important;
+          bottom: auto !important; right: var(--okada-safe-right) !important;
+          transform: none !important; max-height: none !important;
+        }
+        #phone-hud.phone-visible .phone-shell { max-height: none !important; }
+        #phone-hud .phone-frame { width: min(320px, 48vw); }
+        #phone-hud .phone-screen {
+          height: calc(100dvh - var(--embed-bar, 0px) - var(--okada-safe-top) - var(--okada-safe-bottom) - 110px);
+        }
+        #phone-hud .home-screen { padding-top: 24px; overflow-y: auto; }
+        #phone-hud .app-icon { min-height: 64px; }
+        #phone-hud .app-content { min-height: 0; overflow-y: auto !important; }
+        /* Short landscape screens scroll the complete offer instead of clipping
+           its action footer beneath the Phone footer. Keep native button sizes. */
+        #phone-hud .offer-screen { flex: 0 0 auto; min-height: 300px; }
+        #phone-hud .offer-body { flex: none; overflow: visible; }
       }
 
       /* Left-Thumb Floating Joystick (360° circular gate, dynamic origin) */
@@ -652,8 +709,8 @@ export class TouchInputSource {
       img[src*="award_white_on_transparent_vibejam_winner"],
       img[alt*="Vibe Jam Winner"] { display: none !important; }
 
-      /* Canonical top-right HUD: keep it above the movement surface */
-      #top-right-controls { z-index: 210 !important; }
+      /* Canonical top-right HUD: keep it above the movement surface, safe-area aware. */
+      #top-right-controls { z-index: 210 !important; right: calc(var(--okada-safe-right) + 4px) !important; }
       #top-right-controls button svg { pointer-events: none !important; }
 
       /* Liquid-Glass Studio Signature: sylens studios ™ */
@@ -761,7 +818,7 @@ export class TouchInputSource {
     };
 
     el.addEventListener("pointerdown", (e: PointerEvent) => {
-      if (!this.attached || this.mode !== "driving" || this.isPhoneOpen || this.isPortrait) return;
+      if (!this.canUseGameplayInput() || this.mode !== "driving") return;
       if (this.isHudTarget(e.target)) return; // never steal real UI touches
       if (this.steerOwner !== null) return; // exclusive ownership
       e.preventDefault();
@@ -774,6 +831,7 @@ export class TouchInputSource {
     });
 
     el.addEventListener("pointermove", (e: PointerEvent) => {
+      if (!this.canUseGameplayInput()) return;
       if (e.pointerId !== this.steerOwner) return;
 
       const dx = e.clientX - this.steerOriginX;
@@ -855,7 +913,7 @@ export class TouchInputSource {
     }
 
     const down = (e: PointerEvent) => {
-      if (!this.attached || (drivingOnly && this.mode !== "driving") || this.isPhoneOpen || this.isPortrait) return;
+      if (!this.canUseGameplayInput() || (drivingOnly && this.mode !== "driving")) return;
       e.preventDefault();
       this.capture(el, e.pointerId);
       owners.add(e.pointerId);
@@ -937,7 +995,7 @@ export class TouchInputSource {
     };
 
     el.addEventListener("pointerdown", (e: PointerEvent) => {
-      if (!this.attached || this.mode !== "store" || this.isPhoneOpen || this.isPortrait) return;
+      if (!this.canUseGameplayInput() || this.mode !== "store") return;
       if (this.isHudTarget(e.target)) return; // never steal real UI touches
       if (this.walkOwner !== null) return; // exclusive owner
       e.preventDefault();
@@ -951,6 +1009,7 @@ export class TouchInputSource {
     });
 
     el.addEventListener("pointermove", (e: PointerEvent) => {
+      if (!this.canUseGameplayInput()) return;
       if (e.pointerId !== this.walkOwner) return;
       move(e.clientX, e.clientY);
     });
@@ -987,22 +1046,64 @@ export class TouchInputSource {
     btn.title = "Toggle Phone";
     btn.innerHTML = "📱";
 
-    btn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      this.toggleVirtualPhone();
+    const bindPhoneAction = (element: HTMLElement, action: () => void) => {
+      let owner: number | null = null;
+      const clear = () => {
+        if (owner !== null) this.capturedPointers.delete(owner);
+        owner = null;
+      };
+      element.addEventListener("pointerdown", (event) => {
+        if (owner !== null) return;
+        event.preventDefault();
+        event.stopPropagation();
+        owner = event.pointerId;
+        this.capture(element, event.pointerId);
+      });
+      element.addEventListener("pointerup", (event) => {
+        if (owner !== event.pointerId) return;
+        clear();
+        event.preventDefault();
+        event.stopPropagation();
+        if (element.hasPointerCapture?.(event.pointerId)) element.releasePointerCapture(event.pointerId);
+        action();
+      });
+      element.addEventListener("pointercancel", clear);
+      element.addEventListener("lostpointercapture", clear);
+      // Keyboard/assistive activation. Pointer activation is handled above;
+      // canonical touch cancellation can suppress compatibility mouse clicks.
+      element.addEventListener("click", (event) => {
+        event.stopPropagation();
+        if (event.detail === 0) action();
+      });
+    };
+    bindPhoneAction(btn, () => {
+      if (this.canUseGameplayInput()) this.toggleVirtualPhone();
     });
 
     root.appendChild(btn);
     this.phoneBtn = btn;
+    const close = this.doc.createElement("button");
+    close.id = "ryder-phone-close";
+    close.type = "button";
+    close.setAttribute("aria-label", "Close phone");
+    close.textContent = "×";
+    bindPhoneAction(close, () => {
+      const win = this.doc.defaultView as unknown as { __capyGame?: { phone?: { minimize?: () => void } } };
+      win?.__capyGame?.phone?.minimize?.();
+      this.checkPhone();
+    });
+    this.doc.body.appendChild(close);
+    this.phoneCloseBtn = close;
   }
 
   private toggleVirtualPhone(): void {
-    const win = this.doc.defaultView as unknown as { __capyGame?: { phone?: { toggle: () => void; show: () => void; hide: () => void; visible?: boolean } } };
+    const win = this.doc.defaultView as unknown as { __capyGame?: { phone?: { toggle: () => void; show: () => void; hide: () => void; revealRoot?: () => void; visible?: boolean } } };
     const phone = win?.__capyGame?.phone;
     if (phone && typeof phone.hide === "function" && typeof phone.show === "function") {
       if (this.isPhoneOpen || phone.visible) {
         phone.hide();
       } else {
+        phone.revealRoot?.();
         phone.show();
       }
     } else if (phone?.toggle) {
@@ -1077,6 +1178,7 @@ export class TouchInputSource {
       this.reset("landscape-restore");
     }
     this.checkPhone();
+    this.applyVisibility();
   }
 
   private readMode(): void {
@@ -1084,9 +1186,45 @@ export class TouchInputSource {
     this.setMode(store ? "store" : "driving");
   }
 
+  /** Gameplay gate: controls are only visible once the game marks `body.in-game`. */
+  private canUseGameplayInput(): boolean {
+    this.checkGameplayState();
+    this.checkPhone();
+    return this.attached && this.isInGameplay && !this.isPhoneOpen && !this.isPortrait;
+  }
+
+  private positionPhoneTrigger(): void {
+    const menu = this.doc.getElementById("btn-menu");
+    if (!menu || !this.phoneBtn) return;
+    const bounds = menu.getBoundingClientRect();
+    if (bounds.width <= 0) return;
+    // Embedded body transforms establish a fixed-position containing block.
+    // Measure its origin rather than applying viewport bounds twice.
+    const origin = this.root?.getBoundingClientRect();
+    if (!origin) return;
+    for (const button of [this.phoneBtn, this.phoneCloseBtn]) {
+      if (!button) continue;
+      button.style.left = `max(var(--okada-safe-left), ${bounds.left - origin.left - 52}px)`;
+      button.style.top = `${bounds.top - origin.top}px`;
+      button.style.right = "auto";
+    }
+  }
+
+  private checkGameplayState(): void {
+    const inGame = !!this.doc.body?.classList?.contains("in-game");
+    if (inGame === this.isInGameplay) return;
+    this.isInGameplay = inGame;
+    if (!inGame) this.reset("not-in-game");
+    this.applyVisibility();
+    this.positionPhoneTrigger();
+  }
+
   private observeMode(): void {
     if (!this.doc.body) return;
-    this.modeObserver = new MutationObserver(() => this.readMode());
+    this.modeObserver = new MutationObserver(() => {
+      this.readMode();
+      this.checkGameplayState();
+    });
     this.modeObserver.observe(this.doc.body, { attributes: true, attributeFilter: ["class"] });
   }
 
@@ -1107,6 +1245,7 @@ export class TouchInputSource {
         this.root?.classList.remove("phone-open");
         this.reset("phone-closed");
       }
+      this.applyVisibility();
     }
   }
 
@@ -1257,6 +1396,8 @@ export class TouchInputSource {
   private applyVisibility(): void {
     if (!this.root) return;
     this.root.classList.toggle("mode-store", this.mode === "store");
+    this.root.classList.toggle("not-in-game", !this.isInGameplay);
+    this.phoneCloseBtn?.classList.toggle("visible", this.isInGameplay && this.isPhoneOpen && !this.isPortrait);
   }
 
   private apply(): void {

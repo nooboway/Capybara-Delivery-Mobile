@@ -1,0 +1,37 @@
+CONFIG {"variant":"idle","disable":"all","defaultGpu":false,"counterOnly":true,"canonicalSha":"C7E6C0AE11C358DCA1E51B9CC1CB0C971DE97659094E1D8D2C27D81D9AE4682E"}
+BOOT idle {"normalGameplay":true,"inputPresent":false,"audioBridge":false}
+ERROR     at wasm://wasm/005fccd2:wasm-function[1156]:0x150170
+    at wasm://wasm/005fccd2:wasm-function[1720]:0x1693da
+    at wasm://wasm/005fccd2:wasm-function[1416]:0x1626f6
+    at wasm://wasm/005fccd2:wasm-function[58]:0x60a37
+    at wasm://wasm/005fccd2:wasm-function[58]:0x60c2c
+    at wasm://wasm/005fccd2:wasm-function[58]:0x60c2c
+    at wasm://wasm/005fccd2:wasm-function[58]:0x60c2c
+    at wasm://wasm/005fccd2:wasm-function[58]:0x60c2c
+    at wasm://wasm/005fccd2:wasm-function[338]:0xefac3
+    at wasm://wasm/005fccd2:wasm-function[37]:0x25a63
+    at wasm://wasm/005fccd2:wasm-function[201]:0xc7b2c
+    at $j.step (http://127.0.0.1:49280/assets/main-CSpZwCDB.js:424:80056)
+    at ky.step (http://127.0.0.1:49280/assets/main-CSpZwCDB.js:424:141046)
+    at iP.step (http://127.0.0.1:49280/assets/main-CSpZwCDB.js:424:151627)
+    at WZ._stepPhysics (http://127.0.0.1:49280/assets/main-CSpZwCDB.js:460:203157)
+    at w._stepPhysics (eval at evaluate (:290:30), <anonymous>:3:71)
+    at WZ.update (http://127.0.0.1:49280/assets/main-CSpZwCDB.js:460:197742)
+    at rX._animate (http://127.0.0.1:49280/assets/main-CSpZwCDB.js:1808:21744)
+    at sK._animationLoop (http://127.0.0.1:49280/assets/main-CSpZwCDB.js:1717:17269)
+    at A (http://127.0.0.1:49280/assets/main-CSpZwCDB.js:68:54560)
+ERROR Error: recursive use of an object detected which would lead to unsafe aliasing in rust
+    at Ay.C.wbg.__wbindgen_throw (http://127.0.0.1:49280/assets/main-CSpZwCDB.js:424:106026)
+    at wasm://wasm/005fccd2:wasm-function[1946]:0x16c706
+    at wasm://wasm/005fccd2:wasm-function[1948]:0x16c722
+    at wasm://wasm/005fccd2:wasm-function[788]:0x13493e
+    at Xg.rbTranslation (http://127.0.0.1:49280/assets/main-CSpZwCDB.js:424:86174)
+    at P9.translation (http://127.0.0.1:49280/assets/main-CSpZwCDB.js:424:109410)
+    at Bv.getPosition (http://127.0.0.1:49280/assets/main-CSpZwCDB.js:424:5154013)
+    at WZ._stepPhysics (http://127.0.0.1:49280/assets/main-CSpZwCDB.js:460:202107)
+    at w._stepPhysics (eval at evaluate (:290:30), <anonymous>:3:71)
+    at WZ.update (http://127.0.0.1:49280/assets/main-CSpZwCDB.js:460:197742)
+    at rX._animate (http://127.0.0.1:49280/assets/main-CSpZwCDB.js:1808:21744)
+    at sK._animationLoop (http://127.0.0.1:49280/assets/main-CSpZwCDB.js:1717:17269)
+    at A (http://127.0.0.1:49280/assets/main-CSpZwCDB.js:68:54560)
+RESULT idle {"errors":30,"totalElapsedMs":251832,"observationElapsedMs":150531,"qa":{"frames":384,"last":null}}
