@@ -1,0 +1,70 @@
+=== STARTING OKADA PHASE 2B VERIFICATION ===
+PASS  canonical SHA-256 unchanged  (C7E6C0AE11C358DCA1E51B9CC1CB0C971DE97659094E1D8D2C27D81D9AE4682E)
+Navigating to capybara-game/index.html...
+Clicking Play Offline...
+Clicking Play...
+Waiting for in-game...
+IN-GAME READY!
+
+--- SUITE 1: DOM Controls & Structure ---
+PASS  root element attached to body
+PASS  style element in head
+PASS  steering control present
+PASS  GAS throttle control present
+PASS  BRAKE control present
+PASS  REV dedicated reverse control present
+PASS  DRIFT control present
+PASS  INTERACT control present
+PASS  WALK control present
+PASS  PHONE trigger control present
+PASS  portrait barrier present
+[screenshot warning] Failed to save phase2b_world_idle_844x390.png: EPERM: operation not permitted, copyfile 'C:\Users\dev\Documents\Codex\2026-10-11\files-pasted-by-the-user-i\r3-checkpoint\docs\ux\screenshots\phase2b_world_idle_844x390.png' -> 'C:\Users\dev\.gemini\antigravity-ide\brain\b66c0211-a640-40af-98d2-75c6017fcdc4\screenshots\phase2b_world_idle_844x390.png'
+
+--- SUITE 2: Steering & Analog Output ---
+PASS  dynamic steering origin established
+PASS  fractional steering output (+0.5)  (0.5)
+PASS  full lock steering output (-1.0)
+PASS  second pointer cannot steal steering
+PASS  steering release returns to 0
+[screenshot warning] Failed to save phase2b_active_steering.png: EPERM: operation not permitted, copyfile 'C:\Users\dev\Documents\Codex\2026-10-11\files-pasted-by-the-user-i\r3-checkpoint\docs\ux\screenshots\phase2b_active_steering.png' -> 'C:\Users\dev\.gemini\antigravity-ide\brain\b66c0211-a640-40af-98d2-75c6017fcdc4\screenshots\phase2b_active_steering.png'
+
+--- SUITE 3: Right Thumb Actions & Acceleration Lock ---
+PASS  GAS normal press sets throttle 1
+PASS  GAS normal release returns throttle 0
+PASS  GAS lock engages after hold duration
+PASS  GAS lock maintains throttle 1 after release
+PASS  GAS tap cancels acceleration lock
+[screenshot warning] Failed to save phase2b_gas_locked.png: EPERM: operation not permitted, copyfile 'C:\Users\dev\Documents\Codex\2026-10-11\files-pasted-by-the-user-i\r3-checkpoint\docs\ux\screenshots\phase2b_gas_locked.png' -> 'C:\Users\dev\.gemini\antigravity-ide\brain\b66c0211-a640-40af-98d2-75c6017fcdc4\screenshots\phase2b_gas_locked.png'
+PASS  BRAKE activates brake: 1 without reverse
+PASS  REV activates reverse: 1 without brake
+PASS  DRIFT activates drift: true
+PASS  simultaneous Steer + GAS + DRIFT
+PASS  DRIFT release preserves active Steer + GAS
+[screenshot warning] Failed to save phase2b_steer_gas_drift_active.png: EPERM: operation not permitted, copyfile 'C:\Users\dev\Documents\Codex\2026-10-11\files-pasted-by-the-user-i\r3-checkpoint\docs\ux\screenshots\phase2b_steer_gas_drift_active.png' -> 'C:\Users\dev\.gemini\antigravity-ide\brain\b66c0211-a640-40af-98d2-75c6017fcdc4\screenshots\phase2b_steer_gas_drift_active.png'
+
+--- SUITE 4: Store Mode & Walking Joystick ---
+PASS  store mode displays walk joystick and hides driving buttons
+PASS  store interact button visible
+PASS  store walking outputs continuous diagonal vector
+PASS  simultaneous Walk + INTERACT in store
+PASS  walking release resets vector to 0
+[screenshot warning] Failed to save phase2b_store_walking.png: EPERM: operation not permitted, copyfile 'C:\Users\dev\Documents\Codex\2026-10-11\files-pasted-by-the-user-i\r3-checkpoint\docs\ux\screenshots\phase2b_store_walking.png' -> 'C:\Users\dev\.gemini\antigravity-ide\brain\b66c0211-a640-40af-98d2-75c6017fcdc4\screenshots\phase2b_store_walking.png'
+
+--- SUITE 5: Virtual Phone & Control Suppression ---
+PASS  phone trigger click opens phone and neutralizes inputs
+PASS  phone close restores touch controls without resurrecting throttle
+[screenshot warning] Failed to save phase2b_phone_open_844x390.png: EPERM: operation not permitted, copyfile 'C:\Users\dev\Documents\Codex\2026-10-11\files-pasted-by-the-user-i\r3-checkpoint\docs\ux\screenshots\phase2b_phone_open_844x390.png' -> 'C:\Users\dev\.gemini\antigravity-ide\brain\b66c0211-a640-40af-98d2-75c6017fcdc4\screenshots\phase2b_phone_open_844x390.png'
+
+--- SUITE 6: Portrait Orientation Barrier ---
+PASS  portrait viewport activates orientation barrier
+PASS  portrait viewport neutralizes and hides gameplay controls
+[screenshot warning] Failed to save phase2b_portrait_barrier.png: EPERM: operation not permitted, copyfile 'C:\Users\dev\Documents\Codex\2026-10-11\files-pasted-by-the-user-i\r3-checkpoint\docs\ux\screenshots\phase2b_portrait_barrier.png' -> 'C:\Users\dev\.gemini\antigravity-ide\brain\b66c0211-a640-40af-98d2-75c6017fcdc4\screenshots\phase2b_portrait_barrier.png'
+
+--- SUITE 7: Device Matrix Responsive Screenshots ---
+[screenshot warning] Failed to save phase2b_device_compact_667x375.png: EPERM: operation not permitted, copyfile 'C:\Users\dev\Documents\Codex\2026-10-11\files-pasted-by-the-user-i\r3-checkpoint\docs\ux\screenshots\phase2b_device_compact_667x375.png' -> 'C:\Users\dev\.gemini\antigravity-ide\brain\b66c0211-a640-40af-98d2-75c6017fcdc4\screenshots\phase2b_device_compact_667x375.png'
+[screenshot warning] Failed to save phase2b_device_large_932x430.png: EPERM: operation not permitted, copyfile 'C:\Users\dev\Documents\Codex\2026-10-11\files-pasted-by-the-user-i\r3-checkpoint\docs\ux\screenshots\phase2b_device_large_932x430.png' -> 'C:\Users\dev\.gemini\antigravity-ide\brain\b66c0211-a640-40af-98d2-75c6017fcdc4\screenshots\phase2b_device_large_932x430.png'
+[screenshot warning] Failed to save phase2b_device_android_915x412.png: EPERM: operation not permitted, copyfile 'C:\Users\dev\Documents\Codex\2026-10-11\files-pasted-by-the-user-i\r3-checkpoint\docs\ux\screenshots\phase2b_device_android_915x412.png' -> 'C:\Users\dev\.gemini\antigravity-ide\brain\b66c0211-a640-40af-98d2-75c6017fcdc4\screenshots\phase2b_device_android_915x412.png'
+[screenshot warning] Failed to save phase2b_device_tablet_1024x768.png: EPERM: operation not permitted, copyfile 'C:\Users\dev\Documents\Codex\2026-10-11\files-pasted-by-the-user-i\r3-checkpoint\docs\ux\screenshots\phase2b_device_tablet_1024x768.png' -> 'C:\Users\dev\.gemini\antigravity-ide\brain\b66c0211-a640-40af-98d2-75c6017fcdc4\screenshots\phase2b_device_tablet_1024x768.png'
+PASS  safe-area inset CSS declarations present
+
+===== PHASE 2B VERIFY SUMMARY: 37 pass, 0 fail =====

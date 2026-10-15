@@ -119,6 +119,10 @@ export class TouchInputSource {
 
   // Bound event handlers for clean removal
   private handleResizeBound = () => this.checkOrientation();
+  private handleOrientationBound = () => {
+    this.reset("orientation-change");
+    this.checkOrientation();
+  };
   private handleBlurBound = () => this.handleExternalReset("blur");
   private handleVisibilityBound = () => {
     if (this.doc.hidden) this.handleExternalReset("visibility-hidden");
@@ -183,7 +187,7 @@ export class TouchInputSource {
     const win = this.doc.defaultView;
     if (win) {
       win.addEventListener("resize", this.handleResizeBound);
-      win.addEventListener("orientationchange", this.handleResizeBound);
+      win.addEventListener("orientationchange", this.handleOrientationBound);
       win.addEventListener("blur", this.handleBlurBound);
     }
     this.doc.addEventListener("visibilitychange", this.handleVisibilityBound);
@@ -195,7 +199,7 @@ export class TouchInputSource {
     const win = this.doc.defaultView;
     if (win) {
       win.removeEventListener("resize", this.handleResizeBound);
-      win.removeEventListener("orientationchange", this.handleResizeBound);
+      win.removeEventListener("orientationchange", this.handleOrientationBound);
       win.removeEventListener("blur", this.handleBlurBound);
     }
     this.doc.removeEventListener("visibilitychange", this.handleVisibilityBound);
@@ -591,7 +595,9 @@ export class TouchInputSource {
       #${ROOT_ID}.mode-store #okada-btn-phone { display: none !important; }
 
       /* Suppress canonical redundant desktop touch elements */
-      #mobile-controls { display: none !important; }
+      /* Ryder owns touch while attached; native store UI otherwise sits above
+         the movement surface after controls-ready and steals walking pointers. */
+      #mobile-controls, #mobile-joystick { display: none !important; }
 
       /* Orientation Barrier Overlay */
       #okada-portrait-barrier {

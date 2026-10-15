@@ -1,0 +1,7 @@
+Checkpoint text checked through repository Git clean filters (Windows line-ending normalization). Canonical bundle checked separately by exact SHA-256.
+47c38500dacded886685cb1ce2f03d30f405603f artifacts/capybara-delivery/src/lib/input/index.ts (matches e805a96 repository blob)
+237b7593df2c087c0588adfcb0051f2787aeb982 artifacts/capybara-delivery/src/lib/input/sources/touch.ts (matches e805a96 repository blob)
+6f899ddcf69c1d666089940cd0d3cec21dd6f251 artifacts/capybara-delivery/src/lib/input/engine-adapter.ts (matches e805a96 repository blob)
+dd1244de04b5cf664516f263bf63acabc68208a9 artifacts/capybara-delivery/src/lib/input/input-manager.ts (matches e805a96 repository blob)
+0e0ca760cebdc8273866bb40a75c1762c0ba5979 artifacts/capybara-delivery/src/lib/ryder-store-motion-policy.ts (matches e805a96 repository blob)
+29b83d101bae825554e36d37a68358d0280c6fe7 artifacts/capybara-delivery/public/capybara-game/index.html (matches e805a96 repository blob)

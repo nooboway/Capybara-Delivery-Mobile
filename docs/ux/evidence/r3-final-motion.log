@@ -1,0 +1,54 @@
+=== RYDER PHASE 2C-R3 STORE-MOTION INTEGRATION ===
+PASS  canonical bundle SHA-256 unchanged  (C7E6C0AE11C358DCA1E51B9CC1CB0C971DE97659094E1D8D2C27D81D9AE4682E)
+PASS  acceptance path installs the Ryder store policy (own wrapper)
+PASS  canonical store.update executes exactly once per call  (delta=1)
+PASS  wrapper is not the canonical prototype method
+PASS  store is active in store mode
+PASS  keyboard fallback reaches engine while touch is registered  ({"x":0,"z":-1,"active":false})
+PASS  normalized touch state stays neutral under keyboard
+PASS  keyboard walking accelerates (no touch-coupled damping)  (vel=3.000 vz=-3.000)
+PASS  store reaches full walking speed while held  (v0=3.000)
+PASS  practical rest from full speed within 100-200 ms  (stopMs=150.0)
+PASS  velocity is exactly zero at rest (no linger)
+PASS  diagonal walking preserves speed while held  (v0=2.264)
+PASS  diagonal release rests within 100-200 ms  (stopMs=150.0)
+PASS  low-speed release comes to rest <= 200 ms  (stopMs=66.7)
+PASS  policy: no sustained rebound after wall collision (final velocity exactly 0)  (final=0)
+PASS  policy: no rebound resurrection after rest
+PASS  control: canonical-only retains rebound motion  (canonFinal=2.000)
+PASS  no damping when intent active (store velocity == canonical post-step)  ({"store":{"x":0.75,"z":0},"post":{"x":0.75,"z":0}})
+PASS  forward walking is responsive (vx > 0)  (vx=3.000)
+PASS  direction change is responsive (vx < 0 after reversal)  (vx=-3.000)
+R3_MEASUREMENTS {"candidates":[{"rate":20,"fps":120,"v0":3,"points":{"50":1.1036383235143272,"100":0.4060058497098384,"150":0.14936120510359202,"200":0.054946916666202626},"stopMs":208.33333333333334,"distance":0.1603223045757111,"final":0},{"rate":20,"fps":120,"v0":0.3,"points":{"50":0.11036383235143273,"100":0,"150":0,"200":0},"stopMs":91.66666666666666,"distance":0.013681111472261163,"final":0},{"rate":20,"fps":120,"v0":3,"points":{"50":1.1036383235143272,"100":0.4060058497098382,"150":0.14936120510359197,"200":0.054946916666202605},"stopMs":208.33333333333334,"distance":0.160322304575711,"final":0},{"rate":28,"fps":120,"v0":3,"points":{"50":0.7397908918248194,"100":0.18243018787565388,"150":0,"200":0},"stopMs":150,"distance":0.11832713115834673,"final":0},{"rate":28,"fps":120,"v0":0.3,"points":{"50":0.07397908918248193,"100":0,"150":0,"200":0},"stopMs":66.66666666666667,"distance":0.010155206067404339,"final":0},{"rate":28,"fps":120,"v0":3,"points":{"50":0.7397908918248193,"100":0.18243018787565385,"150":0,"200":0},"stopMs":150,"distance":0.1183271311583467,"final":0},{"rate":36,"fps":120,"v0":3,"points":{"50":0.4958966646647597,"100":0.0819711673418777,"150":0,"200":0},"stopMs":116.66666666666667,"distance":0.09501096351857269,"final":0},{"rate":36,"fps":120,"v0":0.3,"points":{"50":0,"100":0,"150":0,"200":0},"stopMs":50,"distance":0.008051309721442438,"final":0},{"rate":36,"fps":120,"v0":3,"points":{"50":0.4958966646647597,"100":0.08197116734187769,"150":0,"200":0},"stopMs":116.66666666666667,"distance":0.09501096351857272,"final":0}],"rates":[{"rate":28,"fps":30,"v0":3,"points":{"50":0.4639147936477644,"100":0.18243018787565388,"150":0,"200":0},"stopMs":166.66666666666666,"distance":0.16326020409058764,"final":0},{"rate":28,"fps":60,"v0":3,"points":{"50":0.7397908918248192,"100":0.18243018787565377,"150":0,"200":0},"stopMs":150,"distance":0.13206966922659943,"final":0},{"rate":28,"fps":90,"v0":3,"points":{"50":0.6332162633732705,"100":0.18243018787565388,"150":0,"200":0},"stopMs":155.55555555555557,"distance":0.12307212282855273,"final":0},{"rate":28,"fps":120,"v0":3,"points":{"50":0.7397908918248194,"100":0.18243018787565388,"150":0,"200":0},"stopMs":150,"distance":0.11832713115834673,"final":0}],"baseline":{"rate":0,"fps":60,"v0":3,"points":{"50":3,"100":3,"150":3,"200":3},"stopMs":null,"distance":2.9999999999999973,"final":3},"diag":{"rate":28,"fps":60,"v0":3,"points":{"50":0.7397908918248192,"100":0.18243018787565377,"150":0,"200":0},"stopMs":150,"distance":0.1320696692265994,"final":0},"low":{"rate":28,"fps":60,"v0":0.3,"points":{"50":0.07397908918248192,"100":0,"150":0,"200":0},"stopMs":66.66666666666667,"distance":0.011334633850416302,"final":0},"idle":{"rate":28,"fps":60,"v0":0,"points":{"50":0,"100":0,"150":0,"200":0},"stopMs":16.666666666666668,"distance":0,"final":0},"walls":{"native":{"samples":[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],"final":2,"collision":true},"policy":{"samples":[1.2541781705461121,0.7864814417371964,0.4931939278832128,0.3092765290985095,0.19394393572881002,0.12162012525043585,0.07626665309409032,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"final":0,"collision":true}},"active":[{"vector":{"x":1,"z":0},"native":{"x":3,"z":0},"policy":{"x":3,"z":0}},{"vector":{"x":0.42,"z":0.71},"native":{"x":1.527412992022738,"z":2.582055296038438},"policy":{"x":1.527412992022738,"z":2.582055296038438}}]}
+PASS  canonical baseline keeps released speed 3
+PASS  three candidate constants measured at full/low/diagonal speeds
+PASS  policy practical rest at 30 FPS  ({"rate":28,"fps":30,"v0":3,"points":{"50":0.4639147936477644,"100":0.18243018787565388,"150":0,"200":0},"stopMs":166.66666666666666,"distance":0.16326020409058764,"final":0})
+PASS  policy practical rest at 60 FPS  ({"rate":28,"fps":60,"v0":3,"points":{"50":0.7397908918248192,"100":0.18243018787565377,"150":0,"200":0},"stopMs":150,"distance":0.13206966922659943,"final":0})
+PASS  policy practical rest at 90 FPS  ({"rate":28,"fps":90,"v0":3,"points":{"50":0.6332162633732705,"100":0.18243018787565388,"150":0,"200":0},"stopMs":155.55555555555557,"distance":0.12307212282855273,"final":0})
+PASS  policy practical rest at 120 FPS  ({"rate":28,"fps":120,"v0":3,"points":{"50":0.7397908918248194,"100":0.18243018787565388,"150":0,"200":0},"stopMs":150,"distance":0.11832713115834673,"final":0})
+PASS  diagonal rest inside envelope
+PASS  low-speed practical rest <=100ms
+PASS  store idle has no displacement
+PASS  active native speed and continuous vectors preserved
+PASS  real native boundary collision occurred
+PASS  wall policy settles without resurrection
+PASS  canonical wall control continues moving
+PASS  native KeyW idle-touch and released-touch fallback  ({"idle":true,"resumed":true,"touch":{"x":0.42,"z":0.71,"active":true},"moving":true})
+PASS  native KeyA idle-touch and released-touch fallback  ({"idle":true,"resumed":true,"touch":{"x":0.42,"z":0.71,"active":true},"moving":true})
+PASS  native KeyS idle-touch and released-touch fallback  ({"idle":true,"resumed":true,"touch":{"x":0.42,"z":0.71,"active":true},"moving":true})
+PASS  native KeyD idle-touch and released-touch fallback  ({"idle":true,"resumed":true,"touch":{"x":0.42,"z":0.71,"active":true},"moving":true})
+PASS  native E acquires canonical cart
+PASS  pointerup neutral intent, no resurrection, residual rest  ({"wasActive":true,"neutral":true,"stale":true,"rest":true})
+PASS  pointercancel neutral intent, no resurrection, residual rest  ({"wasActive":true,"neutral":true,"stale":true,"rest":true})
+PASS  lostpointercapture neutral intent, no resurrection, residual rest  ({"wasActive":true,"neutral":true,"stale":true,"rest":true})
+PASS  blur neutral intent, no resurrection, residual rest  ({"wasActive":true,"neutral":true,"stale":true,"rest":true})
+PASS  visibility neutral intent, no resurrection, residual rest  ({"wasActive":true,"neutral":true,"stale":true,"rest":true})
+PASS  orientation neutral intent, no resurrection, residual rest  ({"wasActive":true,"neutral":true,"stale":true,"rest":true})
+PASS  re-init installs a fresh wrapper (no stacked wrappers)  ({"own":true,"wrapper":true,"changed":true})
+PASS  re-init still executes canonical exactly once  (delta=1)
+PASS  dispose restores the canonical store.update descriptor
+PASS  dispose restores the adapter (native getters rebound)
+PASS  pagehide installs then restores the wrapper via lifecycle
+
+TOTAL CHECKS: 49 | PASSED: 49 | FAILED: 0
+ALL PHASE 2C-R3 INTEGRATION CHECKS PASSED

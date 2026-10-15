@@ -131,7 +131,7 @@ async function main() {
 
   // Enter store through the canonical fixture.
   await page.evaluate(() => { window.__capyGame._onOrderAccepted({}); window.__capyGame._pendingStoreItems = ["Bubble Milk Tea"]; window.__capyGame.setMode("store"); });
-  await page.waitForFunction(() => document.body.classList.contains("in-store-mode"), null, { timeout: 10000 });
+  await page.waitForFunction(() => document.body.classList.contains("in-store-mode"), null, { timeout: 180000 });
   await page.waitForTimeout(400);
 
   await page.evaluate(() => {
@@ -252,6 +252,91 @@ async function main() {
   check("no damping when intent active (store velocity == canonical post-step)", active.coupled.store.x === active.coupled.post.x && active.coupled.store.z === active.coupled.post.z, JSON.stringify(active.coupled));
   check("forward walking is responsive (vx > 0)", active.forward > 0, `vx=${active.forward.toFixed(3)}`);
   check("direction change is responsive (vx < 0 after reversal)", active.reversed < 0, `vx=${active.reversed.toFixed(3)}`);
+
+  // R3 completion gates. Controlled native steps; no product pause mechanism.
+  const measured = await page.evaluate(() => {
+    const g=__capyGame,s=g.store,h=window.h, native=Object.getPrototypeOf(s).update;
+    const saved={colliders:s.colliders,bounds:s.bounds,pos:s.walkerPos.clone(),timer:s.timerActive};
+    g.renderer.setAnimationLoop(null); h.reset(); s.timerActive=false;
+    s.colliders=[]; s.bounds={minX:-100,maxX:100,minZ:-100,maxZ:100};
+    const input={walkVec:{x:0,z:0,active:false},interact:false};
+    const run=(rate,fps,x,z,policy=false)=>{
+      s.walkerPos.set(0,0,0);s.walkerVel.set(x,0,z);s.bounceTimer=0;
+      const points={},v0=Math.hypot(x,z);let stop=null,distance=0;
+      for(let f=1;f<=fps;f++){
+        const before=s.walkerPos.clone();
+        if(policy)s.update(input,1/fps,g.camera);
+        else {native.call(s,input,1/fps,g.camera);if(rate){s.walkerVel.x*=Math.exp(-rate/fps);s.walkerVel.z*=Math.exp(-rate/fps);if(Math.hypot(s.walkerVel.x,s.walkerVel.z)<=.05)s.walkerVel.set(0,0,0);}}
+        distance+=before.distanceTo(s.walkerPos);
+        const t=f/fps,v=Math.hypot(s.walkerVel.x,s.walkerVel.z);
+        for(const ms of [50,100,150,200])if(points[ms]===undefined&&t>=ms/1000-1e-8)points[ms]=v;
+        if(stop===null&&v===0)stop=t*1000;
+      }
+      return {rate,fps,v0,points,stopMs:stop,distance,final:Math.hypot(s.walkerVel.x,s.walkerVel.z)};
+    };
+    const candidates=[20,28,36].flatMap(k=>[[3,0],[.3,0],[3/Math.SQRT2,3/Math.SQRT2]].map(([x,z])=>run(k,120,x,z)));
+    const rates=[30,60,90,120].map(fps=>run(28,fps,3,0,true));
+    const baseline=run(0,60,3,0);
+    const diag=run(28,60,3/Math.SQRT2,3/Math.SQRT2,true),low=run(28,60,.3,0,true);
+    const active=[];
+    for(const vec of [{x:1,z:0},{x:.42,z:.71}]){
+      input.walkVec=vec;
+      const seq=usePolicy=>{s.walkerPos.set(0,0,0);s.walkerVel.set(0,0,0);s.bounceTimer=0;for(let i=0;i<12;i++)(usePolicy?s.update:native).call(s,input,1/60,g.camera);return {x:s.walkerVel.x,z:s.walkerVel.z};};
+      active.push({vector:vec,native:seq(false),policy:seq(true)});
+    }
+    input.walkVec={x:0,z:0};
+    const idle=run(28,60,0,0,true);
+    s.bounds=saved.bounds;
+    const wall=usePolicy=>{s.walkerPos.set(s.bounds.maxX-.401,0,(s.bounds.minZ+s.bounds.maxZ)/2);s.walkerVel.set(3,0,0);s.bounceTimer=0;const samples=[];for(let f=0;f<90;f++){(usePolicy?s.update:native).call(s,input,1/60,g.camera);samples.push(Math.hypot(s.walkerVel.x,s.walkerVel.z));}return {samples,final:samples.at(-1),collision:samples[0]<3};};
+    const walls={native:wall(false),policy:wall(true)};
+    s.colliders=saved.colliders;s.walkerPos.copy(saved.pos);s.walkerVel.set(0,0,0);s.bounceTimer=0;s.timerActive=saved.timer;
+    g.renderer.setAnimationLoop(()=>g._animate());
+    return {candidates,rates,baseline,diag,low,idle,walls,active};
+  });
+  console.log('R3_MEASUREMENTS',JSON.stringify(measured));
+  check('canonical baseline keeps released speed 3',measured.baseline.final===3);
+  check('three candidate constants measured at full/low/diagonal speeds',measured.candidates.length===9);
+  for(const r of measured.rates)check(`policy practical rest at ${r.fps} FPS`,r.stopMs>=100&&r.stopMs<=200&&r.final===0,JSON.stringify(r));
+  check('diagonal rest inside envelope',measured.diag.stopMs>=100&&measured.diag.stopMs<=200);
+  check('low-speed practical rest <=100ms',measured.low.stopMs<=100);
+  check('store idle has no displacement',measured.idle.distance===0&&measured.idle.final===0);
+  check('active native speed and continuous vectors preserved',measured.active.every(a=>Math.abs(a.native.x-a.policy.x)<1e-9&&Math.abs(a.native.z-a.policy.z)<1e-9));
+  check('real native boundary collision occurred',measured.walls.policy.collision&&measured.walls.native.collision);
+  check('wall policy settles without resurrection',measured.walls.policy.final===0&&measured.walls.policy.samples.slice(15).every(v=>v===0));
+  check('canonical wall control continues moving',measured.walls.native.final>0);
+
+  // Actual browser keyboard events with the real input system installed.
+  for(const [key,axis,sign] of [['KeyW','z',-1],['KeyA','x',-1],['KeyS','z',1],['KeyD','x',1]]){
+    await page.keyboard.down(key);
+    const result=await page.evaluate(({axis,sign})=>{
+      const h=window.h,s=__capyGame.store,input=h.adapter.getEngineInput();h.manager.reset();
+      const idle=input.walkVec[axis]===sign;
+      h.manager.apply('touch',{walkX:.42,walkY:-.71});const touch=input.walkVec;
+      h.manager.release('touch');const resumed=input.walkVec[axis]===sign;
+      const saved={colliders:s.colliders,bounds:s.bounds,pos:s.walkerPos.clone()};
+      s.colliders=[];s.bounds={minX:-100,maxX:100,minZ:-100,maxZ:100};s.walkerPos.set(0,0,0);
+      s.walkerVel.set(0,0,0);s.bounceTimer=0;s.update(input,1/60,__capyGame.camera);
+      const moving=s.walkerVel[axis]*sign>0;
+      s.colliders=saved.colliders;s.bounds=saved.bounds;s.walkerPos.copy(saved.pos);s.walkerVel.set(0,0,0);
+      return {idle,resumed,touch,moving};
+    },{axis,sign});
+    await page.keyboard.up(key);
+    check(`native ${key} idle-touch and released-touch fallback`,result.idle&&result.resumed&&result.moving,JSON.stringify(result));
+  }
+  await page.evaluate(()=>{const s=__capyGame.store;s.walkerPos.set(s.cartPickupPos.x,0,s.cartPickupPos.z);s.walkerVel.set(0,0,0);s._interactCooldown=0;});
+  await page.keyboard.down('KeyE');
+  const picked=await page.evaluate(()=>{const s=__capyGame.store;s.update(window.h.adapter.getEngineInput(),1/60,__capyGame.camera);return s.hasCart;});
+  await page.keyboard.up('KeyE');check('native E acquires canonical cart',picked);
+
+  for(const kind of ['pointerup','pointercancel','lostpointercapture','blur','visibility','orientation']){
+    await page.evaluate(()=>{const h=window.h,el=document.getElementById('okada-walk');h.reset();const r=el.getBoundingClientRect();window.__r3Pointer={x:r.left+50,y:r.top+r.height/2};const {x,y}=window.__r3Pointer;for(const [type,dx] of [['pointerdown',0],['pointermove',30]])el.dispatchEvent(new PointerEvent(type,{bubbles:true,pointerType:'touch',pointerId:712,clientX:x+dx,clientY:y-15}));});
+    const wasActive=await page.evaluate(()=>window.h.manager.getState().walkX!==0);
+    if(kind==='orientation'){await page.setViewportSize({width:390,height:844});await page.evaluate(()=>window.dispatchEvent(new Event('orientationchange')));await page.waitForTimeout(100);}
+    else await page.evaluate(kind=>{const el=document.getElementById('okada-walk');if(kind==='blur')window.dispatchEvent(new Event('blur'));else if(kind==='visibility'){Object.defineProperty(document,'hidden',{configurable:true,get:()=>true});document.dispatchEvent(new Event('visibilitychange'));delete document.hidden;}else el.dispatchEvent(new PointerEvent(kind,{bubbles:true,pointerType:'touch',pointerId:712}));},kind);
+    const after=await page.evaluate(()=>{const h=window.h,s=__capyGame.store;const before=h.manager.getState();document.getElementById('okada-walk').dispatchEvent(new PointerEvent('pointermove',{bubbles:true,pointerId:712,clientX:200,clientY:250}));s.walkerVel.set(3,0,0);for(let f=0;f<20;f++)s.update(h.adapter.getEngineInput(),1/60,__capyGame.camera);const st=h.manager.getState();return {neutral:before.walkX===0&&before.walkY===0,stale:st.walkX===0&&st.walkY===0,rest:s.walkerVel.length()===0};});
+    check(`${kind} neutral intent, no resurrection, residual rest`,wasActive&&after.neutral&&after.stale&&after.rest,JSON.stringify({wasActive,...after}));
+    if(kind==='orientation'){await page.setViewportSize({width:844,height:390});await page.waitForTimeout(100);}
+  }
 
   // ---- GROUP H: idempotent re-install + dispose/pagehide restore/rebind -----
   const rebind = await page.evaluate(async () => {

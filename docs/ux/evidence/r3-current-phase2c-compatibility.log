@@ -1,0 +1,49 @@
+=== STARTING RYDER PHASE 2C VERIFICATION ===
+PASS  canonical SHA-256 unchanged  (C7E6C0AE11C358DCA1E51B9CC1CB0C971DE97659094E1D8D2C27D81D9AE4682E)
+Navigating to capybara-game/index.html...
+Clicking Play Offline...
+Clicking Play...
+Waiting for in-game...
+IN-GAME READY!
+
+--- SUITE 1: DOM Controls & Ryder Branding ---
+PASS  root element attached to body
+PASS  style element in head
+PASS  steering control present
+PASS  GAS throttle control present
+PASS  BRAKE control present
+FAIL  REV dedicated reverse control present
+PASS  DRIFT control present
+PASS  INTERACT action control present
+PASS  WALK control present
+PASS  PHONE trigger control present
+PASS  portrait barrier present
+PASS  barrier badge says RYDER
+PASS  barrier title says Rotate your phone to play
+PASS  barrier includes animated SVG phone
+PASS  barrier has NO raw emoji
+PASS  fullscreen button completely removed
+[screenshot warning] Failed to save phase2c_world_idle_844x390.png: EPERM: operation not permitted, copyfile 'C:\Users\dev\.gemini\antigravity-ide\scratch\Capybara-Delivery-Mobile\docs\ux\screenshots\phase2c_world_idle_844x390.png' -> 'C:\Users\dev\.gemini\antigravity-ide\brain\b66c0211-a640-40af-98d2-75c6017fcdc4\screenshots\phase2c_world_idle_844x390.png'
+
+--- SUITE 2: Dynamic Floating Steering & Analog Output ---
+PASS  steering dynamic origin initial neutral
+PASS  steering gains active class on touch
+PASS  fractional steering +0.50 right  (0.5)
+PASS  full lock steering -1.0 left
+PASS  exclusive single-finger ownership rejects 2nd pointer
+PASS  steering release snaps to neutral 0
+PASS  steering active class removed on release
+[screenshot warning] Failed to save phase2c_active_steering.png: EPERM: operation not permitted, copyfile 'C:\Users\dev\.gemini\antigravity-ide\scratch\Capybara-Delivery-Mobile\docs\ux\screenshots\phase2c_active_steering.png' -> 'C:\Users\dev\.gemini\antigravity-ide\brain\b66c0211-a640-40af-98d2-75c6017fcdc4\screenshots\phase2c_active_steering.png'
+
+--- SUITE 3: Right Thumb Actions & Acceleration Lock ---
+PASS  GAS normal press sets throttle 1
+PASS  GAS normal release returns throttle 0
+PASS  GAS lock engages after hold duration
+PASS  GAS lock maintains throttle 1 after release
+PASS  GAS tap cancels acceleration lock
+[screenshot warning] Failed to save phase2c_gas_locked.png: EPERM: operation not permitted, copyfile 'C:\Users\dev\.gemini\antigravity-ide\scratch\Capybara-Delivery-Mobile\docs\ux\screenshots\phase2c_gas_locked.png' -> 'C:\Users\dev\.gemini\antigravity-ide\brain\b66c0211-a640-40af-98d2-75c6017fcdc4\screenshots\phase2c_gas_locked.png'
+FATAL VERIFICATION ERROR: page.evaluate: TypeError: Cannot read properties of null (reading 'dispatchEvent')
+    at eval (eval at evaluate (:290:30), <anonymous>:11:9)
+    at UtilityScript.evaluate (<anonymous>:292:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+    at main (C:\Users\dev\.gemini\antigravity-ide\scratch\Capybara-Delivery-Mobile\artifacts\capybara-delivery\scripts\verify-phase2c.mjs:328:29)

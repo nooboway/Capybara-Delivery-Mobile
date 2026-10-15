@@ -1,0 +1,96 @@
+=== STARTING RYDER PHASE 2C VERIFICATION ===
+PASS  canonical SHA-256 unchanged  (C7E6C0AE11C358DCA1E51B9CC1CB0C971DE97659094E1D8D2C27D81D9AE4682E)
+Navigating to capybara-game/index.html...
+Clicking Play Offline...
+Clicking Play...
+Waiting for in-game...
+IN-GAME READY!
+
+--- SUITE 1: DOM Controls & Ryder Branding ---
+PASS  root element attached to body
+PASS  style element in head
+PASS  steering control present
+PASS  GAS throttle control present
+PASS  BRAKE control present
+PASS  REV dedicated reverse control present
+PASS  DRIFT control present
+PASS  INTERACT action control present
+PASS  WALK control present
+PASS  PHONE trigger control present
+PASS  portrait barrier present
+PASS  barrier badge says RYDER
+PASS  barrier title says Rotate your phone to play
+PASS  barrier includes animated SVG phone
+PASS  barrier has NO raw emoji
+PASS  fullscreen button completely removed
+[screenshot warning] Failed to save phase2c_world_idle_844x390.png: EPERM: operation not permitted, copyfile 'C:\Users\dev\Documents\Codex\2026-10-11\files-pasted-by-the-user-i\r3-checkpoint\docs\ux\screenshots\phase2c_world_idle_844x390.png' -> 'C:\Users\dev\.gemini\antigravity-ide\brain\b66c0211-a640-40af-98d2-75c6017fcdc4\screenshots\phase2c_world_idle_844x390.png'
+
+--- SUITE 2: Dynamic Floating Steering & Analog Output ---
+PASS  steering dynamic origin initial neutral
+PASS  steering gains active class on touch
+PASS  fractional steering +0.50 right  (0.5)
+PASS  full lock steering -1.0 left
+PASS  exclusive single-finger ownership rejects 2nd pointer
+PASS  steering release snaps to neutral 0
+PASS  steering active class removed on release
+[screenshot warning] Failed to save phase2c_active_steering.png: EPERM: operation not permitted, copyfile 'C:\Users\dev\Documents\Codex\2026-10-11\files-pasted-by-the-user-i\r3-checkpoint\docs\ux\screenshots\phase2c_active_steering.png' -> 'C:\Users\dev\.gemini\antigravity-ide\brain\b66c0211-a640-40af-98d2-75c6017fcdc4\screenshots\phase2c_active_steering.png'
+
+--- SUITE 3: Right Thumb Actions & Acceleration Lock ---
+PASS  GAS normal press sets throttle 1
+PASS  GAS normal release returns throttle 0
+PASS  GAS lock engages after hold duration
+PASS  GAS lock maintains throttle 1 after release
+PASS  GAS tap cancels acceleration lock
+[screenshot warning] Failed to save phase2c_gas_locked.png: EPERM: operation not permitted, copyfile 'C:\Users\dev\Documents\Codex\2026-10-11\files-pasted-by-the-user-i\r3-checkpoint\docs\ux\screenshots\phase2c_gas_locked.png' -> 'C:\Users\dev\.gemini\antigravity-ide\brain\b66c0211-a640-40af-98d2-75c6017fcdc4\screenshots\phase2c_gas_locked.png'
+PASS  BRAKE activates brake without reverse
+PASS  BRAKE release returns to 0
+PASS  REV activates reverse without brake
+PASS  REV release returns to 0
+PASS  DRIFT activates drift state
+PASS  DRIFT release deactivates drift
+PASS  ACTION activates interact state
+PASS  ACTION release deactivates interact
+PASS  simultaneous Steer + GAS + DRIFT multitouch  ({"steer":0.5,"throttle":1,"brake":0,"reverse":0,"drift":true,"interact":false,"wheelie":false,"phone":false,"walkX":0,"walkY":0})
+[screenshot warning] Failed to save phase2c_steer_gas_drift_active.png: EPERM: operation not permitted, copyfile 'C:\Users\dev\Documents\Codex\2026-10-11\files-pasted-by-the-user-i\r3-checkpoint\docs\ux\screenshots\phase2c_steer_gas_drift_active.png' -> 'C:\Users\dev\.gemini\antigravity-ide\brain\b66c0211-a640-40af-98d2-75c6017fcdc4\screenshots\phase2c_steer_gas_drift_active.png'
+
+--- SUITE 4: Store Mode Walking & Interaction ---
+PASS  store mode displays walk joystick and hides driving buttons
+PASS  store interact button visible
+PASS  store walking outputs continuous diagonal vector
+PASS  simultaneous Walk + INTERACT in store
+PASS  walking release resets vector to 0
+[screenshot warning] Failed to save phase2c_store_walking.png: EPERM: operation not permitted, copyfile 'C:\Users\dev\Documents\Codex\2026-10-11\files-pasted-by-the-user-i\r3-checkpoint\docs\ux\screenshots\phase2c_store_walking.png' -> 'C:\Users\dev\.gemini\antigravity-ide\brain\b66c0211-a640-40af-98d2-75c6017fcdc4\screenshots\phase2c_store_walking.png'
+
+--- SUITE 5: Virtual Phone & Control Suppression ---
+PASS  phone open neutralizes held throttle
+PASS  phone open sets .phone-open and suppresses controls
+[screenshot warning] Failed to save phase2c_phone_open_844x390.png: EPERM: operation not permitted, copyfile 'C:\Users\dev\Documents\Codex\2026-10-11\files-pasted-by-the-user-i\r3-checkpoint\docs\ux\screenshots\phase2c_phone_open_844x390.png' -> 'C:\Users\dev\.gemini\antigravity-ide\brain\b66c0211-a640-40af-98d2-75c6017fcdc4\screenshots\phase2c_phone_open_844x390.png'
+PASS  phone close restores control visibility  (class=, opacity=1)
+PASS  phone close maintains neutral inputs (no resurrection)
+
+--- SUITE 6: Portrait Barrier & Rotation Recovery ---
+PASS  portrait orientation displays Ryder barrier overlay
+PASS  portrait suppresses touch controls layer
+PASS  portrait neutralizes all active inputs
+[screenshot warning] Failed to save phase2c_portrait_barrier.png: EPERM: operation not permitted, copyfile 'C:\Users\dev\Documents\Codex\2026-10-11\files-pasted-by-the-user-i\r3-checkpoint\docs\ux\screenshots\phase2c_portrait_barrier.png' -> 'C:\Users\dev\.gemini\antigravity-ide\brain\b66c0211-a640-40af-98d2-75c6017fcdc4\screenshots\phase2c_portrait_barrier.png'
+PASS  landscape return dismisses barrier overlay
+PASS  landscape return restores touch controls
+PASS  landscape return maintains clean neutral inputs
+
+--- SUITE 7: Multi-Viewport Responsive Matrix ---
+PASS  viewport compact (667x375) controls visible and within screen bounds
+[screenshot warning] Failed to save phase2c_device_compact_667x375.png: EPERM: operation not permitted, copyfile 'C:\Users\dev\Documents\Codex\2026-10-11\files-pasted-by-the-user-i\r3-checkpoint\docs\ux\screenshots\phase2c_device_compact_667x375.png' -> 'C:\Users\dev\.gemini\antigravity-ide\brain\b66c0211-a640-40af-98d2-75c6017fcdc4\screenshots\phase2c_device_compact_667x375.png'
+PASS  viewport large (932x430) controls visible and within screen bounds
+[screenshot warning] Failed to save phase2c_device_large_932x430.png: EPERM: operation not permitted, copyfile 'C:\Users\dev\Documents\Codex\2026-10-11\files-pasted-by-the-user-i\r3-checkpoint\docs\ux\screenshots\phase2c_device_large_932x430.png' -> 'C:\Users\dev\.gemini\antigravity-ide\brain\b66c0211-a640-40af-98d2-75c6017fcdc4\screenshots\phase2c_device_large_932x430.png'
+PASS  viewport android (915x412) controls visible and within screen bounds
+[screenshot warning] Failed to save phase2c_device_android_915x412.png: EPERM: operation not permitted, copyfile 'C:\Users\dev\Documents\Codex\2026-10-11\files-pasted-by-the-user-i\r3-checkpoint\docs\ux\screenshots\phase2c_device_android_915x412.png' -> 'C:\Users\dev\.gemini\antigravity-ide\brain\b66c0211-a640-40af-98d2-75c6017fcdc4\screenshots\phase2c_device_android_915x412.png'
+PASS  viewport tablet (1024x768) controls visible and within screen bounds
+[screenshot warning] Failed to save phase2c_device_tablet_1024x768.png: EPERM: operation not permitted, copyfile 'C:\Users\dev\Documents\Codex\2026-10-11\files-pasted-by-the-user-i\r3-checkpoint\docs\ux\screenshots\phase2c_device_tablet_1024x768.png' -> 'C:\Users\dev\.gemini\antigravity-ide\brain\b66c0211-a640-40af-98d2-75c6017fcdc4\screenshots\phase2c_device_tablet_1024x768.png'
+
+--- SUITE 8: Keyboard Fallback Regression ---
+PASS  native keyboard W reaches engine forward via adapter fallback without touch contribution
+PASS  native keyboard A reaches engine steerDir via adapter fallback without touch contribution
+
+==============================================
+PHASE 2C VERIFICATION SUMMARY: 59 PASSED, 0 FAILED (TOTAL: 59)
+==============================================

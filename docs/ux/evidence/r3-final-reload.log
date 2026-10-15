@@ -1,0 +1,12 @@
+IFRAME_BOOT_START
+IFRAME_BOOT_DONE
+IFRAME_BOOT_START
+IFRAME_BOOT_DONE
+PASS  real iframe reload restores old method and binds a different store  ({"reloaded":{"different":true,"installed":true,"oldRestored":true},"unloadRecords":[{"restored":true,"noOwn":true}]})
+TOUCH_PRE {"rect":{"x":0,"y":101.40625,"width":388.234375,"height":288.59375},"style":{"display":"block","visibility":"visible"},"at":"okada-walk","body":"offline in-game controls-ready in-store-mode","touch":{"mode":"store","portrait":false,"phone":false,"gameplay":true},"screen":"landscape-primary"}
+PASS  canonical duplicate joystick hidden with controls-ready; Ryder owns hit target
+TOUCH_TRACE {"events":[{"type":"pointerdown","target":"okada-walk","trusted":true,"x":50,"y":245.703125},{"type":"pointermove","target":"okada-walk","trusted":true,"x":80,"y":230.703125}],"state":{"steer":0,"throttle":0,"brake":0,"reverse":0,"drift":false,"interact":false,"wheelie":false,"phone":false,"walkX":0.4134184214878233,"walkY":0.20670921074391166},"owner":4}
+PASS  trusted browser touch drag/release reaches neutral intent and rest  ({"moving":true,"release":{"neutral":true,"rest":true}})
+PASS  world-store-world-store retains one policy and neutral entry/exit  ({"world":{"neutral":true,"wrapper":true},"again":{"same":true,"rest":true}})
+PASS  dispose restores native store joystick visibility
+TOTAL: 5 PASSED: 5 FAILED: 0

@@ -80,3 +80,51 @@ touch/gamepad are registered but inactive. No synthetic keyboard events are prod
 Validation: `scripts/test_store_motion_policy.mjs` (23 unit checks) and
 `scripts/test_store_motion.mjs` (25 integration checks) plus the accepted `verify-engine.mjs`
 suite (40 checks). See `docs/ux/PHASE_2C_R3_STORE_MOTION.md`.
+
+## R3 verification continuation (2026-10-15)
+
+The implementation commit is e805a9669fb579b683f4f9fee257036c4ab51d37. A later continuation found HEAD at 420fcef063535f1ecb6e14dbf7e6b5ca8c4e9e89, with subsequent mobile UX commits and unrelated working changes. Those changes were preserved separately and were not treated as R3 acceptance evidence.
+
+The stopping envelope was measured against controlled native store updates with the original private friction configuration. Candidate comparisons run the native consumer, then apply each candidate numerically; only the selected policy is installed through the real input initialization path. No second production wrapper is installed.
+
+| Rate (s^-1) | Initial speed | 50 ms | 100 ms | 150 ms | 200 ms | Snap time at 120 Hz | Distance |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 20 | 3 | 1.10364 | 0.40601 | 0.14936 | 0.05495 | 208.33 ms | 0.16032 |
+| 28 | 3 | 0.73979 | 0.18243 | 0 | 0 | 150 ms | 0.11833 |
+| 36 | 3 | 0.49590 | 0.08197 | 0 | 0 | 116.67 ms | 0.09501 |
+
+Each candidate was also measured from speed 0.3 and a diagonal of magnitude 3. Rate 28 is the smallest tested constant meeting the full-speed 100–200 ms target; low-speed rest occurs in 66.67 ms. Diagonal full-speed stopping matches the axial case. This is an automated envelope choice, not physical ergonomic acceptance.
+
+Selected policy at 30/60/90/120 Hz snaps after 166.67/150/155.56/150 ms respectively. At 60 Hz the travelled stopping distance is 0.13207 units; at 30/90/120 Hz it is 0.16326/0.12307/0.11833. Damping is time-based, while canonical position integration happens before the policy; coarse-step distance therefore differs. Stop-time spread remains within one 30 Hz frame.
+
+Controlled active vectors (1,0) and (0.42,0.71) produce exactly the same velocity with and without the policy. A real canonical boundary collision retains velocity 2 without the policy, while the policy snaps to zero after eight 60 Hz updates and stays zero. Test fixtures clear shelf colliders for isolated speed measurements; the wall test uses the native bounds and collision consumer. No production position overwrite or collision change was added.
+
+An additional input-safety correction releases touch ownership on every orientationchange before re-evaluating orientation. Previously an unchanged orientation signal could return early without releasing a held pointer. This does not change the overlay, visual design, or steering tune. Synthetic cancellation/orientation events are fault-injection checks; they do not constitute real-device orientation acceptance.
+
+### Duplicate canonical touch-surface correction
+
+The actual iframe reload test exposed a second input-ownership issue after tutorial completion:
+`body.controls-ready` enables canonical `#mobile-joystick` at z-index 250, above Ryder's touch
+root at 100. The source previously suppressed `#mobile-controls` only. A trusted CDP pointer
+landed on the upper canonical surface instead of Ryder's walker, so normalized state stayed
+zero despite synthetic pointer tests passing. A fresh tutorial path could hide that surface,
+which explained different results before and after reload.
+
+While the Ryder touch source is attached, its existing owned stylesheet now hides both
+canonical touch surfaces. Detach removes that stylesheet, restoring the original native UI.
+This affects touch hit ownership only: native keyboard getters, input arbitration and the
+store-motion wrapper are unchanged. The reload regression explicitly enables controls-ready,
+checks elementFromPoint belongs to Ryder's walking surface, performs a trusted browser drag
+and release, and checks native UI restoration on disposal. This is not an engine/bundle patch
+or an attempt to compensate for physics in TouchInputSource.
+
+### Exact source arbitration
+
+The normalized manager selects each nonzero numeric axis independently in priority order
+gamepad > tilt > touch. At the engine walking boundary, if either resolved walkX or walkY
+is nonzero, EngineAdapter supplies the entire normalized pair (x=walkX, z=-walkY).
+Otherwise it returns the complete original native walkVec, including keyboard state.
+It does not blend a held native key into one axis of an active normalized walking vector.
+Registration alone never activates an override. The store policy sees only that effective
+vector and therefore makes the same active/neutral decision for every source. Gamepad UX
+remains a stub; manager precedence tests do not claim physical gamepad implementation.
