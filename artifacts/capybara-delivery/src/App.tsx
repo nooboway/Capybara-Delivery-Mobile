@@ -5,6 +5,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
 import { initOkadaInput, type OkadaInputHandle } from '@/lib/input';
+import { installImmersiveShell, type ImmersiveHandle } from '@/lib/immersive';
 import {
   Route,
   Switch,
@@ -17,6 +18,7 @@ const queryClient = new QueryClient();
 // Input handle + abort controller bound to the current iframe generation.
 let inputHandle: OkadaInputHandle | null = null;
 let inputAbort: AbortController | null = null;
+let immersiveHandle: ImmersiveHandle | null = null;
 
 function prepareGameFrame(frame: HTMLIFrameElement) {
   const frameDocument = frame.contentDocument;
@@ -26,6 +28,8 @@ function prepareGameFrame(frame: HTMLIFrameElement) {
   inputAbort?.abort();
   inputHandle?.dispose();
   inputHandle = null;
+  immersiveHandle?.dispose();
+  immersiveHandle = null;
   inputAbort = new AbortController();
   const signal = inputAbort.signal;
 
@@ -59,6 +63,9 @@ function prepareGameFrame(frame: HTMLIFrameElement) {
     }
     inputHandle = handle;
   });
+
+  // Initialize the immersive shell (fullscreen on the start gesture + iOS hint).
+  immersiveHandle = installImmersiveShell(frame.contentWindow, frameDocument);
 
   // Adaptive HD render quality: bound DPR between 1.0 and 2.0 to restore crisp HD graphics on mobile screens without GPU buffer waste
   const frameWin = frame.contentWindow;
@@ -135,6 +142,8 @@ function Home() {
       inputHandle?.dispose();
       inputHandle = null;
       inputAbort = null;
+      immersiveHandle?.dispose();
+      immersiveHandle = null;
     };
   }, []);
 
@@ -145,7 +154,7 @@ function Home() {
         className="game-frame"
         title="Ryder - A Game About Animals Delivering Food"
         src={`${import.meta.env.BASE_URL}capybara-game/index.html`}
-        allow="gamepad; autoplay"
+        allow="gamepad; autoplay; fullscreen"
         allowFullScreen
         onLoad={(event) => prepareGameFrame(event.currentTarget)}
         data-testid="game-frame"

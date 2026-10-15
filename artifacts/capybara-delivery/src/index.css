@@ -292,7 +292,7 @@ button {
   position: relative;
   isolation: isolate;
   width: 100%;
-  height: 100%;
+  height: 100dvh;
   min-height: 100dvh;
   overflow: hidden;
   background: #17120f;

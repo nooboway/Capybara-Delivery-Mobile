@@ -237,6 +237,7 @@ async function main() {
     brk.dispatchEvent(new PointerEvent("pointerdown", { pointerId: 3, bubbles: true, cancelable: true }));
     out.throttleAfterBrk = h.manager.getState().throttle; // must still be 0
     out.brakeAfterBrk = h.manager.getState().brake;
+    out.reverseAfterBrk = h.manager.getState().reverse;
     brk.dispatchEvent(new PointerEvent("pointerup", { pointerId: 3, bubbles: true }));
 
     // Visibility must reset the source as well as the resolved manager state.
@@ -247,7 +248,7 @@ async function main() {
     if (hiddenDescriptor) Object.defineProperty(document, "hidden", hiddenDescriptor);
     else delete document.hidden;
     brk.dispatchEvent(new PointerEvent("pointerdown", { pointerId: 3, bubbles: true }));
-    out.visibilityNoResurrection = h.manager.getState().throttle === 0 && h.manager.getState().brake === 1;
+    out.visibilityNoResurrection = h.manager.getState().throttle === 0 && (h.manager.getState().brake === 1 || h.manager.getState().reverse === 1);
     h.reset("test");
 
     // Hold actual source owners across the mode boundary, then send late events.
@@ -274,7 +275,8 @@ async function main() {
     out.oldDrivingIgnored = h.manager.getState().steer === 0 && h.manager.getState().throttle === 0;
     const walk = document.getElementById("okada-walk");
     const wr = walk.getBoundingClientRect();
-    walk.dispatchEvent(new PointerEvent("pointerdown", { pointerId: 5, bubbles: true, cancelable: true, clientX: wr.left + wr.width * 0.8, clientY: wr.top + wr.height * 0.2 }));
+    walk.dispatchEvent(new PointerEvent("pointerdown", { pointerId: 5, bubbles: true, cancelable: true, clientX: wr.left + wr.width * 0.5, clientY: wr.top + wr.height * 0.5 }));
+    walk.dispatchEvent(new PointerEvent("pointermove", { pointerId: 5, bubbles: true, clientX: wr.left + wr.width * 0.5 + 40, clientY: wr.top + wr.height * 0.5 - 40 }));
     const walkVec = h.manager.getState();
     out.walkX = walkVec.walkX;
     out.walkY = walkVec.walkY;
@@ -300,7 +302,7 @@ async function main() {
   check("F3 GAS up does not reset steer", c.steerStillOwnedAfterGasUp && c.steerReleased);
   check("pointer cancel neutralizes", c.cancelNeutral);
   check("F2 blur resets throttle", c.throttleBeforeBlur === 1 && c.throttleAfterBlur === 0, JSON.stringify({ before: c.throttleBeforeBlur, after: c.throttleAfterBlur }));
-  check("F2 no stale resurrection (BRK does not restore throttle)", c.throttleAfterBrk === 0 && c.brakeAfterBrk === 1, JSON.stringify({ throttle: c.throttleAfterBrk, brake: c.brakeAfterBrk }));
+  check("F2 no stale resurrection (BRAKE/REV does not restore throttle)", c.throttleAfterBrk === 0 && (c.brakeAfterBrk === 1 || c.reverseAfterBrk === 1), JSON.stringify({ throttle: c.throttleAfterBrk, brake: c.brakeAfterBrk, reverse: c.reverseAfterBrk }));
   check("F4 walk hidden in driving", c.walkHiddenInitially);
   check("F4 walk visible in store, driving hidden", c.walkVisibleInStore && c.drivingHiddenInStore, JSON.stringify({ walkVisible: c.walkVisibleInStore, drivingHidden: c.drivingHiddenInStore }));
   check("F4 analog non-cardinal walk via pointer", c.walkNonCardinal, JSON.stringify({ x: c.walkX, y: c.walkY }));

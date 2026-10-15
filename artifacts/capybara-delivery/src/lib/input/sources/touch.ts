@@ -20,6 +20,7 @@
  */
 import type { OkadaInputManager } from "../input-manager";
 import type { InputContribution } from "../types";
+import { readForwardSpeed } from "../vehicle-state";
 
 // ==========================================
 // Tuning Parameters (Physical Device Tuning)
@@ -31,24 +32,35 @@ import type { InputContribution } from "../types";
 // STEER_RESPONSE_EXPONENT, but it changes the accepted Phase-1 monotonic
 // response baseline (30px => 0.5) and must be re-baselined before shipping.
 
-/** Steering deadzone near neutral center (fraction of max throw: 0..1). */
+/** Steering deadzone near neutral center (fraction of max radius: 0..1). */
 export const STEER_DEADZONE = 0.04;
-/** Steering maximum physical throw in pixels for full lock (+-1.0). */
+/** Steering maximum radial throw in pixels for full lock (+-1.0). */
 export const STEER_MAX_THROW = 60;
 /** Steering nonlinear response exponent (gamma: 1.0 = near-linear Candidate A, >1.0 = precision Candidate B). */
 export const STEER_RESPONSE_EXPONENT = 1.0;
+/** Floating joystick idle / active opacity (exposed for physical tuning). */
+export const STICK_IDLE_OPACITY = 0.28;
+export const STICK_ACTIVE_OPACITY = 0.92;
 
-/** Store walking outer ring base diameter in pixels. */
-export const WALK_BASE_DIAMETER = 140;
-/** Store walking inner knob diameter in pixels. */
-export const WALK_KNOB_DIAMETER = 48;
 /** Store walking radial deadzone (fraction: 0..1). */
 export const WALK_DEADZONE = 0.18;
+/** Store walking maximum radial throw in pixels for full vector (1.0). */
+export const WALK_MAX_RADIUS = 60;
 
 /** Acceleration Lock hold duration in milliseconds to engage. */
 export const GAS_LOCK_HOLD_MS = 1000;
 /** Master toggle for Acceleration Lock experimental feature. */
 export const GAS_LOCK_ENABLED = true;
+
+// Combined BRAKE / REVERSE state machine (measured against canonical forwardSpeed).
+// Measured range: reverse ~-2.8 .. forward ~+5.3 (m/s units of the canonical bike),
+// brake deceleration ~4/s. Reverse only engages once effectively stopped.
+/** Below this forward speed the combined control switches from brake to reverse. */
+export const BRAKE_REVERSE_ENTER_SPEED = 0.15;
+/** Above this forward speed (hysteresis) the combined control returns to brake. */
+export const BRAKE_REENTER_SPEED = 0.4;
+/** Poll cadence (ms) while the combined BRAKE/REV control is held. */
+export const BRAKE_REVERSE_POLL_MS = 60;
 
 const STYLE_ID = "okada-phase1-controls-style";
 const ROOT_ID = "okada-phase1-controls-root";
@@ -81,6 +93,10 @@ export class TouchInputSource {
   // Acceleration Lock state
   public isGasLocked = false;
   private gasHoldTimer: ReturnType<typeof setTimeout> | null = null;
+
+  // Combined BRAKE / REVERSE state (hysteretic)
+  private brakeRevTimer: ReturnType<typeof setInterval> | null = null;
+  private brakeRevReverse = false;
 
   // DOM Elements
   private root: HTMLElement | null = null;
@@ -130,18 +146,10 @@ export class TouchInputSource {
     );
     this.buildButton(
       "okada-btn-brake",
-      "BRK",
-      () => (this.contribution.brake = 1),
-      () => (this.contribution.brake = 0),
+      "BRAKE",
+      () => this.handleBrakeReversePress(),
+      () => this.handleBrakeReverseRelease(),
       "okada-btn okada-btn-brake driving-control",
-      true,
-    );
-    this.buildButton(
-      "okada-btn-reverse",
-      "REV",
-      () => (this.contribution.reverse = 1),
-      () => (this.contribution.reverse = 0),
-      "okada-btn okada-btn-reverse driving-control",
       true,
     );
     this.buildButton(
@@ -194,6 +202,7 @@ export class TouchInputSource {
 
     this.stopObservers();
     this.clearGasLock();
+    this.clearBrakeReverse();
     this.releaseAllControls();
     this.contribution = {};
     this.manager.release("touch");
@@ -212,6 +221,7 @@ export class TouchInputSource {
   reset(reason?: string): void {
     void reason;
     this.clearGasLock();
+    this.clearBrakeReverse();
     this.releaseAllControls();
     this.contribution = {};
     this.manager.release("touch");
@@ -286,6 +296,59 @@ export class TouchInputSource {
       gas?.classList.remove("pressed");
     }
     this.apply();
+  }
+
+  /** Combined BRAKE / REVERSE: brake while moving forward, reverse once stopped. */
+  private handleBrakeReversePress(): void {
+    const speed = readForwardSpeed(this.doc.defaultView);
+    this.brakeRevReverse = speed !== null && speed <= BRAKE_REVERSE_ENTER_SPEED;
+    this.setBrakeReverse(this.brakeRevReverse);
+
+    if (this.brakeRevTimer) clearInterval(this.brakeRevTimer);
+    this.brakeRevTimer = setInterval(() => {
+      if (this.mode !== "driving" || this.isPhoneOpen || this.isPortrait) return;
+      const v = readForwardSpeed(this.doc.defaultView);
+      if (v === null) return;
+      if (!this.brakeRevReverse && v <= BRAKE_REVERSE_ENTER_SPEED) {
+        this.brakeRevReverse = true;
+        this.setBrakeReverse(true);
+      } else if (this.brakeRevReverse && v >= BRAKE_REENTER_SPEED) {
+        this.brakeRevReverse = false;
+        this.setBrakeReverse(false);
+      }
+    }, BRAKE_REVERSE_POLL_MS);
+  }
+
+  private handleBrakeReverseRelease(): void {
+    this.clearBrakeReverse();
+    this.contribution.brake = 0;
+    this.contribution.reverse = 0;
+    this.setBrakeReverseLabel(false);
+    this.apply();
+  }
+
+  private clearBrakeReverse(): void {
+    if (this.brakeRevTimer) {
+      clearInterval(this.brakeRevTimer);
+      this.brakeRevTimer = null;
+    }
+    this.brakeRevReverse = false;
+    this.setBrakeReverseLabel(false);
+  }
+
+  private setBrakeReverse(reverse: boolean): void {
+    this.contribution.brake = reverse ? 0 : 1;
+    this.contribution.reverse = reverse ? 1 : 0;
+    this.setBrakeReverseLabel(reverse);
+    this.apply();
+  }
+
+  private setBrakeReverseLabel(reverse: boolean): void {
+    const btn = this.doc.getElementById("okada-btn-brake");
+    const label = btn?.querySelector(".btn-label");
+    const text = reverse ? "REV" : "BRAKE";
+    if (label && label.textContent !== text) label.textContent = text;
+    btn?.classList.toggle("brake-rev", reverse);
   }
 
   private injectStyles(): void {
@@ -463,77 +526,64 @@ export class TouchInputSource {
         background: rgba(56, 189, 248, 0.6);
       }
 
-      /* Steering Control Surface (Left Thumb Floating Zone) */
-      #okada-steer {
+      /* Left-Thumb Floating Joystick (360° circular gate, dynamic origin) */
+      #okada-steer,
+      #okada-walk {
         position: fixed;
         left: 0; bottom: 0;
-        width: clamp(200px, 46vw, 420px);
-        height: clamp(180px, 72vh, 460px);
+        width: clamp(200px, 46vw, 440px);
+        height: clamp(180px, 74vh, 480px);
         background: transparent;
         touch-action: none;
         pointer-events: auto;
       }
-      #okada-steer .steer-guide {
+      #okada-walk { display: none; }
+
+      #okada-steer .stick-ring,
+      #okada-walk .stick-ring {
         position: absolute;
-        left: calc(var(--okada-safe-left) + 24px);
-        bottom: calc(var(--okada-safe-bottom) + 24px);
-        width: 140px; height: 50px;
-        border-radius: 25px;
-        background: rgba(15, 23, 42, 0.42);
-        border: 1.5px solid rgba(255, 255, 255, 0.22);
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        pointer-events: none;
-        transition: opacity 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
-        opacity: 0.55;
-      }
-      #okada-steer.active .steer-guide {
-        opacity: 0.95;
-        border-color: rgba(56, 189, 248, 0.85);
-        box-shadow: 0 0 20px rgba(56, 189, 248, 0.45);
-      }
-      #okada-steer .knob {
-        position: absolute;
-        left: calc(var(--okada-safe-left) + 94px);
-        bottom: calc(var(--okada-safe-bottom) + 49px);
-        width: 44px; height: 44px; border-radius: 50%;
+        left: calc(var(--okada-safe-left) + 78px);
+        bottom: calc(var(--okada-safe-bottom) + 78px);
+        width: ${STEER_MAX_THROW * 2}px; height: ${STEER_MAX_THROW * 2}px;
+        border-radius: 50%;
+        border: 1.5px solid rgba(255, 255, 255, 0.28);
+        background: rgba(15, 23, 42, 0.26);
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
         transform: translate(-50%, 50%);
-        background: rgba(56, 189, 248, 0.85);
-        border: 2px solid rgba(255, 255, 255, 0.9);
-        box-shadow: 0 2px 14px rgba(2, 132, 199, 0.6);
         pointer-events: none;
-        transition: background-color 120ms ease;
+        opacity: ${STICK_IDLE_OPACITY};
+        transition: opacity 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
       }
-      #okada-steer.active .knob {
-        background: rgba(56, 189, 248, 0.95);
-        box-shadow: 0 0 22px rgba(56, 189, 248, 0.8);
+      #okada-steer.active .stick-ring,
+      #okada-walk.active .stick-ring {
+        opacity: ${STICK_ACTIVE_OPACITY};
+        border-color: rgba(56, 189, 248, 0.85);
+        box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+      }
+      #okada-walk.active .stick-ring {
+        border-color: rgba(52, 211, 153, 0.85);
+        box-shadow: 0 0 20px rgba(52, 211, 153, 0.4);
       }
 
-      /* Store Walking Stick (Left Thumb 2D Floating Stick) */
-      #okada-walk {
-        position: fixed;
-        left: calc(var(--okada-safe-left) + 24px);
-        bottom: calc(var(--okada-safe-bottom) + 24px);
-        width: ${WALK_BASE_DIAMETER}px; height: ${WALK_BASE_DIAMETER}px;
-        border-radius: 50%;
-        background: rgba(15, 23, 42, 0.45);
-        border: 2px solid rgba(52, 211, 153, 0.4);
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        display: none;
-        touch-action: none;
-      }
+      #okada-steer .knob,
       #okada-walk .knob {
-        position: absolute; top: 50%; left: 50%;
-        width: ${WALK_KNOB_DIAMETER}px; height: ${WALK_KNOB_DIAMETER}px; border-radius: 50%;
-        transform: translate(-50%, -50%);
-        background: rgba(34, 197, 94, 0.85);
-        border: 2px solid rgba(255, 255, 255, 0.9);
-        box-shadow: 0 3px 14px rgba(22, 163, 74, 0.6);
+        position: absolute;
+        left: calc(var(--okada-safe-left) + 78px);
+        bottom: calc(var(--okada-safe-bottom) + 78px);
+        width: 40px; height: 40px; border-radius: 50%;
+        background: rgba(56, 189, 248, 0.95);
+        border: 2px solid rgba(255, 255, 255, 0.95);
+        box-shadow: 0 0 14px rgba(56, 189, 248, 0.7), inset 0 1px 2px rgba(255, 255, 255, 0.8);
+        transform: translate(-50%, 50%);
         pointer-events: none;
+        opacity: 0;
+        transition: opacity 140ms ease;
       }
+      #okada-steer.active .knob,
+      #okada-walk.active .knob { opacity: 1; }
+      #okada-walk .knob { background: rgba(34, 197, 94, 0.95); box-shadow: 0 0 14px rgba(34, 197, 94, 0.7); }
 
       /* Mode Switching */
       #${ROOT_ID}.mode-store .driving-control { display: none !important; }
@@ -680,9 +730,9 @@ export class TouchInputSource {
     el.id = "okada-steer";
     el.className = "driving-control";
 
-    const guide = this.doc.createElement("div");
-    guide.className = "steer-guide";
-    el.appendChild(guide);
+    const ring = this.doc.createElement("div");
+    ring.className = "stick-ring";
+    el.appendChild(ring);
 
     const knob = this.doc.createElement("div");
     knob.className = "knob";
@@ -692,6 +742,18 @@ export class TouchInputSource {
     this.steerEl = el;
     this.steerKnob = knob;
 
+    const place = (clientX: number, clientY: number) => {
+      const r = el.getBoundingClientRect();
+      ring.style.left = `${clientX - r.left}px`;
+      ring.style.top = `${clientY - r.top}px`;
+      ring.style.bottom = "auto";
+      ring.style.transform = "translate(-50%, -50%)";
+      knob.style.left = `${clientX - r.left}px`;
+      knob.style.top = `${clientY - r.top}px`;
+      knob.style.bottom = "auto";
+      knob.style.transform = "translate(-50%, -50%)";
+    };
+
     el.addEventListener("pointerdown", (e: PointerEvent) => {
       if (!this.attached || this.mode !== "driving" || this.isPhoneOpen || this.isPortrait) return;
       if (this.isHudTarget(e.target)) return; // never steal real UI touches
@@ -699,46 +761,34 @@ export class TouchInputSource {
       e.preventDefault();
       this.steerOwner = e.pointerId;
       this.capture(el, e.pointerId);
-
-      // Dynamic origin established at initial touch
       this.steerOriginX = e.clientX;
       this.steerOriginY = e.clientY;
       el.classList.add("active");
-
-      if (e.clientX > 0 && e.clientY > 0) {
-        const r = el.getBoundingClientRect();
-        const rx = e.clientX - r.left;
-        const ry = e.clientY - r.top;
-        guide.style.left = `${rx}px`;
-        guide.style.top = `${ry}px`;
-        guide.style.bottom = "auto";
-        guide.style.transform = "translate(-50%, -50%)";
-        knob.style.left = `${rx}px`;
-        knob.style.top = `${ry}px`;
-        knob.style.bottom = "auto";
-        knob.style.transform = "translate(-50%, -50%)";
-      }
+      if (e.clientX > 0 && e.clientY > 0) place(e.clientX, e.clientY);
     });
 
     el.addEventListener("pointermove", (e: PointerEvent) => {
       if (e.pointerId !== this.steerOwner) return;
 
-      // Pure 1-Axis horizontal displacement; vertical displacement is strictly ignored
       const dx = e.clientX - this.steerOriginX;
+      const dy = e.clientY - this.steerOriginY;
+
+      // Circular gate: clamp the thumb puck to the ring radius.
+      const dist = Math.hypot(dx, dy);
+      const k = dist > STEER_MAX_THROW ? STEER_MAX_THROW / dist : 1;
+      knob.style.transform = `translate(calc(-50% + ${dx * k}px), calc(-50% + ${dy * k}px))`;
+
+      // Bike consumes ONLY the horizontal component; vertical never creates throttle/brake.
       const v = Math.max(-1, Math.min(1, dx / STEER_MAX_THROW));
       const mag = Math.abs(v);
-
       if (mag < STEER_DEADZONE) {
         this.contribution.steer = 0;
       } else if (STEER_RESPONSE_EXPONENT === 1.0) {
         this.contribution.steer = v;
       } else {
         const scaled = (mag - STEER_DEADZONE) / (1 - STEER_DEADZONE);
-        const curved = Math.pow(scaled, STEER_RESPONSE_EXPONENT);
-        this.contribution.steer = Math.sign(v) * curved;
+        this.contribution.steer = Math.sign(v) * Math.pow(scaled, STEER_RESPONSE_EXPONENT);
       }
-
-      knob.style.transform = `translate(calc(-50% + ${dx}px), -50%)`;
       this.apply();
     });
 
@@ -748,14 +798,14 @@ export class TouchInputSource {
       this.capturedPointers.delete(e.pointerId);
       this.contribution.steer = 0;
       el.classList.remove("active");
-      guide.style.left = "";
-      guide.style.top = "";
-      guide.style.bottom = "";
-      guide.style.transform = "";
+      ring.style.left = "";
+      ring.style.top = "";
+      ring.style.bottom = "";
+      ring.style.transform = "";
       knob.style.left = "";
       knob.style.top = "";
       knob.style.bottom = "";
-      knob.style.transform = "translate(-50%, -50%)";
+      knob.style.transform = "";
       this.apply();
     };
 
@@ -832,6 +882,10 @@ export class TouchInputSource {
     const el = this.doc.createElement("div");
     el.id = "okada-walk";
 
+    const ring = this.doc.createElement("div");
+    ring.className = "stick-ring";
+    el.appendChild(ring);
+
     const knob = this.doc.createElement("div");
     knob.className = "knob";
     el.appendChild(knob);
@@ -840,19 +894,30 @@ export class TouchInputSource {
     this.walkEl = el;
     this.walkKnob = knob;
 
-    const move = (cx: number, cy: number) => {
+    let originX = 0;
+    let originY = 0;
+
+    const place = (clientX: number, clientY: number) => {
       const r = el.getBoundingClientRect();
-      const c = { x: r.left + r.width / 2, y: r.top + r.height / 2, r: r.width / 2 };
-      let dx = cx - c.x;
-      let dy = cy - c.y;
+      ring.style.left = `${clientX - r.left}px`;
+      ring.style.top = `${clientY - r.top}px`;
+      ring.style.bottom = "auto";
+      ring.style.transform = "translate(-50%, -50%)";
+      knob.style.left = `${clientX - r.left}px`;
+      knob.style.top = `${clientY - r.top}px`;
+      knob.style.bottom = "auto";
+      knob.style.transform = "translate(-50%, -50%)";
+    };
+
+    const move = (clientX: number, clientY: number) => {
+      const dx = clientX - originX;
+      const dy = clientY - originY;
       const dist = Math.hypot(dx, dy);
-      if (dist > c.r) {
-        dx = (dx / dist) * c.r;
-        dy = (dy / dist) * c.r;
-      }
-      knob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
-      const nx = dx / c.r;
-      const ny = dy / c.r;
+      const k = dist > WALK_MAX_RADIUS ? WALK_MAX_RADIUS / dist : 1;
+      knob.style.transform = `translate(calc(-50% + ${dx * k}px), calc(-50% + ${dy * k}px))`;
+
+      const nx = dx / WALK_MAX_RADIUS;
+      const ny = dy / WALK_MAX_RADIUS;
       const mag = Math.hypot(nx, ny);
       if (mag < WALK_DEADZONE) {
         this.contribution.walkX = 0;
@@ -872,6 +937,10 @@ export class TouchInputSource {
       e.preventDefault();
       this.walkOwner = e.pointerId;
       this.capture(el, e.pointerId);
+      originX = e.clientX;
+      originY = e.clientY;
+      el.classList.add("active");
+      place(e.clientX, e.clientY);
       move(e.clientX, e.clientY);
     });
 
@@ -886,7 +955,15 @@ export class TouchInputSource {
       this.capturedPointers.delete(e.pointerId);
       this.contribution.walkX = 0;
       this.contribution.walkY = 0;
-      knob.style.transform = "translate(-50%, -50%)";
+      el.classList.remove("active");
+      ring.style.left = "";
+      ring.style.top = "";
+      ring.style.bottom = "";
+      ring.style.transform = "";
+      knob.style.left = "";
+      knob.style.top = "";
+      knob.style.bottom = "";
+      knob.style.transform = "";
       this.apply();
     };
 
@@ -1165,8 +1242,10 @@ export class TouchInputSource {
   }
 
   private resetStickVisual(): void {
-    this.steerKnob && (this.steerKnob.style.transform = "translate(-50%,-50%)");
-    this.walkKnob && (this.walkKnob.style.transform = "translate(-50%,-50%)");
+    this.doc.getElementById("okada-steer")?.classList.remove("active");
+    this.doc.getElementById("okada-walk")?.classList.remove("active");
+    this.steerKnob && (this.steerKnob.style.transform = "");
+    this.walkKnob && (this.walkKnob.style.transform = "");
   }
 
   private applyVisibility(): void {

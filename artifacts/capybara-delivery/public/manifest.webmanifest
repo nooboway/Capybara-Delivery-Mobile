@@ -1,0 +1,17 @@
+{
+  "name": "Ryder - A Game About Animals Delivering Food",
+  "short_name": "Ryder",
+  "description": "Deliver food on a scooter across Lekkiwood. Ryder - a game about animals delivering food.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone", "minimal-ui"],
+  "orientation": "landscape",
+  "theme_color": "#0b0f19",
+  "background_color": "#0b0f19",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    { "src": "/images/capybara_thumbnail.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

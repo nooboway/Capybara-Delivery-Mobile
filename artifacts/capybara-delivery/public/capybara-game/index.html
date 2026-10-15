@@ -2,9 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Ryder - A Game About Animals Delivering Food</title>
   <link rel="icon" href="data:,">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#0b0f19">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Ryder">
+  <link rel="apple-touch-icon" href="/images/capybara_thumbnail.png">
   <meta name="description" content="Deliver food on a scooter across Lekkiwood. Ryder — a game about animals delivering food.">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Ryder - A Game About Animals Delivering Food">
@@ -489,8 +496,17 @@
         transform: translateY(calc(100% - 50px)) scale(0.65);
       }
       #phone-hud.phone-hover   { transform: translateY(calc(100% - 95px)) scale(0.65); }
-      #phone-hud.phone-visible { transform: translateY(0) scale(0.65); }
-    }
+        #phone-hud.phone-visible { transform: translateY(0) scale(0.65); }
+      }
+
+      /* Phase 2D — dynamic viewport guard. Landscape mobile browser chrome and
+         safe areas can leave less than 100vh of usable height; cap the phone to
+         the actually-visible area so it never clips the close affordance or
+         covers the whole world, blocking driving. */
+      @media (pointer: coarse) and (orientation: landscape) {
+        #phone-hud { max-height: 100dvh; }
+        #phone-hud .phone-shell { max-height: 92dvh; }
+      }
 
     /* Portrait viewports are narrow enough that the default landscape
        button geometry overlaps in the middle. Shrink all buttons and
@@ -2519,7 +2535,7 @@
   <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
 </head>
 <body>
-  <a id="embed-bar" href="/" target="_blank" rel="noopener"><span id="embed-bar-title">Okada - A Game About Animals Delivering Food</span><span id="embed-bar-label">Open full game ↗</span></a>
+  <a id="embed-bar" href="/" target="_blank" rel="noopener"><span id="embed-bar-title">Ryder - A Game About Animals Delivering Food</span><span id="embed-bar-label">Open full game ↗</span></a>
   <div id="fps-counter">FPS: --</div>
   <div id="debug-info"></div>
   <div id="debug-panel" class="hidden">

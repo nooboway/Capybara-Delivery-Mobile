@@ -134,14 +134,14 @@ async function main() {
     walk: !!document.getElementById("okada-walk"),
     gas: !!document.getElementById("okada-btn-throttle"),
     brake: !!document.getElementById("okada-btn-brake"),
-    rev: !!document.getElementById("okada-btn-reverse"),
+    noSeparateReverse: !document.getElementById("okada-btn-reverse"),
     drift: !!document.getElementById("okada-btn-drift"),
     interact: !!document.getElementById("okada-btn-interact"),
     phone: !!document.getElementById("okada-btn-phone"),
     barrier: !!document.getElementById("okada-portrait-barrier"),
     root: !!document.getElementById("okada-phase1-controls-root"),
   }));
-  check("driving control cluster present", controls.steer && controls.gas && controls.brake && controls.rev && controls.drift && controls.interact && controls.phone, JSON.stringify(controls));
+  check("driving control cluster present (combined BRAKE/REV)", controls.steer && controls.gas && controls.brake && controls.noSeparateReverse && controls.drift && controls.interact && controls.phone, JSON.stringify(controls));
   await shot(page, "r1_driving_idle.png");
 
   // ---- PART A: steering ----
@@ -201,18 +201,19 @@ async function main() {
     // Brake + steer
     pd(q("okada-steer"), 33); q("okada-steer").dispatchEvent(new PointerEvent("pointermove", { pointerId: 33, bubbles: true, clientX: 180, clientY: 260 }));
     pd(q("okada-btn-brake"), 34);
-    const brakeSteer = { steer: h.manager.getState().steer, brake: h.manager.getState().brake };
+    const brakeSteer = { steer: h.manager.getState().steer, brake: h.manager.getState().brake, reverse: h.manager.getState().reverse };
     pu(q("okada-btn-brake"), 34); pu(q("okada-steer"), 33);
-    // Reverse + steer
+    // Combined BRAKE/REV + steer
     pd(q("okada-steer"), 35); q("okada-steer").dispatchEvent(new PointerEvent("pointermove", { pointerId: 35, bubbles: true, clientX: 180, clientY: 260 }));
-    pd(q("okada-btn-reverse"), 36);
-    const reverseSteer = { steer: h.manager.getState().steer, reverse: h.manager.getState().reverse };
-    return { gasSteer, gasDriftSteer, brakeSteer, reverseSteer };
+    pd(q("okada-btn-brake"), 36);
+    const brakeRevSteer = { steer: h.manager.getState().steer, brake: h.manager.getState().brake, reverse: h.manager.getState().reverse };
+    pu(q("okada-btn-brake"), 36); pu(q("okada-steer"), 35);
+    return { gasSteer, gasDriftSteer, brakeSteer, brakeRevSteer };
   });
   check("GAS + steering simultaneously", combo.gasSteer.throttle === 1 && combo.gasSteer.steer !== 0, JSON.stringify(combo.gasSteer));
   check("GAS + DRIFT + steering simultaneously", combo.gasDriftSteer.throttle === 1 && combo.gasDriftSteer.drift === true && combo.gasDriftSteer.steer !== 0, JSON.stringify(combo.gasDriftSteer));
-  check("BRAKE + steering simultaneously", combo.brakeSteer.brake === 1 && combo.brakeSteer.steer !== 0, JSON.stringify(combo.brakeSteer));
-  check("REVERSE + steering simultaneously", combo.reverseSteer.reverse === 1 && combo.reverseSteer.steer !== 0, JSON.stringify(combo.reverseSteer));
+  check("BRAKE + steering simultaneously", (combo.brakeSteer.brake === 1 || combo.brakeSteer.reverse === 1) && combo.brakeSteer.steer !== 0, JSON.stringify(combo.brakeSteer));
+  check("BRAKE/REV + steering simultaneously", (combo.brakeRevSteer.brake === 1 || combo.brakeRevSteer.reverse === 1) && combo.brakeRevSteer.steer !== 0, JSON.stringify(combo.brakeRevSteer));
 
   await page.evaluate(() => {
     document.getElementById("okada-btn-throttle").dispatchEvent(new PointerEvent("pointerdown", { pointerId: 40, bubbles: true }));
