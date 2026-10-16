@@ -4,7 +4,7 @@ const es=require(path.join(repo,'node_modules/.pnpm/esbuild@0.18.20/node_modules
 let now=0,next=0;const timers=new Map(),original={setTimeout,clearTimeout,now:Date.now};globalThis.setTimeout=(fn,ms)=>{const id=++next;timers.set(id,{at:now+ms,fn});return id;};globalThis.clearTimeout=id=>timers.delete(id);Date.now=()=>now;
 async function advance(ms){const end=now+ms;for(;;){const due=[...timers].filter(([,t])=>t.at<=end).sort((a,b)=>a[1].at-b[1].at)[0];if(!due)break;now=due[1].at;timers.delete(due[0]);due[1].fn();await Promise.resolve();}now=end;await Promise.resolve();await Promise.resolve();}
 async function flush(){for(let i=0;i<8;i++)await Promise.resolve();}
-function fixture(){const win=new EventTarget();const doc=Object.assign(new EventTarget(),{body:{classList:{contains:()=>false}},defaultView:win,getElementById:()=>null,querySelectorAll:()=>[]});win.document=doc;win.__capyGame={world:{}};return{win,doc};}
+function fixture(){const win=new EventTarget();const doc=Object.assign(new EventTarget(),{body:{classList:{contains:()=>false}},defaultView:win,getElementById:()=>null,querySelector:()=>null,querySelectorAll:()=>[]});win.document=doc;win.__capyGame={world:{}};return{win,doc};}
 function ready(win){const input={};for(const k of ['steerDir','walkVec','forward','backward','brake','shift','interact','wheelie'])Object.defineProperty(input,k,{configurable:true,get:()=>k==='walkVec'?{x:0,z:0}:k==='steerDir'?0:false});win.__capyGame.world._lastInput=input;return input;}
 let passed=0,failed=0;function check(name,ok){console.log(`${ok?'PASS':'FAIL'} ${name}`);ok?passed++:failed++;}
 try{

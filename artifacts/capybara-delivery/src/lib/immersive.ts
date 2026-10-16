@@ -92,6 +92,12 @@ export function installImmersiveShell(frameWin: Window, frameDoc: Document): Imm
 
   const onStartGesture = (e: Event) => {
     if (!isStartTarget(e.target)) return;
+    // The parent-page iOS hint must never cover the game's lower touch targets.
+    // Keep the hint on the menu, then remove it when the player chooses Play.
+    if ((e.target as HTMLElement | null)?.closest?.("button")) {
+      hint?.remove();
+      hint = null;
+    }
     void requestImmersive();
   };
 

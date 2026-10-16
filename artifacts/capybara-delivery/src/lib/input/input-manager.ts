@@ -64,8 +64,8 @@ export class OkadaInputManager {
       throttle: this.pickNumeric("throttle"),
       brake: this.pickNumeric("brake"),
       reverse: this.pickNumeric("reverse"),
-      drift: this.pickBoolean("drift"),
-      interact: this.pickBoolean("interact"),
+      drift: this.pickAction("drift"),
+      interact: this.pickAction("interact"),
       wheelie: this.pickBoolean("wheelie"),
       phone: this.pickBoolean("phone"),
       walkX: this.pickNumeric("walkX"),
@@ -83,7 +83,17 @@ export class OkadaInputManager {
     return 0;
   }
 
-  private pickBoolean(key: "drift" | "interact" | "wheelie" | "phone"): boolean {
+  private pickAction(key: "drift" | "interact"): number {
+    for (const src of PRIORITY) {
+      const value = this.contributions.get(src)?.[key];
+      // Normalize the existing JS callers' truthy flags too. The public typed
+      // state is now the Phase 2E 0..1 contract; the adapter still emits booleans.
+      if (value) return typeof value === "number" ? Math.max(0, Math.min(1, value)) : 1;
+    }
+    return 0;
+  }
+
+  private pickBoolean(key: "wheelie" | "phone"): boolean {
     for (const src of PRIORITY) {
       if (this.contributions.get(src)?.[key]) return true;
     }

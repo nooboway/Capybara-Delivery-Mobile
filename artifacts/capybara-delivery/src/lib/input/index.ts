@@ -57,9 +57,15 @@ export async function initOkadaInput(
   generations.get(win)?.dispose?.();
   const generation: { dispose?: () => void } = {};
   generations.set(win, generation);
+  let disposed = false;
+  let bound = false;
   const manager = new OkadaInputManager();
   const adapter = new OkadaEngineAdapter();
-  const touch = new TouchInputSource(doc, manager);
+  const touch = new TouchInputSource(doc, manager, () => {
+    const game = (win as unknown as { __capyGame?: { world?: { _lastInput?: unknown } } }).__capyGame;
+    return bound && !disposed && generations.get(win) === generation &&
+      adapter.getEngineInput() === game?.world?._lastInput;
+  });
   const gamepad = new GamepadInputSource(manager);
   const pending = new AbortController();
   let pendingDisposed = false;
@@ -96,6 +102,8 @@ export async function initOkadaInput(
   // A menu gesture must not become held driving input when startup finishes.
   touch.reset("engine-ready");
   adapter.override(manager);
+  bound = true;
+  touch.refresh();
   const game = (win as unknown as { __capyGame?: { store?: StoreMotionTarget } }).__capyGame;
   const motionPolicy = game?.store ? installRyderStoreMotionPolicy(game.store) : null;
 
@@ -103,7 +111,6 @@ export async function initOkadaInput(
     gamepad.start();
   }
 
-  let disposed = false;
   const resetAll = (reason?: string) => {
     if (disposed) return;
     touch.reset(reason);
@@ -137,6 +144,7 @@ export async function initOkadaInput(
     dispose() {
       if (disposed) return;
       disposed = true;
+      bound = false;
       touch.detach();
       gamepad.stop();
       manager.reset();

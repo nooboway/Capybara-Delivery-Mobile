@@ -1,0 +1,17 @@
+PASS layout bounds, safe area, targets and collisions 667 375
+PASS layout bounds, safe area, targets and collisions 740 360
+PASS layout bounds, safe area, targets and collisions 780 360
+PASS layout bounds, safe area, targets and collisions 844 390
+PASS layout bounds, safe area, targets and collisions 896 414
+PASS layout bounds, safe area, targets and collisions 932 430
+PASS layout bounds, safe area, targets and collisions 1080 480
+PASS layout bounds, safe area, targets and collisions 1366 1024
+PASS state WORLD
+PASS state STORE
+PASS state PHONE
+PASS state SHOP
+PASS state PORTRAIT_BLOCKED
+PASS state MENU
+PASS state BOOT
+PASS state DISCONNECTED
+TOTAL 41/41 PASS

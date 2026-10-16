@@ -63,7 +63,8 @@ async function main() {
   await frame.evaluate(() => { window.__capyGame.renderer.setPixelRatio(.25); window.__capyGame._applyRenderSize(); });
   await frame.addScriptTag({content:inputJs});
   await frame.evaluate(() => { window.__initPromise = window.OkadaInput.initOkadaInput(window, document, {touchControls:true}); });
-  const shotDir = path.join(REPO, "docs/ux/screenshots");
+  const shotDir = process.env.RYDER_SCREENSHOT_DIR || path.join(REPO, "docs/ux/screenshots");
+  fs.mkdirSync(shotDir, { recursive: true });
   const shot = name => page.screenshot({path:path.join(shotDir, `p2d_r1_${name}.png`)});
   const tap = async selector => {
     await frame.locator(selector).scrollIntoViewIfNeeded();
@@ -72,7 +73,9 @@ async function main() {
     await page.touchscreen.tap(box.x + box.width/2, box.y + box.height/2);
     await page.waitForTimeout(200);
   };
-  const blockedAudit = () => [...document.querySelectorAll('#okada-phase1-controls-root, #okada-phase1-controls-root *')].every(el => {
+  // Phase 2E keeps the shared Phone/Menu/Mute HUD usable while Phone is open;
+  // all gameplay surfaces, including every nested label/puck, remain blocked.
+  const blockedAudit = () => [...document.querySelectorAll('[data-ryder-gameplay], [data-ryder-gameplay] *')].every(el => {
     const css = getComputedStyle(el); return css.pointerEvents === "none" && css.visibility === "hidden";
   });
   check("A: every gameplay descendant hidden and disabled before gameplay", await frame.evaluate(blockedAudit));
@@ -151,7 +154,8 @@ async function main() {
   await page.waitForTimeout(100);
 
   await shot("hud");
-  // Trusted multi-touch: steering + GAS lock, then Phone. CDP coordinates refer
+  // Trusted multi-touch: steering + held GAS, then Phone. Phase 2E removes GAS lock.
+  // CDP coordinates refer
   // to the parent viewport; this harness has an actual full-size game iframe.
   const cdp = await page.context().newCDPSession(page);
   const touches = async points => cdp.send("Input.dispatchTouchEvent", {type:points.length ? "touchMove" : "touchEnd", touchPoints:points});
@@ -162,7 +166,7 @@ async function main() {
   await touches([{id:1,x:steer.x+35,y:steer.y-20},{id:2,...gas}]);
   await page.waitForTimeout(1300);
   const active = await frame.evaluate(() => ({s:window.h.manager.getState(),locked:window.h.touch.isGasLocked}));
-  check("D: trusted multitouch acquires steering and GAS lock", active.s.steer > 0 && active.s.throttle === 1 && active.locked, JSON.stringify(active));
+  check("D: trusted multitouch acquires steering and held GAS without latching", active.s.steer > 0 && active.s.throttle === 1 && !active.locked, JSON.stringify(active));
   await touches([]);
   console.log('[phone-before]',await frame.evaluate(()=>{const b=document.querySelector('#okada-btn-phone').getBoundingClientRect();return {visible:window.__capyGame.phone.visible,hit:document.elementFromPoint(b.x+b.width/2,b.y+b.height/2)?.outerHTML.slice(0,200)};}));
   await frame.evaluate(()=>{window.__phoneEvents=[];for(const kind of ['pointerdown','pointerup','click'])document.addEventListener(kind,e=>window.__phoneEvents.push({kind,trusted:e.isTrusted,id:e.target.id}),true);});

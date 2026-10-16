@@ -1,0 +1,5 @@
+
+> @workspace/capybara-delivery@0.0.0 typecheck C:\Users\dev\.gemini\antigravity-ide\scratch\Capybara-Delivery-Mobile\artifacts\capybara-delivery
+> tsc -p tsconfig.json --noEmit
+
+Exit code: 0

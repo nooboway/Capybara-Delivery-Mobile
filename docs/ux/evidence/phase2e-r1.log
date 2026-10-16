@@ -1,0 +1,55 @@
+=== RYDER PHASE 2D-R1 PHYSICAL REGRESSION ===
+PASS  canonical bundle SHA-256 unchanged  (C7E6C0AE11C358DCA1E51B9CC1CB0C971DE97659094E1D8D2C27D81D9AE4682E)
+PASS  A: every gameplay descendant hidden and disabled before gameplay
+PASS  A: not-in-game (menu) — root has not-in-game class  ({"inGame":false,"notInGame":true,"steer":{"display":"block","opacity":"1","visibility":"hidden","pe":"none"},"gas":{"display":"flex","opacity":"1","visibility":"hidden","pe":"none"},"phone":{"display":"flex","opacity":"1","visibility":"hidden","pe":"none"}})
+PASS  A: menu controls not hit-testable (pointer-events none)  ({"steer":"none","gas":"none","phone":"none"})
+PASS  A: menu controls invisible (visibility hidden)  ({"steerVis":"hidden","gasVis":"hidden","phoneVis":"hidden"})
+[boot] startup tap
+[boot] offline
+[boot] Play
+[boot] wait gameplay
+[boot] await original adapter
+STABILITY idle {"frames":1201,"elapsedMs":51729,"runtimeErrors":0}
+PASS  B: in-game — controls visible (opacity 1, pointer-events auto)  ({"notInGame":false,"steer":{"display":"block","opacity":"1","pe":"auto"},"gas":{"display":"flex","opacity":"1","pe":"auto"},"phone":{"display":"flex","opacity":"1","pe":"auto"}})
+PASS  C: phone/menu/mute no overlap @ 844x390  ({"phone":{"l":676,"t":18,"r":720,"b":62,"w":44},"menu":{"l":728,"t":18,"r":772,"b":62,"w":44},"mute":{"l":780,"t":18,"r":824,"b":62,"w":44}})
+PASS  C: phone/menu/mute no overlap @ 780x360  ({"phone":{"l":612,"t":18,"r":656,"b":62,"w":44},"menu":{"l":664,"t":18,"r":708,"b":62,"w":44},"mute":{"l":716,"t":18,"r":760,"b":62,"w":44}})
+PASS  C: phone/menu/mute no overlap @ 740x360  ({"phone":{"l":572,"t":18,"r":616,"b":62,"w":44},"menu":{"l":624,"t":18,"r":668,"b":62,"w":44},"mute":{"l":676,"t":18,"r":720,"b":62,"w":44}})
+PASS  C: phone/menu/mute no overlap @ 667x375  ({"phone":{"l":499,"t":18,"r":543,"b":62,"w":44},"menu":{"l":551,"t":18,"r":595,"b":62,"w":44},"mute":{"l":603,"t":18,"r":647,"b":62,"w":44}})
+PASS  C: phone/menu/mute no overlap @ 932x430  ({"phone":{"l":764,"t":18,"r":808,"b":62,"w":44},"menu":{"l":816,"t":18,"r":860,"b":62,"w":44},"mute":{"l":868,"t":18,"r":912,"b":62,"w":44}})
+PASS  C: phone/menu/mute no overlap @ 915x412  ({"phone":{"l":747,"t":18,"r":791,"b":62,"w":44},"menu":{"l":799,"t":18,"r":843,"b":62,"w":44},"mute":{"l":851,"t":18,"r":895,"b":62,"w":44}})
+PASS  D: trusted multitouch acquires steering and held GAS without latching  ({"s":{"steer":0.5833333333333334,"throttle":1,"brake":0,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"locked":false})
+[phone-before] {
+  visible: false,
+  hit: '<button type="button" id="okada-btn-phone" title="Phone" aria-label="Phone" data-touch-control="true">☎</button>'
+}
+[phone-after] {
+  visible: true,
+  events: [
+    { kind: 'pointerdown', trusted: true, id: 'okada-btn-phone' },
+    { kind: 'pointerup', trusted: true, id: 'okada-btn-phone' }
+  ]
+}
+PASS  D: Phone clears movement, GAS lock and every pointer owner  ({"s":{"steer":0,"throttle":0,"brake":0,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"lock":false,"steer":null,"walk":null,"captures":0,"owners":0})
+PASS  D: Phone disables every gameplay descendant
+PASS  E: landscape Phone fits and Capy Food is tappable @ 780x360  ({"w":90.5,"h":69.6875,"bottom":310,"view":360,"hit":true})
+PASS  E: landscape Phone fits and Capy Food is tappable @ 667x375  ({"w":85.546875,"h":69.6875,"bottom":325,"view":375,"hit":true})
+PASS  E: landscape Phone fits and Capy Food is tappable @ 844x390  ({"w":90.5,"h":69.6875,"bottom":340,"view":390,"hit":true})
+PASS  E: Capy Food is a real unobstructed landscape hit target  ({"w":90.5,"h":69.6875,"bottom":221.6875,"hit":true,"height":390})
+PASS  E: trusted touch opens Capy Food
+PASS  E: scrolled Accept is unobstructed and touch-sized
+PASS  E: trusted Accept activates canonical order  ({"active":true,"phase":"drive-to-store"})
+PASS  F: trusted Close dismisses app-open Phone and restores neutral controls  ({"visible":false,"state":{"steer":0,"throttle":0,"brake":0,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"pe":"auto"})
+PASS  F: accept-close-driving works with actual vehicle motion  ({"s":{"steer":0.5,"throttle":1,"brake":0,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"speed":0.014323353747866755})
+PASS  F: Phone remains keyboard-accessible
+PASS  F: Close remains keyboard-accessible
+STABILITY post-order-driving {"frames":1200,"elapsedMs":52591,"runtimeErrors":0}
+PASS  G: real playing music and pooled SFX produce measurable output  ({"rms":{"sfx":0.14548672964409018,"music":0.0068411333224667895},"muted":false,"sfxMuted":false,"playing":true,"honk":1,"drift":false,"plays":1,"sameSource":true,"persisted":null})
+PASS  G: trusted mute silences actual music AND already-playing SFX output  ({"rms":{"sfx":0,"music":0},"muted":true,"sfxMuted":true,"playing":true,"honk":0,"drift":true,"plays":1,"sameSource":true,"persisted":"1"})
+PASS  G: honk/drift and persisted state agree with mute  ({"rms":{"sfx":0,"music":0},"muted":true,"sfxMuted":true,"playing":true,"honk":0,"drift":true,"plays":1,"sameSource":true,"persisted":"1"})
+PASS  G: SFX started while muted is silent  ({"muted":true,"volume":0})
+PASS  G: unmute restores both outputs without restarting active media  ({"rms":{"sfx":0.14548672964409018,"music":0.008371244691548044},"muted":false,"sfxMuted":false,"playing":true,"honk":1,"drift":false,"plays":1,"sameSource":true,"persisted":"0"})
+PASS  G: mute survives another Phone transition  ({"rms":{"sfx":0,"music":0},"muted":true,"sfxMuted":true,"playing":true,"honk":0,"drift":true,"plays":1,"sameSource":true,"persisted":"1"})
+PASS  H: no runtime errors during verification
+
+TOTAL CHECKS: 33 | PASSED: 33 | FAILED: 0
+ALL PHASE 2D-R1 CHECKS PASSED

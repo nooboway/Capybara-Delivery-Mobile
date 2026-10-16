@@ -18,9 +18,9 @@ export interface OkadaInputState {
   /** Reverse 0..1. Distinct from brake (engine reverses torque direction). */
   reverse: number;
   /** Handbrake/drift (same engine action as `shift`). */
-  drift: boolean;
+  drift: number;
   /** Interact (E). Level-triggered; the engine performs its own edge detection. */
-  interact: boolean;
+  interact: number;
   /** Wheelie (F). */
   wheelie: boolean;
   /** Phone / menu action (game-owned phone UI, not a physics input). */
@@ -37,8 +37,8 @@ export interface InputContribution {
   throttle?: number;
   brake?: number;
   reverse?: number;
-  drift?: boolean;
-  interact?: boolean;
+  drift?: number;
+  interact?: number;
   wheelie?: boolean;
   phone?: boolean;
   walkX?: number;
@@ -51,8 +51,8 @@ export function neutralState(): OkadaInputState {
     throttle: 0,
     brake: 0,
     reverse: 0,
-    drift: false,
-    interact: false,
+    drift: 0,
+    interact: 0,
     wheelie: false,
     phone: false,
     walkX: 0,

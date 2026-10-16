@@ -44,7 +44,7 @@ If the engine is ever re-bundled such that this path changes, a deterministic ex
 | `walkVec` | `{x, z, active}` | store/on-foot movement | **analog**: native `Di.x/z` are continuous (deadzone `0.18`); engine forward is `-z` |
 | `mouseDragging` / `pointerLocked` / `consumeMouseDelta` | — | camera orbit | not adapted |
 
-There is no `rC` getter for the phone; the phone is game-owned UI (Tab / click), deferred to Phase 3.
+There is no `rC` getter for the phone; Phone remains canonical game-owned UI. Phase 2E's Ryder HUD invokes its existing UI methods and preserves the tutorial Phone transition; it does not generate keyboard events.
 
 ## 4. Okada input architecture
 
@@ -79,10 +79,10 @@ interface OkadaInputState {
   throttle: number;   // 0..1 (binary at engine boundary; thresholded >0)
   brake: number;      // 0..1 (binary)
   reverse: number;    // 0..1 (binary, distinct from brake)
-  drift: boolean;     // handbrake/drift (same engine action)
-  interact: boolean;  // level-triggered
+  drift: number;      // 0..1, handbrake/drift (same engine action)
+  interact: number;   // 0..1, level-triggered
   wheelie: boolean;
-  phone: boolean;     // not yet mapped to the engine (Phase 3)
+  phone: boolean;     // UI action, no rC getter; the Ryder HUD owns activation
   walkX: number;      // -1..1 lateral
   walkY: number;      // -1..1 longitudinal (forward; engine z = -walkY)
 }
