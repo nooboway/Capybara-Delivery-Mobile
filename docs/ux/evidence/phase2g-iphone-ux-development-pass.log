@@ -1,0 +1,350 @@
+PASS canonical SHA unchanged
+PASS exact credit in product fixture
+PASS original creator title and its empty backdrop suppressed
+PASS Stats capture replaces original handler
+PASS support and social hrefs removed
+PASS native/direct promotional window.open cannot escape policy
+PASS mobile action-aware wording including standalone store keycap
+PASS native auto-hidden tip leaves no invisible close hit target
+PASS manual tip dismissal removes presentation and hit target
+PASS new tip can be dismissed with current signature
+PASS same dismissed tip does not reappear during the session
+PASS tutorial help dismisses without any tutorial state API
+PASS desktop action guidance retains E and is idempotent including store keycap
+PASS Phone session leaderboard entry retained
+PASS presentation observer settles without a mutation loop
+PASS product disposal restores navigation and owned metadata
+PASS actual menu credit is exact
+PASS menu logo belongs to Ryder
+PASS original heart support entry removed
+PASS Stats opens a local Ryder route
+PASS Stats shell has honest coming-soon copy and no fake metrics
+PASS Back to Game retains iframe identity
+PASS all actual cosmetic options enumerated ["helmet","crown","witch"]
+PASS helmet keeps Play visible/tappable @ 667x375 {"x":504.453125,"y":303.171875,"width":141.09375,"height":47.65625}
+PASS cosmetic hierarchy and all targets helmet @ 667x375 {"back":true,"play":true,"types":true,"colors":true,"ordered":true,"footer":true}
+PASS crown keeps Play visible/tappable @ 667x375 {"x":504.453125,"y":303.171875,"width":141.09375,"height":47.65625}
+PASS cosmetic hierarchy and all targets crown @ 667x375 {"back":true,"play":true,"types":true,"colors":true,"ordered":true,"footer":true}
+PASS witch keeps Play visible/tappable @ 667x375 {"x":504.453125,"y":303.171875,"width":141.09375,"height":47.65625}
+PASS cosmetic hierarchy and all targets witch @ 667x375 {"back":true,"play":true,"types":true,"colors":true,"ordered":true,"footer":true}
+PASS helmet keeps Play visible/tappable @ 740x360 {"x":577.453125,"y":288.171875,"width":141.09375,"height":47.65625}
+PASS cosmetic hierarchy and all targets helmet @ 740x360 {"back":true,"play":true,"types":true,"colors":true,"ordered":true,"footer":true}
+PASS crown keeps Play visible/tappable @ 740x360 {"x":577.453125,"y":288.171875,"width":141.09375,"height":47.65625}
+PASS cosmetic hierarchy and all targets crown @ 740x360 {"back":true,"play":true,"types":true,"colors":true,"ordered":true,"footer":true}
+PASS witch keeps Play visible/tappable @ 740x360 {"x":577.453125,"y":288.171875,"width":141.09375,"height":47.65625}
+PASS cosmetic hierarchy and all targets witch @ 740x360 {"back":true,"play":true,"types":true,"colors":true,"ordered":true,"footer":true}
+PASS helmet keeps Play visible/tappable @ 780x360 {"x":617.453125,"y":288.171875,"width":141.09375,"height":47.65625}
+PASS cosmetic hierarchy and all targets helmet @ 780x360 {"back":true,"play":true,"types":true,"colors":true,"ordered":true,"footer":true}
+PASS crown keeps Play visible/tappable @ 780x360 {"x":617.453125,"y":288.171875,"width":141.09375,"height":47.65625}
+PASS cosmetic hierarchy and all targets crown @ 780x360 {"back":true,"play":true,"types":true,"colors":true,"ordered":true,"footer":true}
+PASS witch keeps Play visible/tappable @ 780x360 {"x":617.453125,"y":288.171875,"width":141.09375,"height":47.65625}
+PASS cosmetic hierarchy and all targets witch @ 780x360 {"back":true,"play":true,"types":true,"colors":true,"ordered":true,"footer":true}
+PASS helmet keeps Play visible/tappable @ 844x390 {"x":681.453125,"y":318.171875,"width":141.09375,"height":47.65625}
+PASS cosmetic hierarchy and all targets helmet @ 844x390 {"back":true,"play":true,"types":true,"colors":true,"ordered":true,"footer":true}
+PASS crown keeps Play visible/tappable @ 844x390 {"x":681.453125,"y":318.171875,"width":141.09375,"height":47.65625}
+PASS cosmetic hierarchy and all targets crown @ 844x390 {"back":true,"play":true,"types":true,"colors":true,"ordered":true,"footer":true}
+PASS witch keeps Play visible/tappable @ 844x390 {"x":681.453125,"y":318.171875,"width":141.09375,"height":47.65625}
+PASS cosmetic hierarchy and all targets witch @ 844x390 {"back":true,"play":true,"types":true,"colors":true,"ordered":true,"footer":true}
+PASS helmet keeps Play visible/tappable @ 896x414 {"x":733.453125,"y":342.171875,"width":141.09375,"height":47.65625}
+PASS cosmetic hierarchy and all targets helmet @ 896x414 {"back":true,"play":true,"types":true,"colors":true,"ordered":true,"footer":true}
+PASS crown keeps Play visible/tappable @ 896x414 {"x":733.453125,"y":342.171875,"width":141.09375,"height":47.65625}
+PASS cosmetic hierarchy and all targets crown @ 896x414 {"back":true,"play":true,"types":true,"colors":true,"ordered":true,"footer":true}
+PASS witch keeps Play visible/tappable @ 896x414 {"x":733.453125,"y":342.171875,"width":141.09375,"height":47.65625}
+PASS cosmetic hierarchy and all targets witch @ 896x414 {"back":true,"play":true,"types":true,"colors":true,"ordered":true,"footer":true}
+PASS helmet keeps Play visible/tappable @ 932x430 {"x":769.453125,"y":358.171875,"width":141.09375,"height":47.65625}
+PASS cosmetic hierarchy and all targets helmet @ 932x430 {"back":true,"play":true,"types":true,"colors":true,"ordered":true,"footer":true}
+PASS crown keeps Play visible/tappable @ 932x430 {"x":769.453125,"y":358.171875,"width":141.09375,"height":47.65625}
+PASS cosmetic hierarchy and all targets crown @ 932x430 {"back":true,"play":true,"types":true,"colors":true,"ordered":true,"footer":true}
+PASS witch keeps Play visible/tappable @ 932x430 {"x":769.453125,"y":358.171875,"width":141.09375,"height":47.65625}
+PASS cosmetic hierarchy and all targets witch @ 932x430 {"back":true,"play":true,"types":true,"colors":true,"ordered":true,"footer":true}
+PASS helmet keeps Play visible/tappable @ 1080x480 {"x":917.453125,"y":408.171875,"width":141.09375,"height":47.65625}
+PASS cosmetic hierarchy and all targets helmet @ 1080x480 {"back":true,"play":true,"types":true,"colors":true,"ordered":true,"footer":true}
+PASS crown keeps Play visible/tappable @ 1080x480 {"x":917.453125,"y":408.171875,"width":141.09375,"height":47.65625}
+PASS cosmetic hierarchy and all targets crown @ 1080x480 {"back":true,"play":true,"types":true,"colors":true,"ordered":true,"footer":true}
+PASS witch keeps Play visible/tappable @ 1080x480 {"x":917.453125,"y":408.171875,"width":141.09375,"height":47.65625}
+PASS cosmetic hierarchy and all targets witch @ 1080x480 {"back":true,"play":true,"types":true,"colors":true,"ordered":true,"footer":true}
+PASS helmet keeps Play visible/tappable @ 1366x1024 {"x":1203.453125,"y":952.171875,"width":141.09375,"height":47.65625}
+PASS cosmetic hierarchy and all targets helmet @ 1366x1024 {"back":true,"play":true,"types":true,"colors":true,"ordered":true,"footer":true}
+PASS crown keeps Play visible/tappable @ 1366x1024 {"x":1203.453125,"y":952.171875,"width":141.09375,"height":47.65625}
+PASS cosmetic hierarchy and all targets crown @ 1366x1024 {"back":true,"play":true,"types":true,"colors":true,"ordered":true,"footer":true}
+PASS witch keeps Play visible/tappable @ 1366x1024 {"x":1203.453125,"y":952.171875,"width":141.09375,"height":47.65625}
+PASS cosmetic hierarchy and all targets witch @ 1366x1024 {"back":true,"play":true,"types":true,"colors":true,"ordered":true,"footer":true}
+PASS all ten native colors can be selected
+PASS original Back handler returns to native main menu
+PASS actual canonical prompt acknowledges mobile Action
+PASS actual subtitle dismissal removes hit target
+PASS Phone centered/fitted and HUD clear @ 667x375 {"x":249.75,"y":18,"w":167.5,"h":335,"center":0,"closeHit":true,"noOverlap":true,"controls":true,"outerScroll":0}
+PASS Phone centered/fitted and HUD clear @ 740x360 {"x":290,"y":18,"w":160,"h":320,"center":0,"closeHit":true,"noOverlap":true,"controls":true,"outerScroll":0}
+PASS Phone centered/fitted and HUD clear @ 780x360 {"x":310,"y":18,"w":160,"h":320,"center":0,"closeHit":true,"noOverlap":true,"controls":true,"outerScroll":0}
+PASS Phone centered/fitted and HUD clear @ 844x390 {"x":334.5,"y":18,"w":175,"h":350,"center":0,"closeHit":true,"noOverlap":true,"controls":true,"outerScroll":0}
+PASS Phone centered/fitted and HUD clear @ 896x414 {"x":354.8515625,"y":18.703125,"w":186.296875,"h":372.59375,"center":0,"closeHit":true,"noOverlap":true,"controls":true,"outerScroll":0}
+PASS Phone centered/fitted and HUD clear @ 932x430 {"x":369.25,"y":19.5,"w":193.5,"h":387,"center":0,"closeHit":true,"noOverlap":true,"controls":true,"outerScroll":0}
+PASS Phone centered/fitted and HUD clear @ 1080x480 {"x":432,"y":22,"w":216,"h":432,"center":0,"closeHit":true,"noOverlap":true,"controls":true,"outerScroll":0}
+PASS Phone centered/fitted and HUD clear @ 1366x1024 {"x":503,"y":150,"w":360,"h":720,"center":0,"closeHit":true,"noOverlap":true,"controls":true,"outerScroll":0}
+PASS canonical Maps resizes inside portrait Phone @ 667x375
+PASS canonical Maps resizes inside portrait Phone @ 932x430
+PASS canonical Maps resizes inside portrait Phone @ 844x390
+PASS long Phone content scrolls internally without outer-page movement {"internal":true,"outer":0}
+PASS .btn-offer-accept is visible, touch-sized and unobstructed
+PASS .btn-offer-skip is visible, touch-sized and unobstructed
+PASS Capy Food Accept creates canonical order
+PASS Phone close restores neutral live controls
+PASS post-Phone GAS still accelerates actual motorcycle
+PASS navigation passive and clear @ 667x375
+PASS navigation passive and clear @ 740x360
+PASS navigation passive and clear @ 780x360
+PASS navigation passive and clear @ 844x390
+PASS navigation passive and clear @ 896x414
+PASS navigation passive and clear @ 932x430
+PASS navigation passive and clear @ 1080x480
+PASS navigation passive and clear @ 1366x1024
+PASS active objective navigation hides while Phone open
+PASS actual store navigation matches canonical target and distance {"visible":true,"phase":"drive-to-store","distance":29.4226140656555,"expected":29.4226140656555,"targetMatch":true,"passive":true,"aboveControl":true}
+RIDE store {
+  distance: 29.4226140656555,
+  error: -1.5512283393178259,
+  speed: 0,
+  route: 56
+}
+RIDE store {
+  distance: 24.75583737262864,
+  error: 0.6360075079879278,
+  speed: 0.2722768797676101,
+  route: 53
+}
+RIDE store {
+  distance: 20.585169821314174,
+  error: -0.10658340832661661,
+  speed: 1.5437495434214166,
+  route: 47
+}
+RIDE store {
+  distance: 21.32890229912003,
+  error: -0.25737548708919133,
+  speed: 2.197711163714776,
+  route: 37
+}
+RIDE store {
+  distance: 22.817890925938396,
+  error: -0.220886325461009,
+  speed: 2.8739187694802464,
+  route: 28
+}
+RIDE store {
+  distance: 23.17122771677521,
+  error: -0.4441464533991686,
+  speed: 3.227850347239885,
+  route: 18
+}
+RIDE store {
+  distance: 12.8514751411713,
+  error: -0.3848198693707483,
+  speed: 3.7342298204094515,
+  route: 7
+}
+RIDE arrived store { distance: 3.2955521871836364, elapsed: 39739 }
+PASS navigation hides inside-store
+PASS trusted driving and ACTION enter the assigned canonical store
+PASS store ACTION and shared HUD are unobstructed by shopping list/timer
+PASS store diagonal movement is real and release stops naturally {"before":{"x":-0.18268016119657937,"z":2.2955342534055205},"after":{"x":3.4510073344825973,"z":-2.4006933461413844,"vx":-0.0478706441486452,"vz":0.0478706441486452,"state":{"steer":0,"throttle":0,"brake":0,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0}},"delta":{"x":3.633687495679177,"z":-4.696227599546905}}
+WALK route {
+  target: { x: 0.09921959355926546, y: 0, z: -0.7347130571276606 },
+  waypoints: 3
+}
+PASS cart acquired with actual ACTION touch
+WALK route {
+  target: {
+    name: 'Strawberry',
+    x: -0.2223846223428696,
+    z: 0.14654205743666715
+  },
+  waypoints: 2
+}
+COLLECT Strawberry
+WALK route {
+  target: {
+    name: 'Strawberry',
+    x: -0.2223846223428696,
+    z: 0.14654205743666715
+  },
+  waypoints: 1
+}
+COLLECT Strawberry
+WALK route {
+  target: {
+    name: 'Strawberry',
+    x: -0.2223846223428696,
+    z: 0.14654205743666715
+  },
+  waypoints: 1
+}
+COLLECT Strawberry
+WALK route {
+  target: { name: 'Bread', x: 2.8439851635583273, z: -0.9356031444699746 },
+  waypoints: 4
+}
+COLLECT Bread
+WALK route {
+  target: { name: 'Bread', x: 2.8439851635583273, z: -0.9356031444699746 },
+  waypoints: 1
+}
+COLLECT Bread
+WALK route {
+  target: { name: 'Lemon', x: -0.33172979875394804, z: -1.356224608951802 },
+  waypoints: 4
+}
+COLLECT Lemon
+WALK route {
+  target: { name: 'Lemon', x: -0.33172979875394804, z: -1.356224608951802 },
+  waypoints: 1
+}
+COLLECT Lemon
+WALK route {
+  target: { name: 'Noodle', x: 2.894180454395222, z: 0.2504622269430725 },
+  waypoints: 4
+}
+COLLECT Noodle
+PASS actual required items all collected
+WALK route {
+  target: { x: -0.18268016119657937, z: 2.2955342534055205 },
+  waypoints: 3
+}
+PASS store exit restores live world controls
+PASS actual customer navigation matches canonical target and distance {"visible":true,"phase":"delivering","distance":59.2540872826196,"expected":59.2540872826196,"targetMatch":true,"passive":true,"aboveControl":true}
+RIDE customer {
+  distance: 59.2540872826196,
+  error: -0.03045780294950462,
+  speed: 0,
+  route: 166
+}
+RIDE customer {
+  distance: 48.59095272176745,
+  error: 0.14044043919063304,
+  speed: 7.568705685555256,
+  route: 158
+}
+RIDE customer {
+  distance: 36.85154676309736,
+  error: 0.228979625381782,
+  speed: 4.283331751343846,
+  route: 149
+}
+RIDE customer {
+  distance: 53.679991045021275,
+  error: 0.1466629282854444,
+  speed: 2.845769389440255,
+  route: 142
+}
+RIDE customer {
+  distance: 74.46648936679664,
+  error: 0.1070336478549943,
+  speed: 8.819438361079968,
+  route: 133
+}
+RIDE customer {
+  distance: 76.3034004120223,
+  error: 0.09479040111659146,
+  speed: 3.9128339011672186,
+  route: 124
+}
+RIDE customer {
+  distance: 62.51435662712672,
+  error: 0.34705273427954114,
+  speed: 1.9432181988136672,
+  route: 114
+}
+RIDE customer {
+  distance: 42.58986073224501,
+  error: 0.011498989317132913,
+  speed: 6.2806669237190915,
+  route: 107
+}
+RIDE customer {
+  distance: 29.02628406218405,
+  error: 0.09114286013259347,
+  speed: 3.0611484376882365,
+  route: 98
+}
+RIDE customer {
+  distance: 46.039011366228564,
+  error: 0.054665439931568714,
+  speed: 8.871257073289591,
+  route: 90
+}
+RIDE customer {
+  distance: 70.53314062428261,
+  error: 0.03313423328517522,
+  speed: 4.248609547944204,
+  route: 81
+}
+RIDE customer {
+  distance: 84.8615031423192,
+  error: 0.12134134277805103,
+  speed: 9.586990711809486,
+  route: 72
+}
+RIDE customer {
+  distance: 85.13694020853374,
+  error: 0.025343167665049782,
+  speed: 5.799436414978894,
+  route: 63
+}
+RIDE customer {
+  distance: 83.33233372573677,
+  error: 0.42039762703606215,
+  speed: 2.8834680127818086,
+  route: 56
+}
+RIDE customer {
+  distance: 74.40865182366827,
+  error: 0.10983899863925876,
+  speed: 2.6385551220021437,
+  route: 45
+}
+RIDE customer {
+  distance: 66.39596469934881,
+  error: -0.00005992484462553491,
+  speed: 4.081584677530659,
+  route: 38
+}
+RIDE customer {
+  distance: 53.61654330767105,
+  error: 0.13642173012189623,
+  speed: 1.8501422381556822,
+  route: 29
+}
+RIDE customer {
+  distance: 38.530394697565406,
+  error: 0.03431549478307487,
+  speed: 8.605038339862181,
+  route: 21
+}
+RIDE customer {
+  distance: 26.10305455589466,
+  error: 0.013058098365606828,
+  speed: 2.5359063008087808,
+  route: 13
+}
+RIDE customer {
+  distance: 12.818712214745421,
+  error: 0.0018962607311015414,
+  speed: 2.9504762001629548,
+  route: 8
+}
+RIDE customer {
+  distance: 4.360713218157158,
+  error: -0.291804498311492,
+  speed: 3.4830346991839956,
+  route: 5
+}
+RIDE arrived customer { distance: 3.0221207056147175, elapsed: 110567 }
+PASS navigation hides complete
+PASS touch-only full canonical delivery completes and awards result
+PASS store navigation distance changes during real driving {"samples":[29.4226140656555,24.740650766167054,20.45993372937258,21.426670835214885,22.868762203503348,23.25924028088124,12.773653599211347]}
+PASS customer navigation distance changes during real driving {"samples":[59.2540872826196,48.59095272176745,36.941319294238475,54.02660240033467,74.80380529058644,76.26655502110071,62.34936898395478,41.406924051521614,29.186168286038665,46.969645725448615,71.00484562607748,85.1982617075427,84.97179683638832,83.37588135624596,74.37978217364713,66.03778776373242,53.41879494422738,37.87207595980351,26.036633142933812,12.385485156251406,3.9951215391428097]}
+PASS no player-facing original external hrefs remain []
+PASS no external support/Stats/promotional navigation or popup {"externalAttempts":[],"popups":0}
+OBSERVED NETWORK ORIGINS ["http://127.0.0.1:65187","https://fonts.googleapis.com"]
+PASS session leaderboard module preserved independently of public Stats
+PASS zero runtime exceptions []
+TOTAL 118/118 PASS

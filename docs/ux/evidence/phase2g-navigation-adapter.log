@@ -1,0 +1,12 @@
+PASS pickup target is actual canonical store
+PASS right bearing and heading are relative
+PASS delivery target and label follow canonical phase
+PASS idle rejects stale route and destinations
+PASS no active order rejects stale destinations
+PASS store mode hides stale outdoor position
+PASS invalid and unavailable scalars safely hide
+PASS copied geometry owns no canonical point objects
+PASS missing geometry retains honest direct guidance
+PASS bounded nonfinite geometry
+PASS adapter does not mutate canonical state
+TOTAL 11/11 PASS

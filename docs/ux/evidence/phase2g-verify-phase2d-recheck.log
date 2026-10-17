@@ -1,0 +1,38 @@
+=== RYDER PHASE 2D VERIFICATION ===
+PASS  canonical bundle SHA-256 unchanged  (C7E6C0AE11C358DCA1E51B9CC1CB0C971DE97659094E1D8D2C27D81D9AE4682E)
+PASS  PWA manifest present and valid  (C:\Users\dev\.gemini\antigravity-ide\scratch\Capybara-Delivery-Mobile\artifacts\capybara-delivery\public\manifest.webmanifest)
+PASS  manifest display fullscreen + orientation landscape  (fullscreen/landscape)
+PASS  manifest name/short_name are Ryder  (Ryder)
+PASS  manifest theme+background colour set  (#0b0f19)
+PASS  manifest has icons
+PASS  shell links manifest + theme-color
+PASS  shell has apple-mobile-web-app-capable
+PASS  game links manifest + apple metadata
+PASS  subtitle uses Animals (no Capybaras)
+PASS  embed bar uses Ryder branding (no Okada)
+PASS  fullscreen capability detected (enabled/request)  ({"enabled":true,"request":true,"orientationLock":true})
+[screenshot] r2d_driving_idle.png
+PASS  joystick dynamic origin appears at touch point  ({"origin":true})
+PASS  joystick steer is 0 at touch-down (dynamic origin)
+PASS  vertical thumb movement does NOT steer the bike  (0)
+PASS  horizontal full throw = +1.0  (1)
+PASS  circular gate clamps steer to +1.0 beyond radius  (1)
+PASS  joystick release returns neutral 0
+PASS  joystick hides on release
+[screenshot] r2d_joystick_active.png
+PASS  combined control precondition: bike moving forward  (2.668)
+PASS  combined control brakes while moving forward  ({"speedAtPress":2.873,"immediate":{"brake":1,"reverse":0}})
+PASS  combined control transitions to reverse once stopped  (firstReverse@1)
+PASS  combined control is hysteretic (no brake/reverse flicker)
+PASS  brake and reverse are never active simultaneously
+PASS  combined control release neutralizes  ({"brake":0,"reverse":0})
+[screenshot] r2d_brake_reverse.png
+PASS  combined control at rest selects reverse  ({"brake":0,"reverse":1})
+PASS  store joystick diagonal walking (walkX>0, walkY>0)  ({"walkX":0.6577895683574244,"walkY":0.6577895683574244,"afterX":0,"afterY":0})
+PASS  store joystick release neutralizes
+[screenshot] r2d_store_walk.png
+PASS  phone open neutralizes driving input  ({"beforeOpen":1,"openState":0,"afterClose":0,"visible":false})
+PASS  phone close keeps controls neutral (no stale input)
+
+TOTAL CHECKS: 30 | PASSED: 30 | FAILED: 0
+ALL PHASE 2D CHECKS PASSED

@@ -71,7 +71,7 @@ export async function runtimeChecks({page,frame,cdp,check,shots}){
  check('iframe generation B has no prematurely visible controls',await frame.evaluate(()=>[...document.querySelectorAll('[data-ryder-gameplay]')].every(e=>getComputedStyle(e).visibility==='hidden')));await shot('reload-menu-no-controls');
 }
 
-async function fullDelivery({page,frame,cdp,check,shot,center}){
+export async function fullDelivery({page,frame,cdp,check,shot,center,observe = async () => {}}){
  let touching=false;
  const send=async(type,touchPoints)=>{
   if(type==='touchEnd'&&!touching)return;
@@ -87,13 +87,14 @@ async function fullDelivery({page,frame,cdp,check,shot,center}){
  // Navigation is entirely trusted touch. No position, velocity, mission state,
  // collected flag, basket, input manager or canonical engine object is assigned.
  async function ride(kind){
-  let active='',stuck=0,lastDistance=Infinity;
+  let active='',stuck=0,lastDistance=Infinity,recoveryAttempts=0;
   const stick=await center('#okada-steer'),gas=await center('#okada-btn-throttle'),brake=await center('#okada-btn-brake');
   const start=Date.now();
   try{
    for(let iteration=0;Date.now()-start<360000;iteration++){
     const v=await frame.evaluate(kind=>{const game=__capyGame,w=game.world,d=w._bikeTelemetry.getDynamics(),p=w.playerGroup.position,t=kind==='store'?w.getStoreMarkerPos():game._deliveryPos;return{x:p.x,z:p.z,yaw:d.yaw,speed:d.forwardSpeed,target:{x:t.x,z:t.z},route:game.phone._mapRoute?.map(p=>({x:p.x,z:p.z}))??[]};},kind);
     const distance=Math.hypot(v.target.x-v.x,v.target.z-v.z);
+    await observe(kind, iteration);
     if(distance<3.3){
      await end();if(v.speed>.3){await send('touchStart',[{id:72,...brake}]);await frame.waitForFunction(()=>Math.abs(__capyGame.world._bikeTelemetry.getDynamics().forwardSpeed)<.3,null,{timeout:10000});await end();}
      console.log('RIDE arrived',kind,{distance,elapsed:Date.now()-start});return;
@@ -110,10 +111,18 @@ async function fullDelivery({page,frame,cdp,check,shot,center}){
     if(iteration%20===0)console.log('RIDE',kind,{distance,error,speed:v.speed,route:v.route.length});
     if(Math.abs(lastDistance-distance)<.03&&Math.abs(v.speed)<.1)stuck++;else stuck=0;lastDistance=distance;
     if(stuck>25){
-     console.log('RIDE reverse recovery',kind,{distance});await end();
+     // A tiny heading error previously produced an almost straight reverse,
+     // repeating the same collision indefinitely. Use a real alternating arc;
+     // this remains trusted physical touch, never a position/physics assignment.
+     const attempt=++recoveryAttempts;
+     const escapeSteer=Math.abs(steer)>.35?-Math.sign(steer)*.65:(attempt%2?.65:-.65);
+     console.log('RIDE reverse recovery',kind,{distance,attempt,escapeSteer});await end();
+     if(attempt<=2)await shot('navigation-obstacle-'+kind+'-'+attempt);
      await send('touchStart',[{id:70,...stick},{id:71,...brake}]);
-     await send('touchMove',[{id:70,x:stick.x-steer*40,y:stick.y},{id:71,...brake}]);
-     await page.waitForTimeout(1800);await end();active='';stuck=0;
+     await send('touchMove',[{id:70,x:stick.x+escapeSteer*60,y:stick.y},{id:71,...brake}]);
+     await page.waitForTimeout(2600);
+     console.log('RIDE recovery result',kind,await frame.evaluate(()=>({x:__capyGame.world.playerGroup.position.x,z:__capyGame.world.playerGroup.position.z,state:__okadaInput.state(),speed:__capyGame.world._bikeTelemetry.getDynamics().forwardSpeed})));
+     await end();active='';stuck=0;
     }
     await page.waitForTimeout(100);
    }
@@ -121,6 +130,7 @@ async function fullDelivery({page,frame,cdp,check,shot,center}){
   }finally{await end();}
  }
  await ride('store');await action(()=>__capyGame.mode==='store');await frame.waitForFunction(()=>__capyGame.store.isActive&&__okadaInput.touch.getUIState()==='STORE');
+ await observe('inside-store', 0);
  check('trusted driving and ACTION enter the assigned canonical store',true);await shot('store-entry');
  check('store ACTION and shared HUD are unobstructed by shopping list/timer',await frame.evaluate(()=>['okada-btn-interact','okada-btn-phone','btn-menu','btn-mute'].every(id=>{const e=document.getElementById(id),r=e.getBoundingClientRect();return document.elementFromPoint(r.x+r.width/2,r.y+r.height/2)?.closest('#'+id)===e;})));
  const stick=await center('#okada-walk');
@@ -159,6 +169,7 @@ async function fullDelivery({page,frame,cdp,check,shot,center}){
  if(await frame.evaluate(()=>__capyGame.mode==='store')){const exit=await frame.evaluate(()=>__capyGame.store.exitPos);await walkTo(exit,.8);await action(()=>__capyGame.mode==='world');}await frame.waitForFunction(()=>__okadaInput.touch.getUIState()==='WORLD');
  check('store exit restores live world controls',true);await ride('customer');
  const count=await frame.evaluate(()=>__capyGame.phone.deliveryCount);await action(()=>__capyGame._missionPhase==='idle');
+ await observe('complete', 0);
  check('touch-only full canonical delivery completes and awards result',await frame.evaluate(n=>__capyGame.phone.deliveryCount>n,count));await shot('delivery-complete');
 }
 

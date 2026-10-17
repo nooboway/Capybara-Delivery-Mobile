@@ -1,3 +1,4 @@
+import { installNavigationHud, type NavigationHandle } from "@/lib/navigation";
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from '@/components/error-boundary';
@@ -19,6 +20,7 @@ let inputHandle: OkadaInputHandle | null = null;
 let inputAbort: AbortController | null = null;
 let immersiveHandle: ImmersiveHandle | null = null;
 let productHandle: ProductShell | null = null;
+let navigationHandle: NavigationHandle | null = null;
 
 function prepareGameFrame(frame: HTMLIFrameElement, onStats: () => void) {
   const frameDocument = frame.contentDocument;
@@ -32,6 +34,8 @@ function prepareGameFrame(frame: HTMLIFrameElement, onStats: () => void) {
   immersiveHandle = null;
   productHandle?.dispose();
   productHandle = null;
+  navigationHandle?.dispose();
+  navigationHandle = null;
   inputAbort = new AbortController();
   const signal = inputAbort.signal;
 
@@ -69,6 +73,7 @@ function prepareGameFrame(frame: HTMLIFrameElement, onStats: () => void) {
   // Initialize the immersive shell (fullscreen on the start gesture + iOS hint).
   immersiveHandle = installImmersiveShell(frame.contentWindow, frameDocument);
   productHandle = installProductShell(frame.contentWindow, frameDocument, onStats);
+  navigationHandle = installNavigationHud(frame.contentWindow, frameDocument, () => !frame.closest("main")?.inert);
 
   // Adaptive HD render quality: bound DPR between 1.0 and 2.0 to restore crisp HD graphics on mobile screens without GPU buffer waste
   const frameWin = frame.contentWindow;
@@ -149,6 +154,8 @@ function Home({ statsOpen, onStats }: { statsOpen: boolean; onStats: () => void 
       immersiveHandle = null;
       productHandle?.dispose();
       productHandle = null;
+      navigationHandle?.dispose();
+      navigationHandle = null;
     };
   }, []);
 

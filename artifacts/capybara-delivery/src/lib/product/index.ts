@@ -1,3 +1,4 @@
+import { installPhoneLayout } from "./phone-layout";
 import { RYDER_CREDIT, actionCopy } from "./copy";
 import { PRODUCT_STYLES } from "./styles";
 
@@ -12,6 +13,7 @@ export function installProductShell(win: Window, doc: Document, onStats: () => v
   const restores: Array<() => void> = [];
   const created = new Set<Element>();
   let disposed = false;
+  const disposePhoneLayout = installPhoneLayout(win, doc);
   const attr = (el: Element, name: string, value: string | null) => {
     if (el.getAttribute(name) === value) return;
     let map = originals.get(el); if (!map) originals.set(el, map = new Map());
@@ -53,17 +55,31 @@ export function installProductShell(win: Window, doc: Document, onStats: () => v
         attr(button, "aria-label", "Ryder Stats");
       }
     }
-    // Derive the action footer from semantic button labels/structure, not style names.
-    for (const play of Array.from(panel.querySelectorAll<HTMLButtonElement>("button"))) {
-      if (!/^(?:Play|Jogar|Jugar|Spielen|开始|플레이|खेलें)$/iu.test(play.textContent?.trim() ?? "") || play.closest(".ryder-play-footer")) continue;
-      const parent = play.parentElement!;
-      const back = Array.from(parent.querySelectorAll<HTMLButtonElement>(":scope > button")).find(b => /^(Back|Voltar|Atrás|Zurück|返回|뒤로|वापस)$/iu.test(b.textContent?.trim() ?? ""));
-      if (!back) continue;
-      if (parent.children.length === 2) { attr(parent, "class", `${parent.className} ryder-play-footer`.trim()); continue; }
-      const footer = doc.createElement("div"); footer.className = "ryder-play-footer";
-      const markers = [play, back].map(b => { const marker = doc.createComment("Ryder footer restore"); b.before(marker); return { b, marker }; });
-      parent.append(footer); footer.append(play, back); created.add(footer);
-      restores.push(() => { for (const { b, marker } of markers) marker.replaceWith(b); });
+    // Reparent original nodes only: native selection/garage preview handlers survive.
+    for (const view of Array.from(panel.querySelectorAll<HTMLElement>("[data-ryder-menu-view]"))) {
+      const types = view.querySelector<HTMLElement>("[data-style]")?.parentElement;
+      if (!types || view.hasAttribute("data-ryder-cosmetics")) continue;
+      const buttons = Array.from(view.querySelectorAll<HTMLButtonElement>("button"));
+      const play = buttons.find(b => /^(Play|Jogar|Jugar|Spielen|开始|플레이|खेलें)$/iu.test(b.textContent?.trim() ?? ""));
+      const back = buttons.find(b => /^(Back|Voltar|Atrás|Zurück|返回|뒤로|वापस)$/iu.test(b.textContent?.trim() ?? ""));
+      if (!play || !back) continue;
+      attr(view, "data-ryder-cosmetics", "");
+      const header = doc.createElement("div"), middle = doc.createElement("div"), footer = doc.createElement("div");
+      header.className = "ryder-cosmetic-header"; middle.className = "ryder-cosmetic-middle"; footer.className = "ryder-play-footer";
+      const move = (node: Node, into: HTMLElement) => {
+        const marker = doc.createComment("Ryder layout restore"); node.parentNode!.insertBefore(marker, node); into.append(node);
+        restores.push(() => marker.replaceWith(node));
+      };
+      // Keep the entire color group: canonical selection owns its inline visibility.
+      const colors = view.querySelector<HTMLElement>("[data-color]")?.parentElement?.parentElement;
+      const children = Array.from(view.childNodes);
+      if (!view.querySelector("input") && view.firstElementChild && view.firstElementChild !== colors && !view.firstElementChild.querySelector("button,input")) attr(view.firstElementChild, "data-ryder-cosmetic-title", "");
+      move(back, header); move(play, footer);
+      for (const node of children) if (node.parentNode === view && node.nodeType !== 8) move(node, middle);
+      if (types.parentElement) move(types, middle);
+      if (colors?.parentElement) { move(colors, middle); attr(colors, "data-ryder-colors", ""); }
+      attr(types, "data-ryder-types", "");
+      view.append(header, middle, footer); created.add(header); created.add(middle); created.add(footer);
     }
   }
 
@@ -130,7 +146,7 @@ export function installProductShell(win: Window, doc: Document, onStats: () => v
   observer.observe(doc.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ["class", "href"] });
   scan();
   return { dispose() {
-    if (disposed) return; disposed = true; observer.disconnect(); abort.abort();
+    if (disposed) return; disposed = true; disposePhoneLayout(); observer.disconnect(); abort.abort();
     if (win.open === guardedOpen) win.open = open;
     for (const restore of restores.reverse()) restore();
     for (const el of created) el.remove();

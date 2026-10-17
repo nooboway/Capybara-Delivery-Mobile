@@ -1,0 +1,25 @@
+PASS current engine-bound source renders WORLD
+PASS one active joystick surface, no native input ownership
+PASS trusted three-pointer semantic input reaches engine {"state":{"steer":0.5,"throttle":1,"brake":0,"reverse":0,"drift":1,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"ui":"WORLD","owner":2}
+PASS partial DRIFT release preserves GAS and steering owners
+PASS unknown speed preserves deterministic braking first
+PASS long GAS hold never latches after release
+PASS trusted pointer cancellation releases action
+PASS blur neutralizes and old pointer cannot resurrect
+PASS Phone opening resets still-physically-held GAS
+PASS Phone close cannot restore a stale held finger
+PASS HUD pointer plus compatibility click activates mute once
+PASS canonical HUD keyboard activation remains available
+PASS Menu survives retargeted compatibility click after pointer activation [{"trusted":false,"detail":0,"target":"btn-mute"},{"trusted":true,"detail":1,"target":"btn-mute"},{"trusted":true,"detail":0,"target":"btn-mute"},{"trusted":false,"detail":0,"target":"btn-menu"},{"trusted":true,"detail":1,"target":"capy-confirm-overlay visible"}]
+PASS trusted Menu cancel restores neutral WORLD
+PASS trusted Shop pointer opens owned UI without canonical Portal action
+PASS Shop close restores neutral live input state
+PASS replaced engine input hides all controls
+PASS new generation disposes old source before binding new input
+PASS old adapter descriptors restored faithfully
+PASS idempotent whole-handle disposal removes source, listeners and DOM
+PASS native HUD and ownership restored after disposal
+PASS Shop disposal restores canonical metadata and label
+PASS outer-document probe removed
+PASS zero runtime errors []
+TOTAL 24/24 PASS

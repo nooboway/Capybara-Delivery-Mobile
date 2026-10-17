@@ -1,0 +1,20 @@
+=== RYDER PHASE 2D VERIFICATION ===
+PASS  canonical bundle SHA-256 unchanged  (C7E6C0AE11C358DCA1E51B9CC1CB0C971DE97659094E1D8D2C27D81D9AE4682E)
+PASS  PWA manifest present and valid  (C:\Users\dev\.gemini\antigravity-ide\scratch\Capybara-Delivery-Mobile\artifacts\capybara-delivery\public\manifest.webmanifest)
+PASS  manifest display fullscreen + orientation landscape  (fullscreen/landscape)
+PASS  manifest name/short_name are Ryder  (Ryder)
+PASS  manifest theme+background colour set  (#0b0f19)
+PASS  manifest has icons
+PASS  shell links manifest + theme-color
+PASS  shell has apple-mobile-web-app-capable
+PASS  game links manifest + apple metadata
+PASS  subtitle uses Animals (no Capybaras)
+PASS  embed bar uses Ryder branding (no Okada)
+PASS  fullscreen capability detected (enabled/request)  ({"enabled":true,"request":true,"orientationLock":true})
+Fatal verification error: locator.click: Timeout 180000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Play', exact: true })
+
+    at main (C:\Users\dev\.gemini\antigravity-ide\scratch\Capybara-Delivery-Mobile\artifacts\capybara-delivery\scripts\verify-phase2d.mjs:101:65) {
+  name: 'TimeoutError'
+}
