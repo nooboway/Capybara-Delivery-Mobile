@@ -1,0 +1,325 @@
+SUITE PROFILE complete full
+BOOT tap
+PASS Ryder Shop entry remains available on the menu
+PASS SHOP owns interaction with no gameplay targets
+BOOT offline
+START first-time
+PASS first-time Accept/Close keeps original live handle
+PASS natural tutorial reaches teach_controls after Accept
+PASS first-order GAS propagates and accelerates actual bike {"hit":"<span class=\"btn-label\">GAS</span>","button":"okada-btn-throttle","visible":"visible","pointerEvents":"auto","source":{"throttle":1},"manager":{"steer":0,"throttle":1,"brake":0,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"adapterState":{"steer":0,"throttle":1,"brake":0,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"canonical":{"forward":true,"brake":false,"reverse":false},"speed":3.1851817022715894,"position":{"x":-46.243512100224315,"z":793.8962271728542},"current":true,"bound":true,"live":true,"owners":[11],"tutorial":"mission_in_flight","locked":false}
+PASS first-order moving BRAKE reaches canonical input {"brakeDown":{"type":"pointerdown","trusted":true,"target":"SPAN","button":"okada-btn-brake","pointer":12,"captured":true,"source":{"throttle":0,"brake":1,"reverse":0},"manager":{"steer":0,"throttle":0,"brake":1,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"canonical":{"forward":false,"brake":true,"reverse":false}},"later":{"hit":"<span class=\"btn-label\">BRAKE</span>","button":"okada-btn-brake","visible":"visible","pointerEvents":"auto","source":{"throttle":0,"brake":1,"reverse":0},"manager":{"steer":0,"throttle":0,"brake":1,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"adapterState":{"steer":0,"throttle":0,"brake":1,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"canonical":{"forward":false,"brake":true,"reverse":false},"speed":3.0943967579812335,"position":{"x":-45.05049798584422,"z":793.1123491210965},"current":true,"bound":true,"live":true,"owners":[12],"tutorial":"mission_in_flight","locked":false}}
+PASS first-order BRAKE reduces actual forward speed {"hit":"<span class=\"btn-label\">REV</span>","button":"okada-btn-brake","visible":"visible","pointerEvents":"auto","source":{"throttle":0,"brake":0,"reverse":1},"manager":{"steer":0,"throttle":0,"brake":0,"reverse":1,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"adapterState":{"steer":0,"throttle":0,"brake":0,"reverse":1,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"canonical":{"forward":false,"brake":false,"reverse":true},"speed":0,"position":{"x":-44.92043685913086,"z":793.03515625},"current":true,"bound":true,"live":true,"owners":[12],"tutorial":"mission_in_flight","locked":false}
+PASS first-order held REV produces actual reverse motion {"hit":"<span class=\"btn-label\">REV</span>","button":"okada-btn-brake","visible":"visible","pointerEvents":"auto","source":{"throttle":0,"brake":0,"reverse":1},"manager":{"steer":0,"throttle":0,"brake":0,"reverse":1,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"adapterState":{"steer":0,"throttle":0,"brake":0,"reverse":1,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"canonical":{"forward":false,"brake":false,"reverse":true},"speed":-0.6839560742575536,"position":{"x":-44.9826152420034,"z":793.0704946289056},"current":true,"bound":true,"live":true,"owners":[12],"tutorial":"mission_in_flight","locked":false,"displacement":0.07151889484830018}
+PASS first-order fractional steering parity reaches canonical input {"intent":0.5,"canonical":0.5,"yaw":2.087045650597684,"gas":0}
+PASS first-order release neutralizes owned controls
+PASS trusted movement releases canonical tutorial freeze
+POINTER TRACE [{"type":"pointerdown","trusted":true,"target":"SPAN","button":"okada-btn-throttle","pointer":11,"captured":true,"source":{"throttle":1},"manager":{"steer":0,"throttle":1,"brake":0,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"canonical":{"forward":true,"brake":false,"reverse":false}},{"type":"gotpointercapture","trusted":true,"target":"BUTTON","button":"okada-btn-throttle","pointer":11,"captured":true,"source":{"throttle":1},"manager":{"steer":0,"throttle":1,"brake":0,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"canonical":{"forward":true,"brake":false,"reverse":false}},{"type":"pointerup","trusted":true,"target":"BUTTON","button":"okada-btn-throttle","pointer":11,"captured":false,"source":{"throttle":0},"manager":{"steer":0,"throttle":0,"brake":0,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"canonical":{"forward":false,"brake":false,"reverse":false}},{"type":"lostpointercapture","trusted":true,"target":"BUTTON","button":"okada-btn-throttle","pointer":11,"captured":false,"source":{"throttle":0},"manager":{"steer":0,"throttle":0,"brake":0,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"canonical":{"forward":false,"brake":false,"reverse":false}},{"type":"pointerdown","trusted":true,"target":"SPAN","button":"okada-btn-brake","pointer":12,"captured":true,"source":{"throttle":0,"brake":1,"reverse":0},"manager":{"steer":0,"throttle":0,"brake":1,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"canonical":{"forward":false,"brake":true,"reverse":false}},{"type":"gotpointercapture","trusted":true,"target":"BUTTON","button":"okada-btn-brake","pointer":12,"captured":true,"source":{"throttle":0,"brake":0,"reverse":1},"manager":{"steer":0,"throttle":0,"brake":0,"reverse":1,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"canonical":{"forward":false,"brake":false,"reverse":true}},{"type":"pointerup","trusted":true,"target":"BUTTON","button":"okada-btn-brake","pointer":12,"captured":false,"source":{"throttle":0,"brake":0,"reverse":0},"manager":{"steer":0,"throttle":0,"brake":0,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"canonical":{"forward":false,"brake":false,"reverse":false}},{"type":"lostpointercapture","trusted":true,"target":"BUTTON","button":"okada-btn-brake","pointer":12,"captured":false,"source":{"throttle":0,"brake":0,"reverse":0},"manager":{"steer":0,"throttle":0,"brake":0,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"canonical":{"forward":false,"brake":false,"reverse":false}}]
+PASS trusted pointer acquisition and release recorded
+BOOT tap
+PASS Ryder Shop entry remains available on the menu
+PASS SHOP owns interaction with no gameplay targets
+BOOT offline
+START returning
+PASS 1,200 idle physics frames under normal rendering
+PASS before Phone GAS propagates and accelerates actual bike {"hit":"<span class=\"btn-label\">GAS</span>","button":"okada-btn-throttle","visible":"visible","pointerEvents":"auto","source":{"throttle":1},"manager":{"steer":0,"throttle":1,"brake":0,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"adapterState":{"steer":0,"throttle":1,"brake":0,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"canonical":{"forward":true,"brake":false,"reverse":false},"speed":3.1851817022715894,"position":{"x":-46.272168624882006,"z":793.9129774169945},"current":true,"bound":true,"live":true,"owners":[5],"locked":false}
+PASS before Phone moving BRAKE reaches canonical input {"brakeDown":{"type":"pointerdown","trusted":true,"target":"SPAN","button":"okada-btn-brake","pointer":6,"captured":true,"source":{"throttle":0,"brake":1,"reverse":0},"manager":{"steer":0,"throttle":0,"brake":1,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"canonical":{"forward":false,"brake":true,"reverse":false}},"later":{"hit":"<span class=\"btn-label\">BRAKE</span>","button":"okada-btn-brake","visible":"visible","pointerEvents":"auto","source":{"throttle":0,"brake":1,"reverse":0},"manager":{"steer":0,"throttle":0,"brake":1,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"adapterState":{"steer":0,"throttle":0,"brake":1,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"canonical":{"forward":false,"brake":true,"reverse":false},"speed":2.5977398903846396,"position":{"x":-45.555887832643116,"z":793.4539924316417},"current":true,"bound":true,"live":true,"owners":[6],"locked":false}}
+PASS before Phone BRAKE reduces actual forward speed {"hit":"<span class=\"btn-label\">REV</span>","button":"okada-btn-brake","visible":"visible","pointerEvents":"auto","source":{"throttle":0,"brake":0,"reverse":1},"manager":{"steer":0,"throttle":0,"brake":0,"reverse":1,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"adapterState":{"steer":0,"throttle":0,"brake":0,"reverse":1,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"canonical":{"forward":false,"brake":false,"reverse":true},"speed":0,"position":{"x":-45.45064926147461,"z":793.3800048828125},"current":true,"bound":true,"live":true,"owners":[6],"locked":false}
+PASS before Phone held REV produces actual reverse motion {"hit":"<span class=\"btn-label\">REV</span>","button":"okada-btn-brake","visible":"visible","pointerEvents":"auto","source":{"throttle":0,"brake":0,"reverse":1},"manager":{"steer":0,"throttle":0,"brake":0,"reverse":1,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"adapterState":{"steer":0,"throttle":0,"brake":0,"reverse":1,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"canonical":{"forward":false,"brake":false,"reverse":true},"speed":-0.7697183397818137,"position":{"x":-45.499467254638226,"z":793.414574707031},"current":true,"bound":true,"live":true,"owners":[6],"locked":false,"displacement":0.059818635917400595}
+PASS before Phone fractional steering parity reaches canonical input {"intent":0.5,"canonical":0.5,"yaw":2.087045650597684,"gas":0}
+PASS before Phone release neutralizes owned controls
+PASS returning Accept/Close keeps original live handle
+PASS after Phone GAS propagates and accelerates actual bike {"hit":"<span class=\"btn-label\">GAS</span>","button":"okada-btn-throttle","visible":"visible","pointerEvents":"auto","source":{"throttle":1},"manager":{"steer":0,"throttle":1,"brake":0,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"adapterState":{"steer":0,"throttle":1,"brake":0,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"canonical":{"forward":true,"brake":false,"reverse":false},"speed":3.2683373227289194,"position":{"x":-44.896844367983064,"z":793.0246832275403},"current":true,"bound":true,"live":true,"owners":[13],"locked":false}
+PASS after Phone moving BRAKE reaches canonical input {"brakeDown":{"type":"pointerdown","trusted":true,"target":"SPAN","button":"okada-btn-brake","pointer":14,"captured":true,"source":{"throttle":0,"brake":1,"reverse":0},"manager":{"steer":0,"throttle":0,"brake":1,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"canonical":{"forward":false,"brake":true,"reverse":false}},"later":{"hit":"<span class=\"btn-label\">BRAKE</span>","button":"okada-btn-brake","visible":"visible","pointerEvents":"auto","source":{"throttle":0,"brake":1,"reverse":0},"manager":{"steer":0,"throttle":0,"brake":1,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"adapterState":{"steer":0,"throttle":0,"brake":1,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"canonical":{"forward":false,"brake":true,"reverse":false},"speed":2.549725702323102,"position":{"x":-43.40106544494835,"z":792.1890478515636},"current":true,"bound":true,"live":true,"owners":[14],"locked":false}}
+PASS after Phone BRAKE reduces actual forward speed {"hit":"<span class=\"btn-label\">BRAKE</span>","button":"okada-btn-brake","visible":"visible","pointerEvents":"auto","source":{"throttle":0,"brake":1,"reverse":0},"manager":{"steer":0,"throttle":0,"brake":1,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"adapterState":{"steer":0,"throttle":0,"brake":1,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"canonical":{"forward":false,"brake":true,"reverse":false},"speed":0,"position":{"x":-43.3020133972168,"z":792.1341552734375},"current":true,"bound":true,"live":true,"owners":[14],"locked":false}
+PASS after Phone held REV produces actual reverse motion {"hit":"<span class=\"btn-label\">REV</span>","button":"okada-btn-brake","visible":"visible","pointerEvents":"auto","source":{"throttle":0,"brake":0,"reverse":1},"manager":{"steer":0,"throttle":0,"brake":0,"reverse":1,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"adapterState":{"steer":0,"throttle":0,"brake":0,"reverse":1,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"canonical":{"forward":false,"brake":false,"reverse":true},"speed":-0.7353316875908639,"position":{"x":-43.36802860259962,"z":792.1706502685544},"current":true,"bound":true,"live":true,"owners":[14],"locked":false,"displacement":0.0754313728518637}
+PASS after Phone fractional steering parity reaches canonical input {"intent":0.5,"canonical":0.5,"yaw":2.087045650597684,"gas":0}
+PASS after Phone release neutralizes owned controls
+POINTER TRACE [{"type":"pointerdown","trusted":true,"target":"SPAN","button":"okada-btn-throttle","pointer":5,"captured":true,"source":{"throttle":1},"manager":{"steer":0,"throttle":1,"brake":0,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"canonical":{"forward":true,"brake":false,"reverse":false}},{"type":"gotpointercapture","trusted":true,"target":"BUTTON","button":"okada-btn-throttle","pointer":5,"captured":true,"source":{"throttle":1},"manager":{"steer":0,"throttle":1,"brake":0,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"canonical":{"forward":true,"brake":false,"reverse":false}},{"type":"pointerup","trusted":true,"target":"BUTTON","button":"okada-btn-throttle","pointer":5,"captured":false,"source":{"throttle":0},"manager":{"steer":0,"throttle":0,"brake":0,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"canonical":{"forward":false,"brake":false,"reverse":false}},{"type":"lostpointercapture","trusted":true,"target":"BUTTON","button":"okada-btn-throttle","pointer":5,"captured":false,"source":{"throttle":0},"manager":{"steer":0,"throttle":0,"brake":0,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"canonical":{"forward":false,"brake":false,"reverse":false}},{"type":"pointerdown","trusted":true,"target":"SPAN","button":"okada-btn-brake","pointer":6,"captured":true,"source":{"throttle":0,"brake":1,"reverse":0},"manager":{"steer":0,"throttle":0,"brake":1,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"canonical":{"forward":false,"brake":true,"reverse":false}},{"type":"gotpointercapture","trusted":true,"target":"BUTTON","button":"okada-btn-brake","pointer":6,"captured":true,"source":{"throttle":0,"brake":0,"reverse":1},"manager":{"steer":0,"throttle":0,"brake":0,"reverse":1,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"canonical":{"forward":false,"brake":false,"reverse":true}},{"type":"pointerup","trusted":true,"target":"BUTTON","button":"okada-btn-brake","pointer":6,"captured":false,"source":{"throttle":0,"brake":0,"reverse":0},"manager":{"steer":0,"throttle":0,"brake":0,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"canonical":{"forward":false,"brake":false,"reverse":false}},{"type":"lostpointercapture","trusted":true,"target":"BUTTON","button":"okada-btn-brake","pointer":6,"captured":false,"source":{"throttle":0,"brake":0,"reverse":0},"manager":{"steer":0,"throttle":0,"brake":0,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"canonical":{"forward":false,"brake":false,"reverse":false}},{"type":"pointerdown","trusted":true,"target":"SPAN","button":"okada-btn-throttle","pointer":13,"captured":true,"source":{"throttle":1},"manager":{"steer":0,"throttle":1,"brake":0,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"canonical":{"forward":true,"brake":false,"reverse":false}},{"type":"gotpointercapture","trusted":true,"target":"BUTTON","button":"okada-btn-throttle","pointer":13,"captured":true,"source":{"throttle":1},"manager":{"steer":0,"throttle":1,"brake":0,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"canonical":{"forward":true,"brake":false,"reverse":false}},{"type":"pointerup","trusted":true,"target":"BUTTON","button":"okada-btn-throttle","pointer":13,"captured":false,"source":{"throttle":0},"manager":{"steer":0,"throttle":0,"brake":0,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"canonical":{"forward":false,"brake":false,"reverse":false}},{"type":"lostpointercapture","trusted":true,"target":"BUTTON","button":"okada-btn-throttle","pointer":13,"captured":false,"source":{"throttle":0},"manager":{"steer":0,"throttle":0,"brake":0,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"canonical":{"forward":false,"brake":false,"reverse":false}},{"type":"pointerdown","trusted":true,"target":"SPAN","button":"okada-btn-brake","pointer":14,"captured":true,"source":{"throttle":0,"brake":1,"reverse":0},"manager":{"steer":0,"throttle":0,"brake":1,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"canonical":{"forward":false,"brake":true,"reverse":false}},{"type":"gotpointercapture","trusted":true,"target":"BUTTON","button":"okada-btn-brake","pointer":14,"captured":true,"source":{"throttle":0,"brake":0,"reverse":1},"manager":{"steer":0,"throttle":0,"brake":0,"reverse":1,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"canonical":{"forward":false,"brake":false,"reverse":true}},{"type":"pointerup","trusted":true,"target":"BUTTON","button":"okada-btn-brake","pointer":14,"captured":false,"source":{"throttle":0,"brake":0,"reverse":0},"manager":{"steer":0,"throttle":0,"brake":0,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"canonical":{"forward":false,"brake":false,"reverse":false}},{"type":"lostpointercapture","trusted":true,"target":"BUTTON","button":"okada-btn-brake","pointer":14,"captured":false,"source":{"throttle":0,"brake":0,"reverse":0},"manager":{"steer":0,"throttle":0,"brake":0,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"canonical":{"forward":false,"brake":false,"reverse":false}}]
+PASS trusted pointer acquisition and release recorded
+PASS all eight hit targets @ 667x375 [{"id":"okada-btn-throttle","w":78.75,"h":78.75,"hit":"okada-btn-throttle","inside":true},{"id":"okada-btn-brake","w":67.71875,"h":67.71875,"hit":"okada-btn-brake","inside":true},{"id":"okada-btn-drift","w":56.6875,"h":56.6875,"hit":"okada-btn-drift","inside":true},{"id":"okada-btn-interact","w":51.1875,"h":51.1875,"hit":"okada-btn-interact","inside":true},{"id":"okada-steer","w":288.40625,"h":240.09375,"hit":"okada-steer","inside":true},{"id":"okada-btn-phone","w":44,"h":44,"hit":"okada-btn-phone","inside":true},{"id":"btn-menu","w":44,"h":44,"hit":"btn-menu","inside":true},{"id":"btn-mute","w":44,"h":44,"hit":"btn-mute","inside":true}]
+PASS all eight hit targets @ 740x360 [{"id":"okada-btn-throttle","w":78,"h":78,"hit":"okada-btn-throttle","inside":true},{"id":"okada-btn-brake","w":67.078125,"h":67.078125,"hit":"okada-btn-brake","inside":true},{"id":"okada-btn-drift","w":56.15625,"h":56.15625,"hit":"okada-btn-drift","inside":true},{"id":"okada-btn-interact","w":50.6875,"h":50.6875,"hit":"okada-btn-interact","inside":true},{"id":"okada-steer","w":322,"h":229.59375,"hit":"okada-steer","inside":true},{"id":"okada-btn-phone","w":44,"h":44,"hit":"okada-btn-phone","inside":true},{"id":"btn-menu","w":44,"h":44,"hit":"btn-menu","inside":true},{"id":"btn-mute","w":44,"h":44,"hit":"btn-mute","inside":true}]
+PASS all eight hit targets @ 780x360 [{"id":"okada-btn-throttle","w":78,"h":78,"hit":"okada-btn-throttle","inside":true},{"id":"okada-btn-brake","w":67.078125,"h":67.078125,"hit":"okada-btn-brake","inside":true},{"id":"okada-btn-drift","w":56.15625,"h":56.15625,"hit":"okada-btn-drift","inside":true},{"id":"okada-btn-interact","w":50.6875,"h":50.6875,"hit":"okada-btn-interact","inside":true},{"id":"okada-steer","w":340.390625,"h":229.59375,"hit":"okada-steer","inside":true},{"id":"okada-btn-phone","w":44,"h":44,"hit":"okada-btn-phone","inside":true},{"id":"btn-menu","w":44,"h":44,"hit":"btn-menu","inside":true},{"id":"btn-mute","w":44,"h":44,"hit":"btn-mute","inside":true}]
+PASS all eight hit targets @ 844x390 [{"id":"okada-btn-throttle","w":81.890625,"h":81.890625,"hit":"okada-btn-throttle","inside":true},{"id":"okada-btn-brake","w":70.421875,"h":70.421875,"hit":"okada-btn-brake","inside":true},{"id":"okada-btn-drift","w":58.953125,"h":58.953125,"hit":"okada-btn-drift","inside":true},{"id":"okada-btn-interact","w":53.234375,"h":53.234375,"hit":"okada-btn-interact","inside":true},{"id":"okada-steer","w":369.828125,"h":250.59375,"hit":"okada-steer","inside":true},{"id":"okada-btn-phone","w":44,"h":44,"hit":"okada-btn-phone","inside":true},{"id":"btn-menu","w":44,"h":44,"hit":"btn-menu","inside":true},{"id":"btn-mute","w":44,"h":44,"hit":"btn-mute","inside":true}]
+PASS all eight hit targets @ 896x414 [{"id":"okada-btn-throttle","w":86.9375,"h":86.9375,"hit":"okada-btn-throttle","inside":true},{"id":"okada-btn-brake","w":74.765625,"h":74.765625,"hit":"okada-btn-brake","inside":true},{"id":"okada-btn-drift","w":62.59375,"h":62.59375,"hit":"okada-btn-drift","inside":true},{"id":"okada-btn-interact","w":56.5,"h":56.5,"hit":"okada-btn-interact","inside":true},{"id":"okada-steer","w":393.75,"h":267.390625,"hit":"okada-steer","inside":true},{"id":"okada-btn-phone","w":44,"h":44,"hit":"okada-btn-phone","inside":true},{"id":"btn-menu","w":44,"h":44,"hit":"btn-menu","inside":true},{"id":"btn-mute","w":44,"h":44,"hit":"btn-mute","inside":true}]
+PASS all eight hit targets @ 932x430 [{"id":"okada-btn-throttle","w":90.296875,"h":90.296875,"hit":"okada-btn-throttle","inside":true},{"id":"okada-btn-brake","w":77.65625,"h":77.65625,"hit":"okada-btn-brake","inside":true},{"id":"okada-btn-drift","w":65.015625,"h":65.015625,"hit":"okada-btn-drift","inside":true},{"id":"okada-btn-interact","w":58.6875,"h":58.6875,"hit":"okada-btn-interact","inside":true},{"id":"okada-steer","w":410.3125,"h":278.59375,"hit":"okada-steer","inside":true},{"id":"okada-btn-phone","w":44,"h":44,"hit":"okada-btn-phone","inside":true},{"id":"btn-menu","w":44,"h":44,"hit":"btn-menu","inside":true},{"id":"btn-mute","w":44,"h":44,"hit":"btn-mute","inside":true}]
+PASS all eight hit targets @ 1080x480 [{"id":"okada-btn-throttle","w":100.796875,"h":100.796875,"hit":"okada-btn-throttle","inside":true},{"id":"okada-btn-brake","w":86.6875,"h":86.6875,"hit":"okada-btn-brake","inside":true},{"id":"okada-btn-drift","w":72.5625,"h":72.5625,"hit":"okada-btn-drift","inside":true},{"id":"okada-btn-interact","w":65.515625,"h":65.515625,"hit":"okada-btn-interact","inside":true},{"id":"okada-steer","w":478.390625,"h":313.59375,"hit":"okada-steer","inside":true},{"id":"okada-btn-phone","w":44,"h":44,"hit":"okada-btn-phone","inside":true},{"id":"btn-menu","w":44,"h":44,"hit":"btn-menu","inside":true},{"id":"btn-mute","w":44,"h":44,"hit":"btn-mute","inside":true}]
+PASS all eight hit targets @ 1366x1024 [{"id":"okada-btn-throttle","w":104,"h":104,"hit":"okada-btn-throttle","inside":true},{"id":"okada-btn-brake","w":89.4375,"h":89.4375,"hit":"okada-btn-brake","inside":true},{"id":"okada-btn-drift","w":74.875,"h":74.875,"hit":"okada-btn-drift","inside":true},{"id":"okada-btn-interact","w":67.59375,"h":67.59375,"hit":"okada-btn-interact","inside":true},{"id":"okada-steer","w":609.953125,"h":694.390625,"hit":"okada-steer","inside":true},{"id":"okada-btn-phone","w":44,"h":44,"hit":"okada-btn-phone","inside":true},{"id":"btn-menu","w":44,"h":44,"hit":"btn-menu","inside":true},{"id":"btn-mute","w":44,"h":44,"hit":"btn-mute","inside":true}]
+PASS outer-page safe areas are converted into iframe control bounds
+PASS canonical gameplay touch presentation and hit ownership suppressed
+PASS Menu confirmation survives the retargeted compatibility click
+PASS Menu confirmation neutralizes and hides gameplay controls
+PASS trusted Menu cancel returns to neutral live WORLD
+PASS steer + GAS + DRIFT simultaneously reach canonical controller {"state":{"steer":0.6,"throttle":1,"brake":0,"reverse":0,"drift":1,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"yaw":1.5322063516556872,"speed":0.016964057724737094,"x":-41.605907409667964,"z":791.8164106445313,"shift":true}
+PASS steering changes actual motorcycle direction while travelling {"before":{"yaw":2.087045650597684,"x":-43.45709991455078,"z":792.2200317382812},"state":{"steer":0.6,"throttle":1,"brake":0,"reverse":0,"drift":1,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0},"yaw":1.5322063516556872,"speed":0.016964057724737094,"x":-41.605907409667964,"z":791.8164106445313,"shift":true}
+PASS releasing DRIFT preserves other owners
+PASS Phone hides and neutralizes every gameplay target
+PASS DISCONNECTED cannot render or acquire gameplay controls
+PASS portrait blocks all gameplay and clears pointers
+PASS landscape restore is neutral until a new physical gesture
+PASS 1,200 physics frames after order flow under normal rendering
+RIDE store {
+  distance: 23.87930058813897,
+  error: 1.32278742139198,
+  speed: 0,
+  route: 53
+}
+RIDE store {
+  distance: 23.804548987711993,
+  error: 1.3197268297244922,
+  speed: 0.01663416764436182,
+  route: 52
+}
+RIDE store {
+  distance: 23.738804189165254,
+  error: 1.3191080743611254,
+  speed: 0.019232644142862337,
+  route: 52
+}
+RIDE reverse recovery store { distance: 23.724190044978045 }
+RIDE store {
+  distance: 21.096694038689122,
+  error: -0.3078782302064069,
+  speed: 1.8356553815616694,
+  route: 47
+}
+RIDE store {
+  distance: 21.33106581149882,
+  error: -0.38375907192109193,
+  speed: 2.416180488994986,
+  route: 38
+}
+RIDE store {
+  distance: 23.066352174077114,
+  error: -0.3235433088151869,
+  speed: 4.005000291688324,
+  route: 28
+}
+RIDE store {
+  distance: 23.012870453069294,
+  error: -0.15791273998660185,
+  speed: 3.8350775936834514,
+  route: 18
+}
+RIDE store {
+  distance: 13.592105187670278,
+  error: -0.4617406342525803,
+  speed: 3.6656449298383174,
+  route: 8
+}
+RIDE arrived store { distance: 2.7358123917308705, elapsed: 42350 }
+PASS trusted driving and ACTION enter the assigned canonical store
+PASS store ACTION and shared HUD are unobstructed by shopping list/timer
+PASS store diagonal movement is real and release stops naturally {"before":{"x":-0.18268016119657937,"z":2.2955342534055205},"after":{"x":0.3101379958907007,"z":1.2484344607331315,"vx":-0.04787064414989354,"vz":-0.050774485647236765,"state":{"steer":0,"throttle":0,"brake":0,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0}},"delta":{"x":0.49281815708728005,"z":-1.047099792672389}}
+WALK route {
+  target: { x: -0.02664400969363223, y: 0, z: -1.9809280902520878 },
+  waypoints: 2
+}
+PASS cart acquired with actual ACTION touch
+WALK route {
+  target: { name: 'Strawberry', x: 0.19275149221600696, z: 0.2903831154283436 },
+  waypoints: 2
+}
+COLLECT Strawberry
+WALK route {
+  target: { name: 'Strawberry', x: 0.19275149221600696, z: 0.2903831154283436 },
+  waypoints: 1
+}
+COLLECT Strawberry
+WALK route {
+  target: {
+    name: 'Bubble Milk Tea',
+    x: 2.9450012642361165,
+    z: -0.24395819601800994
+  },
+  waypoints: 4
+}
+COLLECT Bubble Milk Tea
+WALK route {
+  target: {
+    name: 'Bubble Milk Tea',
+    x: 2.9450012642361165,
+    z: -0.24395819601800994
+  },
+  waypoints: 1
+}
+COLLECT Bubble Milk Tea
+WALK route {
+  target: {
+    name: 'Bubble Milk Tea',
+    x: 2.9450012642361165,
+    z: -0.24395819601800994
+  },
+  waypoints: 1
+}
+COLLECT Bubble Milk Tea
+PASS actual required items all collected
+WALK route {
+  target: { x: -0.18268016119657937, z: 2.2955342534055205 },
+  waypoints: 3
+}
+PASS store exit restores live world controls
+RIDE customer {
+  distance: 98.45807476806098,
+  error: -0.030071861914329867,
+  speed: 0,
+  route: 187
+}
+RIDE customer {
+  distance: 88.10578262756957,
+  error: 0.1523044149425931,
+  speed: 6.322105889955625,
+  route: 179
+}
+RIDE customer {
+  distance: 109.09382058749028,
+  error: 0.1218411890046367,
+  speed: 4.329998030952789,
+  route: 170
+}
+RIDE customer {
+  distance: 122.36190850139249,
+  error: -0.05232177327634766,
+  speed: 6.8544087030469925,
+  route: 162
+}
+RIDE customer {
+  distance: 111.92382962695292,
+  error: 0.13986520584904594,
+  speed: 2.9504762263183846,
+  route: 152
+}
+RIDE customer {
+  distance: 86.4832753832741,
+  error: 0.15000793803061654,
+  speed: 9.051545539905709,
+  route: 143
+}
+RIDE customer {
+  distance: 74.30461720418081,
+  error: 0.02171962909689931,
+  speed: 8.146829149345493,
+  route: 133
+}
+RIDE customer {
+  distance: 98.95523918655752,
+  error: 0.05069834209111537,
+  speed: 4.138083126556789,
+  route: 123
+}
+RIDE customer {
+  distance: 120.0608646632355,
+  error: 0.13571249563790946,
+  speed: 8.81943825718699,
+  route: 115
+}
+RIDE customer {
+  distance: 129.58822568367626,
+  error: 0.052174445378780264,
+  speed: 3.055829648300367,
+  route: 107
+}
+RIDE customer {
+  distance: 125.79908849933237,
+  error: 0.03247790637627418,
+  speed: 9.516135644052577,
+  route: 98
+}
+RIDE customer {
+  distance: 104.31642570030324,
+  error: 0.048162599700776236,
+  speed: 4.027907859955164,
+  route: 89
+}
+RIDE customer {
+  distance: 75.91930536796693,
+  error: 0.03681834264295474,
+  speed: 4.05525786178595,
+  route: 80
+}
+RIDE customer {
+  distance: 61.891895312113284,
+  error: -0.8363367734814469,
+  speed: 4.138083390341683,
+  route: 76
+}
+RIDE customer {
+  distance: 80.01212361582378,
+  error: -0.017860421192655386,
+  speed: 2.918425412684825,
+  route: 69
+}
+RIDE customer {
+  distance: 103.94917253955424,
+  error: -0.0571377723875732,
+  speed: 8.06138354704557,
+  route: 60
+}
+RIDE customer {
+  distance: 113.65795490368197,
+  error: -0.08812600362311991,
+  speed: 6.39519544273368,
+  route: 53
+}
+RIDE customer {
+  distance: 91.41562289933209,
+  error: -0.01265732312910246,
+  speed: 3.020196958678251,
+  route: 43
+}
+RIDE customer {
+  distance: 74.60058911966489,
+  error: 0.8697637410146588,
+  speed: -0.1210983251521209,
+  route: 36
+}
+RIDE customer {
+  distance: 74.47645455985406,
+  error: 0.8905155037606859,
+  speed: 0.03662312104624153,
+  route: 36
+}
+RIDE reverse recovery customer { distance: 74.372667607665 }
+RIDE customer {
+  distance: 77.82400041771665,
+  error: -1.5926141550112898,
+  speed: 1.5699845189817858,
+  route: 35
+}
+RIDE customer {
+  distance: 73.34599056484846,
+  error: 0.4279556438011665,
+  speed: 0.07412348106155409,
+  route: 35
+}
+RIDE customer {
+  distance: 57.36162362771587,
+  error: -0.041721367488802355,
+  speed: 0.5334567791761733,
+  route: 27
+}
+RIDE customer {
+  distance: 40.86142267509049,
+  error: -0.4332262307187675,
+  speed: 4.805873757954171,
+  route: 19
+}
+RIDE customer {
+  distance: 19.828648499453482,
+  error: -0.031754369774364695,
+  speed: 3.8884109404081673,
+  route: 10
+}
+RIDE customer {
+  distance: 6.062489740145323,
+  error: -0.19194606962999522,
+  speed: -0.05999577701720812,
+  route: 4
+}
+RIDE arrived customer { distance: 2.653051549691695, elapsed: 138047 }
+PASS touch-only full canonical delivery completes and awards result
+PASS idempotent disposal releases controls, observers, timers and native UI ownership
+PASS disposal removes outer-document geometry probe
+PASS iframe reload disposes old source and owners
+PASS iframe generation B has no prematurely visible controls
+PASS zero runtime errors []
+TOTAL 62/62 PASS

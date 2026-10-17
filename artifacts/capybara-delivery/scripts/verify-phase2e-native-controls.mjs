@@ -14,7 +14,7 @@ const results=[];function check(name,ok,data){results.push({name,ok});console.lo
 // No manual input initialization, tutorial.complete(), lock removal or physics writes.
 const errors=[];
 console.log('SUITE PROFILE',process.env.RYDER_PROFILE||'complete',process.env.RYDER_ROUTE_ONLY==='1'?'route-only':'full');
-const shots=path.resolve(root,'../../../../docs/ux/screenshots/phase2e');fs.mkdirSync(shots,{recursive:true});
+const shots=process.env.RYDER_SCREENSHOT_DIR||path.resolve(root,'../../../../docs/ux/screenshots/phase2e');fs.mkdirSync(shots,{recursive:true});
 try {
  for (const fresh of process.env.RYDER_PROFILE==='returning'?[false]:[true,false]) {
   const context=await browser.newContext({viewport:{width:844,height:390},isMobile:true,hasTouch:true});

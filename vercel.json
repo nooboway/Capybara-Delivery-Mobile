@@ -2,5 +2,8 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "installCommand": "pnpm install --frozen-lockfile",
   "buildCommand": "pnpm --filter @workspace/capybara-delivery run build",
-  "outputDirectory": "artifacts/capybara-delivery/dist/public"
+  "outputDirectory": "artifacts/capybara-delivery/dist/public",
+  "rewrites": [
+    { "source": "/stats", "destination": "/index.html" }
+  ]
 }

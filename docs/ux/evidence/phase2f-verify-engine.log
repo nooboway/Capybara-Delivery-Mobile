@@ -1,0 +1,76 @@
+PASS  [A] canonical SHA-256  (C7E6C0AE11C358DCA1E51B9CC1CB0C971DE97659094E1D8D2C27D81D9AE4682E)
+PASS  [A] canonical size  (6588195)
+PASS  [A] parse acorn
+PASS  [A] parse esbuild
+PASS  [A] bundle input modules  (57739 bytes)
+[console error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[console error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[console error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[requestfailed] http://127.0.0.1:4203/api/sponsor?v=undefined net::ERR_ABORTED
+[console error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[requestfailed] http://127.0.0.1:4203/api/sponsor?v=undefined net::ERR_ABORTED
+[console error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[requestfailed] http://127.0.0.1:4203/api/sponsor?v=undefined net::ERR_ABORTED
+NORMAL_STARTUP { mode: 'world', menu: false, launched: true }
+PASS  [A] boot __capyGame
+PASS  [A] boot __capyAudio
+PASS  [A] boot __THREE__
+PASS  [B] steering fractional readback  ({"0":0,"1":1,"-1":-1,"-0.5":-0.5,"0.35":0.35})
+PASS  [B] brake independent  ({"brake":true,"backward":false,"forward":false})
+PASS  [B] reverse distinct  ({"brake":false,"backward":true})
+PASS  [B] throttle forward  ({"forward":true})
+PASS  [B] walk non-cardinal vector  ({"x":0.42,"z":0.71,"active":true})
+PASS  [B] interlock suppresses steer when locked  ({"steer":0,"forward":false})
+PASS  [B] interlock resumes after unlock  ({"steer":0.35,"forward":true})
+[console error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[requestfailed] http://127.0.0.1:4203/api/sponsor?v=undefined net::ERR_ABORTED
+PASS  [B] descriptor restored on dispose (override removed)  ({"before":0.35,"after":0})
+PASS  [C] F1 style in head, root DIV in body  ({"styleInHead":true,"rootIsDivInBody":true,"gasIsChild":true,"steerIsChild":true})
+PASS  [C] F1 controls are children of root
+PASS  [C] GAS down/up  ({"gasDown":true,"gasUp":true})
+PASS  [C] F3 multi-owner (p1+p2 down, p1 up -> still active)  ({"still":true,"released":true})
+PASS  [C] F3 simultaneous steer + GAS  ({"steer":0.5,"throttle":1})
+PASS  [C] F3 GAS up does not reset steer
+PASS  [C] pointer cancel neutralizes
+PASS  [C] F2 blur resets throttle  ({"before":1,"after":0})
+PASS  [C] F2 no stale resurrection (BRAKE/REV does not restore throttle)  ({"throttle":0,"brake":0,"reverse":1})
+PASS  [C] F4 walk hidden in driving
+PASS  [C] F4 walk visible in store, driving hidden  ({"walkVisible":true,"drivingHidden":true})
+PASS  [C] F4 analog non-cardinal walk via pointer  ({"x":0.6577895683574244,"y":0.6577895683574244})
+PASS  [C] F4 mode exit resets walk
+PASS  [C] visibility reset prevents stale GAS
+PASS  [C] store Interact visible and hit-testable; driving-only buttons hidden
+PASS  [C] STORE revokes held driving owners and rejects late pointer events
+PASS  [C] DRIVING revokes walking owner and rejects late pointer events
+PASS  [C] visible store Interact trusted touch reaches engine input  ({"trusted":true,"type":"touch","interact":true})
+PASS  [D] aborted signal -> null handle  ({"abortedReturnsNull":true,"noGlobalAfterAbort":true,"disposeIdempotent":true})
+PASS  [D] dispose idempotent
+PASS  [E] canonical cart acquired by visible trusted touch after normal startup  ({"hasCart":true,"consumed":true,"calls":15,"menu":false})
+POSITION {
+  nearest: 'Bubble Milk Tea',
+  matches: true,
+  cart: true,
+  cooldown: 0,
+  mode: 'store'
+}
+POSITION {
+  nearest: 'Apple',
+  matches: true,
+  cart: true,
+  cooldown: 0,
+  mode: 'store'
+}
+PASS  [E] canonical touch item branch collects actual required items  ({"all":true,"cart":["Noodle","Milk","Bubble Milk Tea","Apple"],"read":true,"picked":true})
+[console error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[requestfailed] http://127.0.0.1:4203/api/sponsor?v=undefined net::ERR_ABORTED
+PASS  [E] canonical world exit restores controls and revokes stale walking ownership  ({"mode":"world","walkHidden":true,"controls":true,"owner":null,"state":{"steer":0,"throttle":0,"brake":0,"reverse":0,"drift":0,"interact":0,"wheelie":false,"phone":false,"walkX":0,"walkY":0}})
+POSITION {
+  nearest: 'Bubble Milk Tea',
+  matches: true,
+  cart: true,
+  cooldown: 0,
+  mode: 'store'
+}
+PASS  [E] native keyboard E collects canonical item without normalized interaction  ({"collected":true,"normalized":0,"consumed":true})
+
+===== VERIFY SUMMARY: 40 pass, 0 fail =====

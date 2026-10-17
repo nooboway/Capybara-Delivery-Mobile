@@ -1,0 +1,10 @@
+PASS Phone uses canonical command and boot transitions
+PASS Phone cannot bypass cinematic
+PASS disabled Phone cannot advance tutorial
+PASS closed Phone cannot advance tutorial
+PASS trusted driving gesture enters mission through canonical transition
+PASS untrusted pointer cannot unlock tutorial
+PASS driving cannot skip earlier tutorial states
+PASS repeat gesture leaves mission unchanged
+PASS absent runtime is harmless
+TOTAL 9/9 PASS

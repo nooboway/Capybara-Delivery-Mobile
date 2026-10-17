@@ -6,9 +6,8 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
 import { initOkadaInput, type OkadaInputHandle } from '@/lib/input';
 import { installImmersiveShell, type ImmersiveHandle } from '@/lib/immersive';
+import { installProductShell, type ProductShell } from '@/lib/product';
 import {
-  Route,
-  Switch,
   useLocation,
   Router as WouterRouter,
 } from 'wouter';
@@ -19,8 +18,9 @@ const queryClient = new QueryClient();
 let inputHandle: OkadaInputHandle | null = null;
 let inputAbort: AbortController | null = null;
 let immersiveHandle: ImmersiveHandle | null = null;
+let productHandle: ProductShell | null = null;
 
-function prepareGameFrame(frame: HTMLIFrameElement) {
+function prepareGameFrame(frame: HTMLIFrameElement, onStats: () => void) {
   const frameDocument = frame.contentDocument;
   if (!frameDocument || !frame.contentWindow) return;
 
@@ -30,6 +30,8 @@ function prepareGameFrame(frame: HTMLIFrameElement) {
   inputHandle = null;
   immersiveHandle?.dispose();
   immersiveHandle = null;
+  productHandle?.dispose();
+  productHandle = null;
   inputAbort = new AbortController();
   const signal = inputAbort.signal;
 
@@ -66,6 +68,7 @@ function prepareGameFrame(frame: HTMLIFrameElement) {
 
   // Initialize the immersive shell (fullscreen on the start gesture + iOS hint).
   immersiveHandle = installImmersiveShell(frame.contentWindow, frameDocument);
+  productHandle = installProductShell(frame.contentWindow, frameDocument, onStats);
 
   // Adaptive HD render quality: bound DPR between 1.0 and 2.0 to restore crisp HD graphics on mobile screens without GPU buffer waste
   const frameWin = frame.contentWindow;
@@ -133,7 +136,7 @@ function prepareGameFrame(frame: HTMLIFrameElement) {
   window.setTimeout(() => observer.disconnect(), 10_000);
 }
 
-function Home() {
+function Home({ statsOpen, onStats }: { statsOpen: boolean; onStats: () => void }) {
   const frameRef = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
@@ -144,11 +147,13 @@ function Home() {
       inputAbort = null;
       immersiveHandle?.dispose();
       immersiveHandle = null;
+      productHandle?.dispose();
+      productHandle = null;
     };
   }, []);
 
   return (
-    <main className="game-shell" data-testid="game-shell">
+    <main className="game-shell" data-testid="game-shell" inert={statsOpen} aria-hidden={statsOpen || undefined} style={{ visibility: statsOpen ? 'hidden' : 'visible' }}>
       <iframe
         ref={frameRef}
         className="game-frame"
@@ -156,7 +161,7 @@ function Home() {
         src={`${import.meta.env.BASE_URL}capybara-game/index.html`}
         allow="gamepad; autoplay; fullscreen"
         allowFullScreen
-        onLoad={(event) => prepareGameFrame(event.currentTarget)}
+        onLoad={(event) => prepareGameFrame(event.currentTarget, onStats)}
         data-testid="game-frame"
       />
     </main>
@@ -164,14 +169,23 @@ function Home() {
 }
 
 function Router() {
+  const [location, navigate] = useLocation();
+  const gameRoute = location === '/' || location === '/stats';
   return (
     // Keep a shared shell (sidebar, navbar) outside the boundary so it
     // survives a page crash.
     <RoutedErrorBoundary>
-      <Switch>
-        <Route path="/" component={Home} />
-        <Route component={NotFound} />
-      </Switch>
+      {gameRoute ? <>
+        <Home statsOpen={location === '/stats'} onStats={() => navigate('/stats')} />
+        {location === '/stats' && <section className="ryder-stats-shell" aria-labelledby="ryder-stats-title">
+          <div className="ryder-stats-card">
+            <p className="ryder-stats-label">RYDER</p>
+            <h1 id="ryder-stats-title">Ryder Stats</h1>
+            <p>Your persistent stats and leaderboard are coming soon.</p>
+            <button type="button" onClick={() => navigate('/')}>Back to Game</button>
+          </div>
+        </section>}
+      </> : <NotFound />}
     </RoutedErrorBoundary>
   );
 }

@@ -124,10 +124,13 @@ async function fullDelivery({page,frame,cdp,check,shot,center}){
  check('trusted driving and ACTION enter the assigned canonical store',true);await shot('store-entry');
  check('store ACTION and shared HUD are unobstructed by shopping list/timer',await frame.evaluate(()=>['okada-btn-interact','okada-btn-phone','btn-menu','btn-mute'].every(id=>{const e=document.getElementById(id),r=e.getBoundingClientRect();return document.elementFromPoint(r.x+r.width/2,r.y+r.height/2)?.closest('#'+id)===e;})));
  const stick=await center('#okada-walk');
+ // Capture the baseline before movement; remote browser calls may return after
+ // the character has already travelled or reached a collider under load.
+ const before=await frame.evaluate(()=>({x:__capyGame.store.walkerPos.x,z:__capyGame.store.walkerPos.z}));
  await send('touchStart',[{id:81,...stick}]);await send('touchMove',[{id:81,x:stick.x+40,y:stick.y-40}]);
- const before=await frame.evaluate(()=>({x:__capyGame.store.walkerPos.x,z:__capyGame.store.walkerPos.z}));await page.waitForTimeout(250);await shot('store-joystick-active');await end();await frame.waitForFunction(()=>Math.hypot(__capyGame.store.walkerVel.x,__capyGame.store.walkerVel.z)<.1,null,{timeout:3000});
+ await page.waitForTimeout(250);await shot('store-joystick-active');await end();await frame.waitForFunction(()=>Math.hypot(__capyGame.store.walkerVel.x,__capyGame.store.walkerVel.z)<.1,null,{timeout:3000});
  const walk=await frame.evaluate(()=>({x:__capyGame.store.walkerPos.x,z:__capyGame.store.walkerPos.z,vx:__capyGame.store.walkerVel.x,vz:__capyGame.store.walkerVel.z,state:__okadaInput.state()}));
- check('store diagonal movement is real and release stops naturally',Math.abs(walk.x-before.x)>.01&&Math.abs(walk.z-before.z)>.01&&Math.hypot(walk.vx,walk.vz)<.1&&walk.state.walkX===0&&walk.state.walkY===0,walk);await shot('store-movement');
+ check('store diagonal movement is real and release stops naturally',Math.abs(walk.x-before.x)>.01&&Math.abs(walk.z-before.z)>.01&&Math.hypot(walk.vx,walk.vz)<.1&&walk.state.walkX===0&&walk.state.walkY===0,{before,after:walk,delta:{x:walk.x-before.x,z:walk.z-before.z}});await shot('store-movement');
  async function walkTo(target,radius){
   const data=await frame.evaluate(()=>({p:{x:__capyGame.store.walkerPos.x,z:__capyGame.store.walkerPos.z},bounds:__capyGame.store.bounds,boxes:__capyGame.store.colliders.map(c=>({x:c.x,z:c.z,hw:c.hw,hd:c.hd}))}));
   const route=walkingRoute(data,target,radius);console.log('WALK route',{target,waypoints:route.length});

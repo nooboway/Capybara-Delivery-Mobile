@@ -8,6 +8,7 @@ import { suppressNativeTouch } from "./native-suppression";
 import { resolveLayout,place,type Insets } from "./layout";
 import { resolveMobileState,isPlayable,type MobileUIState } from "./state";
 import { MOBILE_STYLES } from "./styles";
+import { RYDER_CREDIT } from "../../product/copy";
 
 export const GAS_LOCK_ENABLED=false,GAS_LOCK_HOLD_MS=1000;
 export const BRAKE_REVERSE_ENTER_SPEED=.15,BRAKE_REENTER_SPEED=.4,BRAKE_REVERSE_POLL_MS=60;
@@ -227,7 +228,7 @@ export class RyderMobileControls {
       overlay.dataset.touchControl="true";
       this.abort!.signal.addEventListener("abort",()=>overlay.removeAttribute("data-touch-control"),{once:true});
     }
-    const badge=this.doc.getElementById("sylens-badge");if(badge&&badge.textContent!=="sylens studios ™")badge.textContent="sylens studios ™";
+    const badge=this.doc.getElementById("sylens-badge");if(badge&&badge.textContent!==RYDER_CREDIT)badge.textContent=RYDER_CREDIT;
     for(const button of Array.from(this.doc.querySelectorAll<HTMLElement>(".capy-mbtn"))){
       if(!/portal|vibe/i.test(button.textContent??"")||button.dataset.ryderShop)continue;
       const original=button.textContent,originalLabel=button.getAttribute("aria-label"),originalTouch=button.getAttribute("data-touch-control");button.textContent="SHOP";button.setAttribute("aria-label","SHOP");button.dataset.touchControl="true";button.dataset.ryderShop="true";button.classList.add("ryder-shop-repurposed");

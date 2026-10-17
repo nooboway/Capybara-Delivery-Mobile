@@ -1,0 +1,9 @@
+Preserved pre-existing files=48; mismatches=0
+PASS frozen input/immersive/canonical/backend source unchanged; controller exception is shared credit import/text only
+Canonical source SHA256=C7E6C0AE11C358DCA1E51B9CC1CB0C971DE97659094E1D8D2C27D81D9AE4682E
+Canonical built SHA256=C7E6C0AE11C358DCA1E51B9CC1CB0C971DE97659094E1D8D2C27D81D9AE4682E
+Starting HEAD:
+a1d4e456b458780793e84f3c65a0ef5ffd78cf1b
+Local branch:
+phase2f-product-cleanup
+No push or deployment command performed.

@@ -4,6 +4,14 @@
 
 @custom-variant dark (&:is(.dark *));
 
+.ryder-stats-shell {position:fixed;inset:0;z-index:100000;display:grid;place-items:center;padding:max(24px,env(safe-area-inset-top)) max(24px,env(safe-area-inset-right)) max(24px,env(safe-area-inset-bottom)) max(24px,env(safe-area-inset-left));overflow:auto;background:#0d131c;color:#f7f1e4;font-family:system-ui,sans-serif}
+.ryder-stats-card {width:min(100%,520px);padding:32px;border:1px solid #ffffff24;border-radius:20px;background:#18212d}
+.ryder-stats-label {font-size:12px;letter-spacing:.18em;color:#ffe29a;margin:0 0 20px;font-weight:700}
+.ryder-stats-card h1 {font-size:clamp(28px,5vw,40px);margin:0 0 16px;line-height:1.1}
+.ryder-stats-card > p:not(.ryder-stats-label) {color:#bec7d2;line-height:1.6;margin-bottom:28px}
+.ryder-stats-card button {min-height:48px;border:0;border-radius:12px;background:#ffe29a;color:#121923;padding:12px 20px;font-weight:700;cursor:pointer}
+.ryder-stats-card button:focus-visible {outline:3px solid #fff;outline-offset:4px}
+
 @theme inline {
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));

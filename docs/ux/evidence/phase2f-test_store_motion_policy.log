@@ -1,0 +1,26 @@
+PASS  install owns the update method
+PASS  wrapper differs from prototype method
+PASS  canonical prototype preserved for restore
+PASS  canonical update executes exactly once per call  (delta=1)
+PASS  original captured is the prototype method
+PASS  dispose removes own wrapper (falls back to prototype)
+PASS  dispose restores prototype method
+PASS  damping skipped when intent is active (x)  (v=3)
+PASS  damping applied when intent is neutral  (v=(1.8812672558191685,1.8812672558191685))
+PASS  sub-epsilon intent treated as neutral  (v=1.8812672558191685)
+PASS  low speed snaps to exactly zero
+PASS  inactive store is not damped  (v=3)
+PASS  active intent damped=no for {"x":0,"z":-1}
+PASS  active intent damped=no for {"x":0.7,"z":-0.7}
+PASS  second install reuses the same wrapper
+PASS  second install does not re-wrap
+PASS  one lease remaining keeps wrapper installed
+PASS  final lease restores prototype
+PASS  re-install after release succeeds
+PASS  re-install dispose restores again
+PASS  stop rate is 28
+PASS  stop speed is 0.05
+PASS  max-speed (v=3) stop time within 100-200 ms  (146.2 ms)
+
+TOTAL: 23 | PASSED: 23 | FAILED: 0
+ALL STORE-MOTION POLICY UNIT CHECKS PASSED

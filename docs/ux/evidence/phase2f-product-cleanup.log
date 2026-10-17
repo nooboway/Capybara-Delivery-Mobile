@@ -1,0 +1,68 @@
+PASS canonical SHA unchanged
+PASS exact credit in product fixture
+PASS original creator title and its empty backdrop suppressed
+PASS Stats capture replaces original handler
+PASS support and social hrefs removed
+PASS native/direct promotional window.open cannot escape policy
+PASS mobile action-aware wording including standalone store keycap
+PASS native auto-hidden tip leaves no invisible close hit target
+PASS manual tip dismissal removes presentation and hit target
+PASS new tip can be dismissed with current signature
+PASS same dismissed tip does not reappear during the session
+PASS tutorial help dismisses without any tutorial state API
+PASS desktop action guidance retains E and is idempotent including store keycap
+PASS Phone session leaderboard entry retained
+PASS presentation observer settles without a mutation loop
+PASS product disposal restores navigation and owned metadata
+PASS actual menu credit is exact
+PASS menu logo belongs to Ryder
+PASS original heart support entry removed
+PASS Stats opens a local Ryder route
+PASS Stats shell has honest coming-soon copy and no fake metrics
+PASS Back to Game retains iframe identity
+PASS all actual cosmetic options enumerated ["helmet","crown","witch"]
+PASS helmet keeps Play visible/tappable @ 667x375 {"x":426.390625,"y":214.25,"width":59.265625,"height":45.5}
+PASS crown keeps Play visible/tappable @ 667x375 {"x":426.390625,"y":170.75,"width":59.265625,"height":45.5}
+PASS witch keeps Play visible/tappable @ 667x375 {"x":426.390625,"y":170.75,"width":59.265625,"height":45.5}
+PASS helmet keeps Play visible/tappable @ 740x360 {"x":476.78125,"y":190.25,"width":59.265625,"height":45.5}
+PASS crown keeps Play visible/tappable @ 740x360 {"x":476.78125,"y":163.25,"width":59.265625,"height":45.5}
+PASS witch keeps Play visible/tappable @ 740x360 {"x":476.78125,"y":163.25,"width":59.265625,"height":45.5}
+PASS helmet keeps Play visible/tappable @ 780x360 {"x":504.40625,"y":190.25,"width":59.265625,"height":45.5}
+PASS crown keeps Play visible/tappable @ 780x360 {"x":504.40625,"y":163.25,"width":59.265625,"height":45.5}
+PASS witch keeps Play visible/tappable @ 780x360 {"x":504.40625,"y":163.25,"width":59.265625,"height":45.5}
+PASS helmet keeps Play visible/tappable @ 844x390 {"x":548.59375,"y":205.25,"width":59.265625,"height":45.5}
+PASS crown keeps Play visible/tappable @ 844x390 {"x":548.59375,"y":178.25,"width":59.265625,"height":45.5}
+PASS witch keeps Play visible/tappable @ 844x390 {"x":548.59375,"y":178.25,"width":59.265625,"height":45.5}
+PASS helmet keeps Play visible/tappable @ 896x414 {"x":584.5,"y":217.25,"width":59.265625,"height":45.5}
+PASS crown keeps Play visible/tappable @ 896x414 {"x":584.5,"y":190.25,"width":59.265625,"height":45.5}
+PASS witch keeps Play visible/tappable @ 896x414 {"x":584.5,"y":190.25,"width":59.265625,"height":45.5}
+PASS helmet keeps Play visible/tappable @ 932x430 {"x":609.359375,"y":225.25,"width":59.265625,"height":45.5}
+PASS crown keeps Play visible/tappable @ 932x430 {"x":609.359375,"y":198.25,"width":59.265625,"height":45.5}
+PASS witch keeps Play visible/tappable @ 932x430 {"x":609.359375,"y":198.25,"width":59.265625,"height":45.5}
+PASS helmet keeps Play visible/tappable @ 1080x480 {"x":684.890625,"y":250.25,"width":59.265625,"height":45.5}
+PASS crown keeps Play visible/tappable @ 1080x480 {"x":684.890625,"y":223.25,"width":59.265625,"height":45.5}
+PASS witch keeps Play visible/tappable @ 1080x480 {"x":684.890625,"y":223.25,"width":59.265625,"height":45.5}
+PASS helmet keeps Play visible/tappable @ 1366x1024 {"x":827.890625,"y":522.25,"width":59.265625,"height":45.5}
+PASS crown keeps Play visible/tappable @ 1366x1024 {"x":827.890625,"y":495.25,"width":59.265625,"height":45.5}
+PASS witch keeps Play visible/tappable @ 1366x1024 {"x":827.890625,"y":495.25,"width":59.265625,"height":45.5}
+PASS actual canonical prompt acknowledges mobile Action
+PASS actual subtitle dismissal removes hit target
+PASS Phone centered/fitted and HUD clear @ 667x375 {"x":60.03125,"y":70,"w":546.9375,"h":279,"center":0,"closeHit":true,"noOverlap":true,"controls":true,"outerScroll":0}
+PASS Phone centered/fitted and HUD clear @ 740x360 {"x":66.6015625,"y":70,"w":606.796875,"h":264,"center":0,"closeHit":true,"noOverlap":true,"controls":true,"outerScroll":0}
+PASS Phone centered/fitted and HUD clear @ 780x360 {"x":70.203125,"y":70,"w":639.59375,"h":264,"center":0,"closeHit":true,"noOverlap":true,"controls":true,"outerScroll":0}
+PASS Phone centered/fitted and HUD clear @ 844x390 {"x":82,"y":70,"w":680,"h":294,"center":0,"closeHit":true,"noOverlap":true,"controls":true,"outerScroll":0}
+PASS Phone centered/fitted and HUD clear @ 896x414 {"x":108,"y":70,"w":680,"h":318,"center":0,"closeHit":true,"noOverlap":true,"controls":true,"outerScroll":0}
+PASS Phone centered/fitted and HUD clear @ 932x430 {"x":126,"y":70,"w":680,"h":334,"center":0,"closeHit":true,"noOverlap":true,"controls":true,"outerScroll":0}
+PASS Phone centered/fitted and HUD clear @ 1080x480 {"x":200,"y":70,"w":680,"h":384,"center":0,"closeHit":true,"noOverlap":true,"controls":true,"outerScroll":0}
+PASS Phone centered/fitted and HUD clear @ 1366x1024 {"x":343,"y":70,"w":680,"h":839.671875,"center":0,"closeHit":true,"noOverlap":true,"controls":true,"outerScroll":0}
+PASS .btn-offer-accept is visible, touch-sized and unobstructed
+PASS .btn-offer-skip is visible, touch-sized and unobstructed
+PASS Capy Food Accept creates canonical order
+PASS Phone close restores neutral live controls
+PASS post-Phone GAS still accelerates actual motorcycle
+PASS no player-facing original external hrefs remain []
+PASS no external support/Stats/promotional navigation or popup {"externalAttempts":[],"popups":0}
+OBSERVED NETWORK ORIGINS ["http://127.0.0.1:64989","https://fonts.googleapis.com"]
+PASS session leaderboard module preserved independently of public Stats
+PASS zero runtime exceptions []
+TOTAL 66/66 PASS
